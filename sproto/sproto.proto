@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package sproto;
+
+option csharp_namespace = "SyncSoft.Protobuf.WellKnownTypes";
+option cc_enable_arenas = true;
+option go_package = "github.com/syncfuture/go/sproto";
+
+message Address {
+    string Address1 = 1;
+    string Address2 = 2;
+    string City  = 3;
+    string State = 4;
+    string Country = 5;
+    string ZipCode = 6;
+}
+
+message MsgCodeResult{
+    string MsgCode = 1;
+}
+
+message RouteDTO {
+    string ID = 1;
+    string Permission_ID = 2;
+    string Area = 3;
+    string Controller = 4;
+    string Action = 5;
+    PermissionDTO Permission = 6;
+}
+
+message PermissionDTO {
+    string ID = 1;
+    string Name = 2;
+    bool IsAllowGuest = 3;
+    bool IsAllowAnyUser = 4;
+    int64 AllowedRoles = 5;
+    int32 Level = 6;
+}
