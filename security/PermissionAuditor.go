@@ -25,14 +25,13 @@ func NewPermissionAuditor(routePermissionProvider auth.IRoutePermissionProvider)
 }
 
 func (x *permissionAuditor) ReloadRoutePermissions() error {
-	r := new(permissionAuditor)
 	var err error
 
-	r.routes, err = x.routePermissionProvider.GetRoutes()
+	x.routes, err = x.routePermissionProvider.GetRoutes()
 	if err != nil {
 		return err
 	}
-	r.permissions, err = x.routePermissionProvider.GetPermissions()
+	x.permissions, err = x.routePermissionProvider.GetPermissions()
 	if err != nil {
 		return err
 	}
