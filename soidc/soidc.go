@@ -18,7 +18,6 @@ const (
 	SESS_ROLES    = "Roles"
 	SESS_LEVEL    = "Level"
 	SESS_STATUS   = "Status"
-	SESS_STATE    = "State"
 	COKI_TOKEN    = ".ART"
 	COKI_IDTOKEN  = ".IDT"
 	COKI_SESSION  = ".USS"
@@ -58,7 +57,6 @@ type ClientOptions struct {
 	Sess_Roles         string
 	Sess_Level         string
 	Sess_Status        string
-	Sess_State         string
 	Coki_Token         string
 	Coki_IDToken       string
 	Coki_Session       string
@@ -130,10 +128,6 @@ func checkOptions(options *ClientOptions) {
 	}
 	if options.Sess_Status == "" {
 		options.Sess_Status = SESS_STATUS
-	}
-
-	if options.Sess_State == "" {
-		options.Sess_State = SESS_STATE
 	}
 
 	if options.AccessDeniedURL == "" {

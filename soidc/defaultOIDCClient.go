@@ -95,7 +95,7 @@ func (x *defaultOIDCClient) HandleSignInCallback(ctx context.Context) {
 		ctx.StatusCode(http.StatusBadRequest)
 		return
 	}
-	session.Delete(x.Options.Sess_State) // 释放内存
+	session.Delete(state) // 释放内存
 
 	// 交换令牌
 	code := ctx.FormValue("code")
@@ -134,10 +134,15 @@ func (x *defaultOIDCClient) HandleSignInCallback(ctx context.Context) {
 func (x *defaultOIDCClient) HandleSignOut(ctx context.Context) {
 	session := x.Options.Sessions.Start(ctx)
 
-	session.Destroy()
+	session.Delete(SESS_ID)
+	session.Delete(SESS_USERNAME)
+	session.Delete(SESS_EMAIL)
+	session.Delete(SESS_ROLES)
+	session.Delete(SESS_LEVEL)
+	session.Delete(SESS_STATUS)
+
 	ctx.RemoveCookie(x.Options.Coki_Token)
 	ctx.RemoveCookie(x.Options.Coki_Token)
-	ctx.RemoveCookie(x.Options.Coki_Session)
 
 	// 去Passport注销
 	state := rand.String(32)
@@ -159,6 +164,7 @@ func (x *defaultOIDCClient) HandleSignOutCallback(ctx context.Context) {
 		return
 	}
 	session.Destroy()
+	ctx.RemoveCookie(x.Options.Coki_Session)
 
 	// 跳转回登出时的页面
 	ctx.Redirect(redirectUrl, http.StatusFound)
