@@ -149,7 +149,7 @@ func (x *defaultOIDCClient) HandleSignOut(ctx context.Context) {
 	state := rand.String(32)
 	session.Set(state, ctx.FormValue("returnUrl"))
 	signoutUrl, _ := u.JointURLString(x.Options.ProviderURL, "/connect/endsession")
-	signoutUrl += "?post_logout_redirect_uri=" + url.PathEscape(x.Options.SignOutCallbackURL) + "?id_token_hint=" + idToken + "&state=" + state
+	signoutUrl += "?post_logout_redirect_uri=" + url.PathEscape(x.Options.SignOutCallbackURL) + "&id_token_hint=" + idToken + "&state=" + state
 	ctx.Redirect(signoutUrl, http.StatusFound)
 }
 
