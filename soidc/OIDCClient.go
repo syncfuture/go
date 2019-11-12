@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/syncfuture/go/json"
 	u "github.com/syncfuture/go/util"
 
 	"github.com/kataras/iris/v12/sessions"
@@ -50,7 +51,7 @@ type ClientOptions struct {
 	Coki_Session      string
 	Scopes            []string
 	Sessions          *sessions.Sessions
-	TokenStore        ITokenStore
+	SecureCookie      security.ISecureCookie
 	PermissionAuditor security.IPermissionAuditor
 }
 
@@ -180,8 +181,6 @@ func (x *defaultOIDCClient) HandleSignOutCallback(ctx context.Context) {
 	session := x.Options.Sessions.Start(ctx)
 
 	session.Destroy()
-	// ctx.RemoveCookie(x.Options.Coki_AccesToken)
-	// ctx.RemoveCookie(x.Options.Coki_RefreshToken)
 	ctx.RemoveCookie(x.Options.Coki_Token)
 	ctx.RemoveCookie(x.Options.Coki_Session)
 
@@ -217,16 +216,13 @@ func checkOptions(options *ClientOptions) {
 	if options.PermissionAuditor == nil {
 		log.Fatal("OIDCClient.Options.PermissionAuditor cannot be nil")
 	}
-	if options.TokenStore == nil {
-		log.Fatal("OIDCClient.Options.TokenStore cannot be nil")
+	if options.SecureCookie == nil {
+		log.Fatal("OIDCClient.Options.SecureCookie cannot be nil")
 	}
 
 	if options.Coki_Token == "" {
 		options.Coki_Token = COKI_TOKEN
 	}
-	// if options.Coki_RefreshToken == "" {
-	// 	options.Coki_RefreshToken = COKI_REFRESHTOKEN
-	// }
 	if options.Coki_Session == "" {
 		options.Coki_Session = COKI_SESSION
 	}
@@ -259,18 +255,6 @@ func checkOptions(options *ClientOptions) {
 	}
 }
 
-func (x *defaultOIDCClient) SaveToken(ctx context.Context, token *oauth2.Token) {
-	session := x.Options.Sessions.Start(ctx)
-	userID := session.GetString(SESS_ID)
-	if userID == "" {
-		log.Warn("user id not exists in session")
-		return
-	}
-
-	err := x.Options.TokenStore.Save(userID, token)
-	u.LogError(err)
-}
-
 func (x *defaultOIDCClient) NewHttpClient(ctx context.Context) (*http.Client, error) {
 	session := x.Options.Sessions.Start(ctx)
 	userID := session.GetString(SESS_ID)
@@ -278,7 +262,7 @@ func (x *defaultOIDCClient) NewHttpClient(ctx context.Context) (*http.Client, er
 		return nil, fmt.Errorf("user id not exists in session")
 	}
 
-	t, err := x.Options.TokenStore.Get(userID)
+	t, err := x.GetToken(ctx)
 	if u.LogError(err) {
 		return nil, err
 	}
@@ -296,4 +280,26 @@ func (x *defaultOIDCClient) NewHttpClient(ctx context.Context) (*http.Client, er
 	}
 
 	return oauth2.NewClient(goctx, tokenSource), nil
+}
+
+func (x *defaultOIDCClient) SaveToken(ctx context.Context, token *oauth2.Token) error {
+	j, err := json.Serialize(token)
+	if u.LogError(err) {
+		return err
+	}
+
+	err = x.Options.SecureCookie.Set(ctx, COKI_TOKEN, j)
+	return err
+}
+
+func (x *defaultOIDCClient) GetToken(ctx context.Context) (*oauth2.Token, error) {
+	j, err := x.Options.SecureCookie.Get(ctx, COKI_TOKEN)
+	if u.LogError(err) {
+		return nil, err
+	}
+
+	t := new(oauth2.Token)
+	err = json.Deserialize(j, t)
+	u.LogError(err)
+	return t, err
 }
