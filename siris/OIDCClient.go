@@ -18,25 +18,39 @@ import (
 	"golang.org/x/oauth2"
 )
 
+const (
+	SESS_ID           = "ID"
+	SESS_USERNAME     = "Username"
+	SESS_EMAIL        = "Email"
+	SESS_ROLES        = "Roles"
+	SESS_LEVEL        = "Level"
+	SESS_STATUS       = "Status"
+	SESS_STATE        = "State"
+	COKI_REFRESHTOKEN = ".RFT"
+	COKI_ACCESTOKEN   = ".ACT"
+	COKI_SESSION      = ".USS"
+)
+
 type ClientOptions struct {
-	ProviderUrl         string
-	ClientID            string
-	ClientSecret        string
-	RedirectURL         string
-	Session_ID          string
-	Session_Username    string
-	Session_Email       string
-	Session_Roles       string
-	Session_Level       string
-	Session_Status      string
-	Session_State       string
-	Cookie_RefreshToken string
-	Cookie_AccesToken   string
-	Cookie_Session      string
-	Scopes              []string
-	Sessions            *sessions.Sessions
-	PermissionAuditor   security.IPermissionAuditor
-	SecureCookie        security.ISecureCookie
+	ProviderUrl       string
+	ClientID          string
+	ClientSecret      string
+	CallbackURL       string
+	AccessDeniedURL   string
+	Sess_ID           string
+	Sess_Username     string
+	Sess_Email        string
+	Sess_Roles        string
+	Sess_Level        string
+	Sess_Status       string
+	Sess_State        string
+	Coki_RefreshToken string
+	Coki_AccesToken   string
+	Coki_Session      string
+	Scopes            []string
+	Sessions          *sessions.Sessions
+	PermissionAuditor security.IPermissionAuditor
+	SecureCookie      security.ISecureCookie
 }
 
 type IOIDCClient interface {
@@ -67,7 +81,7 @@ func NewOIDCClient(options *ClientOptions) IOIDCClient {
 	x.OAuth2Config.ClientID = options.ClientID
 	x.OAuth2Config.ClientSecret = options.ClientSecret
 	x.OAuth2Config.Endpoint = x.OIDCProvider.Endpoint()
-	x.OAuth2Config.RedirectURL = options.RedirectURL
+	x.OAuth2Config.RedirectURL = options.CallbackURL
 	x.OAuth2Config.Scopes = append(options.Scopes, oidc.ScopeOpenID)
 
 	return x
@@ -80,9 +94,9 @@ func (x *defaultOIDCClient) HandleAuthentication(ctx context.Context) {
 	area, controller, action := getRoutes(handlerName)
 
 	// 判断请求是否允许访问
-	userid := session.GetString(x.Options.Session_ID)
+	userid := session.GetString(x.Options.Sess_ID)
 	if userid != "" {
-		roles := session.GetInt64Default(x.Options.Session_Roles, 0)
+		roles := session.GetInt64Default(x.Options.Sess_Roles, 0)
 		// 已登录
 		allow := x.Options.PermissionAuditor.CheckRoute(area, controller, action, roles)
 		if allow {
@@ -92,7 +106,8 @@ func (x *defaultOIDCClient) HandleAuthentication(ctx context.Context) {
 
 		} else {
 			// 没权限
-			// Todo: 引导去提示页面
+			ctx.Redirect(x.Options.AccessDeniedURL, http.StatusFound)
+			return
 		}
 	} else {
 		// 未登录
@@ -105,7 +120,7 @@ func (x *defaultOIDCClient) HandleAuthentication(ctx context.Context) {
 
 		// 跳转去登录页面
 		state := rand.String(32)
-		session.Set(x.Options.Session_State, state)
+		session.Set(x.Options.Sess_State, state)
 		ctx.Redirect(x.OAuth2Config.AuthCodeURL(state), http.StatusFound)
 	}
 }
@@ -119,7 +134,7 @@ func (x *defaultOIDCClient) HandleSignInCallback(ctx context.Context) {
 	session := x.Options.Sessions.Start(ctx)
 
 	state := ctx.FormValue("state")
-	if storedState := session.Get(x.Options.Session_State); state != storedState {
+	if storedState := session.Get(x.Options.Sess_State); state != storedState {
 		ctx.WriteString("state did not match")
 		ctx.StatusCode(http.StatusBadRequest)
 		return
@@ -144,17 +159,17 @@ func (x *defaultOIDCClient) HandleSignInCallback(ctx context.Context) {
 	claims := make(map[string]string, 6)
 	userInfo.Claims(&claims)
 
-	session.Set(x.Options.Session_ID, claims["sub"])
-	session.Set(x.Options.Session_Username, claims["name"])
-	session.Set(x.Options.Session_Roles, claims["role"])
-	session.Set(x.Options.Session_Level, claims["level"])
-	session.Set(x.Options.Session_Status, claims["status"])
-	session.Set(x.Options.Session_Email, claims["email"])
+	session.Set(x.Options.Sess_ID, claims["sub"])
+	session.Set(x.Options.Sess_Username, claims["name"])
+	session.Set(x.Options.Sess_Roles, claims["role"])
+	session.Set(x.Options.Sess_Level, claims["level"])
+	session.Set(x.Options.Sess_Status, claims["status"])
+	session.Set(x.Options.Sess_Email, claims["email"])
 
 	// 保存令牌
-	x.Options.SecureCookie.Set(ctx, x.Options.Cookie_AccesToken, oauth2Token.AccessToken)
+	x.Options.SecureCookie.Set(ctx, x.Options.Coki_AccesToken, oauth2Token.AccessToken)
 	if oauth2Token.RefreshToken != "" {
-		x.Options.SecureCookie.Set(ctx, x.Options.Cookie_RefreshToken, oauth2Token.RefreshToken, func(o *http.Cookie) {
+		x.Options.SecureCookie.Set(ctx, x.Options.Coki_RefreshToken, oauth2Token.RefreshToken, func(o *http.Cookie) {
 			o.Expires = time.Now().Add(336 * time.Hour)
 		})
 	}
@@ -167,9 +182,9 @@ func (x *defaultOIDCClient) HandleSignOutCallback(ctx context.Context) {
 	session := x.Options.Sessions.Start(ctx)
 
 	session.Destroy()
-	ctx.RemoveCookie(x.Options.Cookie_AccesToken)
-	ctx.RemoveCookie(x.Options.Cookie_RefreshToken)
-	ctx.RemoveCookie(x.Options.Cookie_Session)
+	ctx.RemoveCookie(x.Options.Coki_AccesToken)
+	ctx.RemoveCookie(x.Options.Coki_RefreshToken)
+	ctx.RemoveCookie(x.Options.Coki_Session)
 
 	// Todo: 去Passport注销
 	ctx.Redirect("/", http.StatusFound)
@@ -190,8 +205,8 @@ func checkOptions(options *ClientOptions) {
 	if options.ProviderUrl == "" {
 		log.Fatal("OIDCClient.Options.ProviderUrl cannot be empty.")
 	}
-	if options.RedirectURL == "" {
-		log.Fatal("OIDCClient.Options.RedirectURL cannot be empty.")
+	if options.CallbackURL == "" {
+		log.Fatal("OIDCClient.Options.CallbackURL cannot be empty.")
 	}
 
 	if len(options.Scopes) == 0 {
@@ -207,36 +222,40 @@ func checkOptions(options *ClientOptions) {
 		log.Fatal("OIDCClient.Options.Sessions cannot be nil")
 	}
 
-	if options.Cookie_AccesToken == "" {
-		options.Cookie_AccesToken = ".ACT"
+	if options.Coki_AccesToken == "" {
+		options.Coki_AccesToken = COKI_ACCESTOKEN
 	}
-	if options.Cookie_RefreshToken == "" {
-		options.Cookie_RefreshToken = ".RFT"
+	if options.Coki_RefreshToken == "" {
+		options.Coki_RefreshToken = COKI_REFRESHTOKEN
 	}
-	if options.Cookie_Session == "" {
-		options.Cookie_Session = ".USS"
-	}
-
-	if options.Session_ID == "" {
-		options.Session_ID = "ID"
-	}
-	if options.Session_Username == "" {
-		options.Session_Username = "Username"
-	}
-	if options.Session_Email == "" {
-		options.Session_Email = "Email"
-	}
-	if options.Session_Roles == "" {
-		options.Session_Roles = "Roles"
-	}
-	if options.Session_Level == "" {
-		options.Session_Level = "Level"
-	}
-	if options.Session_Status == "" {
-		options.Session_Status = "Status"
+	if options.Coki_Session == "" {
+		options.Coki_Session = COKI_SESSION
 	}
 
-	if options.Session_State == "" {
-		options.Session_State = "State"
+	if options.Sess_ID == "" {
+		options.Sess_ID = SESS_ID
+	}
+	if options.Sess_Username == "" {
+		options.Sess_Username = SESS_USERNAME
+	}
+	if options.Sess_Email == "" {
+		options.Sess_Email = SESS_EMAIL
+	}
+	if options.Sess_Roles == "" {
+		options.Sess_Roles = SESS_ROLES
+	}
+	if options.Sess_Level == "" {
+		options.Sess_Level = SESS_LEVEL
+	}
+	if options.Sess_Status == "" {
+		options.Sess_Status = SESS_STATUS
+	}
+
+	if options.Sess_State == "" {
+		options.Sess_State = SESS_STATE
+	}
+
+	if options.AccessDeniedURL == "" {
+		options.AccessDeniedURL = "/"
 	}
 }
