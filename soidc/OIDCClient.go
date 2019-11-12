@@ -1,16 +1,18 @@
-package siris
+package soidc
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 	"strings"
-	"time"
+
+	u "github.com/syncfuture/go/util"
 
 	"github.com/kataras/iris/v12/sessions"
 	"github.com/syncfuture/go/rand"
 	"github.com/syncfuture/go/security"
 
 	oidc "github.com/coreos/go-oidc"
+	log "github.com/kataras/golog"
 	"github.com/kataras/iris/v12/context"
 
 	gocontext "context"
@@ -19,16 +21,16 @@ import (
 )
 
 const (
-	SESS_ID           = "ID"
-	SESS_USERNAME     = "Username"
-	SESS_EMAIL        = "Email"
-	SESS_ROLES        = "Roles"
-	SESS_LEVEL        = "Level"
-	SESS_STATUS       = "Status"
-	SESS_STATE        = "State"
-	COKI_REFRESHTOKEN = ".RFT"
-	COKI_ACCESTOKEN   = ".ACT"
-	COKI_SESSION      = ".USS"
+	SESS_ID       = "ID"
+	SESS_USERNAME = "Username"
+	SESS_EMAIL    = "Email"
+	SESS_ROLES    = "Roles"
+	SESS_LEVEL    = "Level"
+	SESS_STATUS   = "Status"
+	SESS_STATE    = "State"
+	COKI_TOKEN    = ".ART"
+	COKI_SESSION  = ".USS"
+	// COKI_ACCESTOKEN   = ".ACT"
 )
 
 type ClientOptions struct {
@@ -44,19 +46,19 @@ type ClientOptions struct {
 	Sess_Level        string
 	Sess_Status       string
 	Sess_State        string
-	Coki_RefreshToken string
-	Coki_AccesToken   string
+	Coki_Token        string
 	Coki_Session      string
 	Scopes            []string
 	Sessions          *sessions.Sessions
+	TokenStore        ITokenStore
 	PermissionAuditor security.IPermissionAuditor
-	SecureCookie      security.ISecureCookie
 }
 
 type IOIDCClient interface {
-	HandleAuthentication(ctx context.Context)
-	HandleSignInCallback(ctx context.Context)
-	HandleSignOutCallback(ctx context.Context)
+	HandleAuthentication(context.Context)
+	HandleSignInCallback(context.Context)
+	HandleSignOutCallback(context.Context)
+	NewHttpClient(context.Context) (*http.Client, error)
 }
 
 type defaultOIDCClient struct {
@@ -135,14 +137,15 @@ func (x *defaultOIDCClient) HandleSignInCallback(ctx context.Context) {
 
 	state := ctx.FormValue("state")
 	if storedState := session.Get(x.Options.Sess_State); state != storedState {
+		session.Delete(x.Options.Sess_State) // 释放内存
 		ctx.WriteString("state did not match")
 		ctx.StatusCode(http.StatusBadRequest)
 		return
 	}
+	session.Delete(x.Options.Sess_State) // 释放内存
 	code := ctx.FormValue("code")
-
 	httpCtx := gocontext.Background()
-	oauth2Token, err := x.OAuth2Config.Exchange(httpCtx, code)
+	oauth2Token, err := x.OAuth2Config.Exchange(httpCtx, code /*,oauth2.SetAuthURLParam("aaa","bbb")*/)
 	if err != nil {
 		ctx.Write([]byte("Failed to exchange token: " + err.Error()))
 		ctx.StatusCode(http.StatusInternalServerError)
@@ -166,13 +169,8 @@ func (x *defaultOIDCClient) HandleSignInCallback(ctx context.Context) {
 	session.Set(x.Options.Sess_Status, claims["status"])
 	session.Set(x.Options.Sess_Email, claims["email"])
 
-	// 保存令牌
-	x.Options.SecureCookie.Set(ctx, x.Options.Coki_AccesToken, oauth2Token.AccessToken)
-	if oauth2Token.RefreshToken != "" {
-		x.Options.SecureCookie.Set(ctx, x.Options.Coki_RefreshToken, oauth2Token.RefreshToken, func(o *http.Cookie) {
-			o.Expires = time.Now().Add(336 * time.Hour)
-		})
-	}
+	// // 保存令牌
+	x.SaveToken(ctx, oauth2Token)
 
 	// Todo: 重定向到登录前页面
 	ctx.Redirect("/", http.StatusFound)
@@ -182,8 +180,9 @@ func (x *defaultOIDCClient) HandleSignOutCallback(ctx context.Context) {
 	session := x.Options.Sessions.Start(ctx)
 
 	session.Destroy()
-	ctx.RemoveCookie(x.Options.Coki_AccesToken)
-	ctx.RemoveCookie(x.Options.Coki_RefreshToken)
+	// ctx.RemoveCookie(x.Options.Coki_AccesToken)
+	// ctx.RemoveCookie(x.Options.Coki_RefreshToken)
+	ctx.RemoveCookie(x.Options.Coki_Token)
 	ctx.RemoveCookie(x.Options.Coki_Session)
 
 	// Todo: 去Passport注销
@@ -202,6 +201,9 @@ func checkOptions(options *ClientOptions) {
 	if options.ClientSecret == "" {
 		log.Fatal("OIDCClient.Options.ClientSecret cannot be empty.")
 	}
+	if len(options.Scopes) == 0 {
+		log.Fatal("OIDCClient.Options.Scopes cannot be empty")
+	}
 	if options.ProviderUrl == "" {
 		log.Fatal("OIDCClient.Options.ProviderUrl cannot be empty.")
 	}
@@ -209,25 +211,22 @@ func checkOptions(options *ClientOptions) {
 		log.Fatal("OIDCClient.Options.CallbackURL cannot be empty.")
 	}
 
-	if len(options.Scopes) == 0 {
-		log.Fatal("OIDCClient.Options.Scopes cannot be empty")
-	}
-	if options.SecureCookie == nil {
-		log.Fatal("OIDCClient.Options.SecureCookie cannot be nil")
+	if options.Sessions == nil {
+		log.Fatal("OIDCClient.Options.Sessions cannot be nil")
 	}
 	if options.PermissionAuditor == nil {
 		log.Fatal("OIDCClient.Options.PermissionAuditor cannot be nil")
 	}
-	if options.Sessions == nil {
-		log.Fatal("OIDCClient.Options.Sessions cannot be nil")
+	if options.TokenStore == nil {
+		log.Fatal("OIDCClient.Options.TokenStore cannot be nil")
 	}
 
-	if options.Coki_AccesToken == "" {
-		options.Coki_AccesToken = COKI_ACCESTOKEN
+	if options.Coki_Token == "" {
+		options.Coki_Token = COKI_TOKEN
 	}
-	if options.Coki_RefreshToken == "" {
-		options.Coki_RefreshToken = COKI_REFRESHTOKEN
-	}
+	// if options.Coki_RefreshToken == "" {
+	// 	options.Coki_RefreshToken = COKI_REFRESHTOKEN
+	// }
 	if options.Coki_Session == "" {
 		options.Coki_Session = COKI_SESSION
 	}
@@ -258,4 +257,43 @@ func checkOptions(options *ClientOptions) {
 	if options.AccessDeniedURL == "" {
 		options.AccessDeniedURL = "/"
 	}
+}
+
+func (x *defaultOIDCClient) SaveToken(ctx context.Context, token *oauth2.Token) {
+	session := x.Options.Sessions.Start(ctx)
+	userID := session.GetString(SESS_ID)
+	if userID == "" {
+		log.Warn("user id not exists in session")
+		return
+	}
+
+	err := x.Options.TokenStore.Save(userID, token)
+	u.LogError(err)
+}
+
+func (x *defaultOIDCClient) NewHttpClient(ctx context.Context) (*http.Client, error) {
+	session := x.Options.Sessions.Start(ctx)
+	userID := session.GetString(SESS_ID)
+	if userID == "" {
+		return nil, fmt.Errorf("user id not exists in session")
+	}
+
+	t, err := x.Options.TokenStore.Get(userID)
+	if u.LogError(err) {
+		return nil, err
+	}
+
+	goctx := gocontext.Background()
+	tokenSource := x.OAuth2Config.TokenSource(goctx, t)
+	newToken, err := tokenSource.Token()
+	if u.LogError(err) {
+		return nil, err
+	}
+
+	if newToken.AccessToken != t.AccessToken {
+		x.SaveToken(ctx, newToken)
+		log.Debugf("Saved new token for user %s", userID)
+	}
+
+	return oauth2.NewClient(goctx, tokenSource), nil
 }

@@ -1,11 +1,11 @@
-package auth
+package security
 
 import (
 	"github.com/go-redis/redis"
 	log "github.com/kataras/golog"
-	"github.com/syncfuture/go/goredis"
 	"github.com/syncfuture/go/json"
 	"github.com/syncfuture/go/sproto"
+	"github.com/syncfuture/go/sredis"
 	u "github.com/syncfuture/go/util"
 )
 
@@ -14,20 +14,21 @@ const (
 	permission_key = "ecp:PERMISSIONS"
 )
 
-func NewRedisRoutePermissionProvider(projectName string, clusterEnabled bool, password string, addrs ...string) IRoutePermissionProvider {
-	r := new(RedisRoutePermissionProvider)
-
-	r.redis = goredis.NewClient(clusterEnabled, password, addrs...)
-	r.RouteKey = route_key + projectName
-	r.PermissionKey = permission_key
-
-	return r
-}
-
 type RedisRoutePermissionProvider struct {
 	redis         redis.Cmdable
 	RouteKey      string
 	PermissionKey string
+}
+
+func NewRedisRoutePermissionProvider(projectName string, config *sredis.RedisConfig) IRoutePermissionProvider {
+	r := new(RedisRoutePermissionProvider)
+
+	r.redis = sredis.NewClient(config)
+
+	r.RouteKey = route_key + projectName
+	r.PermissionKey = permission_key
+
+	return r
 }
 
 // *******************************************************************************************************************************

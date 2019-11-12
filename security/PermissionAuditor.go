@@ -2,7 +2,6 @@ package security
 
 import (
 	log "github.com/kataras/golog"
-	"github.com/syncfuture/go/auth"
 	"github.com/syncfuture/go/sproto"
 )
 
@@ -12,12 +11,12 @@ type IPermissionAuditor interface {
 }
 
 type permissionAuditor struct {
-	routePermissionProvider auth.IRoutePermissionProvider
+	routePermissionProvider IRoutePermissionProvider
 	routes                  map[string]*sproto.RouteDTO
 	permissions             map[string]*sproto.PermissionDTO
 }
 
-func NewPermissionAuditor(routePermissionProvider auth.IRoutePermissionProvider) IPermissionAuditor {
+func NewPermissionAuditor(routePermissionProvider IRoutePermissionProvider) IPermissionAuditor {
 	r := new(permissionAuditor)
 	r.routePermissionProvider = routePermissionProvider
 	r.ReloadRoutePermissions()

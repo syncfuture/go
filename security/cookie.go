@@ -4,13 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gorilla/securecookie"
-	log "github.com/kataras/golog"
 	"github.com/kataras/iris/v12/context"
+	u "github.com/syncfuture/go/util"
 )
 
 type ISecureCookie interface {
-	Set(ctx context.Context, cookieName, cookieValue string, options ...context.CookieOption)
-	Get(ctx context.Context, cookieName string) string
+	Set(ctx context.Context, cookieName, cookieValue string, options ...context.CookieOption) error
+	Get(ctx context.Context, cookieName string) (string, error)
 	Encode(name string, value interface{}) (string, error)
 	Decode(name, value string, dst interface{}) error
 }
@@ -32,25 +32,29 @@ func (x *defaultSecureCookie) Decode(name, value string, dst interface{}) error 
 	return x.secure.Decode(name, value, dst)
 }
 
-func (x *defaultSecureCookie) Set(ctx context.Context, cookieName, cookieValue string, options ...context.CookieOption) {
-	if encoded, err := x.secure.Encode(cookieName, cookieValue); err == nil {
+func (x *defaultSecureCookie) Set(ctx context.Context, cookieName, cookieValue string, options ...context.CookieOption) error {
+	encoded, err := x.secure.Encode(cookieName, cookieValue)
+
+	if !u.LogError(err) {
 		ctx.SetCookie(&http.Cookie{
 			Name:     cookieName,
 			Value:    encoded,
 			HttpOnly: true,
 			Secure:   true,
 		}, options...)
-	} else {
-		log.Error(err)
 	}
+
+	return err
 }
 
-func (x *defaultSecureCookie) Get(ctx context.Context, cookieName string) string {
-	var decoded string
+func (x *defaultSecureCookie) Get(ctx context.Context, cookieName string) (string, error) {
 	cookieValue := ctx.GetCookie(cookieName)
-	if err := x.secure.Decode(cookieName, cookieValue, &decoded); err == nil {
-		log.Error(err)
+
+	var decoded string
+	err := x.secure.Decode(cookieName, cookieValue, &decoded)
+	if u.LogError(err) {
+		return "", err
 	}
 
-	return decoded
+	return decoded, nil
 }
