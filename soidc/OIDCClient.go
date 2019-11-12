@@ -123,11 +123,10 @@ func (x *defaultOIDCClient) HandleAuthentication(ctx context.Context) {
 			return
 		}
 
-		// 跳转去登录页面
-		requestUrl := ctx.Request().URL.String()
+		// 记录请求地址，跳转去登录页面
 		state := rand.String(32)
-		session.Set(x.Options.Sess_State, state)
-		ctx.Redirect(x.OAuth2Config.AuthCodeURL(state, oauth2.SetAuthURLParam("redirectUrl", requestUrl)), http.StatusFound)
+		session.Set(state, ctx.Request().URL.String())
+		ctx.Redirect(x.OAuth2Config.AuthCodeURL(state), http.StatusFound)
 	}
 }
 
@@ -140,13 +139,15 @@ func (x *defaultOIDCClient) HandleSignInCallback(ctx context.Context) {
 	session := x.Options.Sessions.Start(ctx)
 
 	state := ctx.FormValue("state")
-	if storedState := session.Get(x.Options.Sess_State); state != storedState {
-		session.Delete(x.Options.Sess_State) // 释放内存
-		ctx.WriteString("state did not match")
+	redirectUrl := session.GetString(state)
+	if redirectUrl == "" {
+		ctx.WriteString("invalid state")
 		ctx.StatusCode(http.StatusBadRequest)
 		return
 	}
 	session.Delete(x.Options.Sess_State) // 释放内存
+
+	// 交换令牌
 	code := ctx.FormValue("code")
 	httpCtx := gocontext.Background()
 	oauth2Token, err := x.OAuth2Config.Exchange(httpCtx, code /*,oauth2.SetAuthURLParam("aaa","bbb")*/)
@@ -176,8 +177,8 @@ func (x *defaultOIDCClient) HandleSignInCallback(ctx context.Context) {
 	// // 保存令牌
 	x.SaveToken(ctx, oauth2Token)
 
-	// Todo: 重定向到登录前页面
-	ctx.Redirect("/", http.StatusFound)
+	// 重定向到登录前页面
+	ctx.Redirect(redirectUrl, http.StatusFound)
 }
 
 func (x *defaultOIDCClient) HandleSignOutCallback(ctx context.Context) {
