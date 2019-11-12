@@ -204,9 +204,13 @@ func (x *defaultOIDCClient) SaveToken(ctx context.Context, token *oauth2.Token) 
 	}
 
 	// 保存ID令牌
-	idToken := token.Extra("id_token")
-	err = x.Options.SecureCookie.Set(ctx, COKI_IDTOKEN, idToken.(string))
-	return err
+	idToken := token.Extra("id_token").(string)
+	if idToken != "" {
+		err = x.Options.SecureCookie.Set(ctx, COKI_IDTOKEN, idToken)
+		return err
+	}
+
+	return nil
 }
 
 func (x *defaultOIDCClient) GetToken(ctx context.Context) (*oauth2.Token, error) {
