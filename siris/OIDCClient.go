@@ -203,6 +203,9 @@ func checkOptions(options *ClientOptions) {
 	if options.PermissionAuditor == nil {
 		log.Fatal("OIDCClient.Options.PermissionAuditor cannot be nil")
 	}
+	if options.Sessions == nil {
+		log.Fatal("OIDCClient.Options.Sessions cannot be nil")
+	}
 
 	if options.Cookie_AccesToken == "" {
 		options.Cookie_AccesToken = ".ACT"
