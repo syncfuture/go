@@ -30,7 +30,7 @@ type IOIDCClient interface {
 	SaveToken(ctx context.Context, token *oauth2.Token) error
 }
 
-type OIDCConfigs struct {
+type OIDCConfig struct {
 	ProjectName     string
 	ClientID        string
 	ClientSecret    string
