@@ -60,6 +60,7 @@ type ClientOptions struct {
 	Sess_Status        string
 	Sess_State         string
 	Coki_Token         string
+	Coki_IDToken       string
 	Coki_Session       string
 	Scopes             []string
 	Sessions           *sessions.Sessions
@@ -104,6 +105,9 @@ func checkOptions(options *ClientOptions) {
 
 	if options.Coki_Token == "" {
 		options.Coki_Token = COKI_TOKEN
+	}
+	if options.Coki_IDToken == "" {
+		options.Coki_IDToken = COKI_IDTOKEN
 	}
 	if options.Coki_Session == "" {
 		options.Coki_Session = COKI_SESSION

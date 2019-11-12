@@ -134,6 +134,8 @@ func (x *defaultOIDCClient) HandleSignInCallback(ctx context.Context) {
 func (x *defaultOIDCClient) HandleSignOut(ctx context.Context) {
 	session := x.Options.Sessions.Start(ctx)
 
+	session.Destroy()
+	ctx.RemoveCookie(x.Options.Coki_Token)
 	ctx.RemoveCookie(x.Options.Coki_Token)
 	ctx.RemoveCookie(x.Options.Coki_Session)
 
