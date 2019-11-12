@@ -163,8 +163,9 @@ func (x *defaultOIDCClient) HandleSignOutCallback(ctx context.Context) {
 		ctx.StatusCode(http.StatusBadRequest)
 		return
 	}
-	session.Destroy()
+	session.Delete(state)
 	ctx.RemoveCookie(x.Options.Coki_Session)
+	session.Destroy()
 
 	// 跳转回登出时的页面
 	ctx.Redirect(redirectUrl, http.StatusFound)
