@@ -1,4 +1,4 @@
-package auth
+package siris
 
 import (
 	"log"
