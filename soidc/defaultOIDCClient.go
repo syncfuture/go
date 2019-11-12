@@ -3,6 +3,7 @@ package soidc
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/syncfuture/go/json"
 	u "github.com/syncfuture/go/util"
@@ -139,7 +140,8 @@ func (x *defaultOIDCClient) HandleSignOut(ctx context.Context) {
 	// 去Passport注销
 	state := rand.String(32)
 	session.Set(state, ctx.FormValue("returnUrl"))
-	signoutUrl, _ := u.JointURLString(x.Options.ProviderURL, "/connect/endsession?post_logout_redirect_uri="+x.Options.SignOutCallbackURL+"&state="+state)
+	signoutUrl, _ := u.JointURLString(x.Options.ProviderURL, "/connect/endsession")
+	signoutUrl += "?post_logout_redirect_uri=" + url.PathEscape(x.Options.SignOutCallbackURL) + "&state=" + state
 	ctx.Redirect(signoutUrl, http.StatusFound)
 }
 
