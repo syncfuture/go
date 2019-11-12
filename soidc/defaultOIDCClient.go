@@ -141,7 +141,8 @@ func (x *defaultOIDCClient) HandleSignOut(ctx context.Context) {
 	state := rand.String(32)
 	session.Set(state, ctx.FormValue("returnUrl"))
 	signoutUrl, _ := u.JointURLString(x.Options.ProviderURL, "/connect/endsession")
-	signoutUrl += "?post_logout_redirect_uri=" + url.PathEscape(x.Options.SignOutCallbackURL) + "&state=" + state
+	idT, _ := x.Options.SecureCookie.Get(ctx, COKI_IDTOKEN)
+	signoutUrl += "?post_logout_redirect_uri=" + url.PathEscape(x.Options.SignOutCallbackURL) + "?id_token_hint=" + idT + "&state=" + state
 	ctx.Redirect(signoutUrl, http.StatusFound)
 }
 
@@ -194,7 +195,15 @@ func (x *defaultOIDCClient) SaveToken(ctx context.Context, token *oauth2.Token) 
 		return err
 	}
 
+	// 保存常规令牌
 	err = x.Options.SecureCookie.Set(ctx, COKI_TOKEN, j)
+	if u.LogError(err) {
+		return err
+	}
+
+	// 保存ID令牌
+	idToken := token.Extra("id_token")
+	err = x.Options.SecureCookie.Set(ctx, COKI_IDTOKEN, idToken.(string))
 	return err
 }
 

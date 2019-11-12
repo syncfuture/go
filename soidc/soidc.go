@@ -20,6 +20,7 @@ const (
 	SESS_STATUS   = "Status"
 	SESS_STATE    = "State"
 	COKI_TOKEN    = ".ART"
+	COKI_IDTOKEN  = ".IDT"
 	COKI_SESSION  = ".USS"
 )
 
