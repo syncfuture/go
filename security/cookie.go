@@ -11,6 +11,8 @@ import (
 type ISecureCookie interface {
 	Set(ctx context.Context, cookieName, cookieValue string, options ...context.CookieOption)
 	Get(ctx context.Context, cookieName string) string
+	Encode(name string, value interface{}) (string, error)
+	Decode(name, value string, dst interface{}) error
 }
 
 type defaultSecureCookie struct {
@@ -21,6 +23,13 @@ func NewDefaultSecureCookie(hashKey, blockKey []byte) ISecureCookie {
 	r := new(defaultSecureCookie)
 	r.secure = securecookie.New(hashKey, blockKey)
 	return r
+}
+func (x *defaultSecureCookie) Encode(name string, value interface{}) (string, error) {
+	return x.secure.Encode(name, value)
+}
+
+func (x *defaultSecureCookie) Decode(name, value string, dst interface{}) error {
+	return x.secure.Decode(name, value, dst)
 }
 
 func (x *defaultSecureCookie) Set(ctx context.Context, cookieName, cookieValue string, options ...context.CookieOption) {
