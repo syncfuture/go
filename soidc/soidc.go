@@ -34,13 +34,14 @@ type IOIDCClient interface {
 }
 
 type OIDCConfig struct {
-	ProjectName       string
-	ClientID          string
-	ClientSecret      string
-	ProviderUrl       string
-	SignInCallbackURL string
-	AccessDeniedURL   string
-	Scopes            []string
+	ProjectName        string
+	ClientID           string
+	ClientSecret       string
+	ProviderUrl        string
+	SignInCallbackURL  string
+	SignOutCallbackURL string
+	AccessDeniedURL    string
+	Scopes             []string
 }
 
 type ClientOptions struct {
