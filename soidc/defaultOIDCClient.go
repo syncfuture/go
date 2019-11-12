@@ -133,6 +133,7 @@ func (x *defaultOIDCClient) HandleSignInCallback(ctx context.Context) {
 
 func (x *defaultOIDCClient) HandleSignOut(ctx context.Context) {
 	session := x.Options.Sessions.Start(ctx)
+	idToken, _ := x.Options.SecureCookie.Get(ctx, COKI_IDTOKEN)
 
 	session.Delete(SESS_ID)
 	session.Delete(SESS_USERNAME)
@@ -142,14 +143,13 @@ func (x *defaultOIDCClient) HandleSignOut(ctx context.Context) {
 	session.Delete(SESS_STATUS)
 
 	ctx.RemoveCookie(x.Options.Coki_Token)
-	ctx.RemoveCookie(x.Options.Coki_Token)
+	ctx.RemoveCookie(x.Options.Coki_IDToken)
 
 	// 去Passport注销
 	state := rand.String(32)
 	session.Set(state, ctx.FormValue("returnUrl"))
 	signoutUrl, _ := u.JointURLString(x.Options.ProviderURL, "/connect/endsession")
-	idT, _ := x.Options.SecureCookie.Get(ctx, COKI_IDTOKEN)
-	signoutUrl += "?post_logout_redirect_uri=" + url.PathEscape(x.Options.SignOutCallbackURL) + "?id_token_hint=" + idT + "&state=" + state
+	signoutUrl += "?post_logout_redirect_uri=" + url.PathEscape(x.Options.SignOutCallbackURL) + "?id_token_hint=" + idToken + "&state=" + state
 	ctx.Redirect(signoutUrl, http.StatusFound)
 }
 
