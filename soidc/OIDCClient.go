@@ -124,9 +124,10 @@ func (x *defaultOIDCClient) HandleAuthentication(ctx context.Context) {
 		}
 
 		// 跳转去登录页面
+		requestUrl := ctx.Request().URL.String()
 		state := rand.String(32)
 		session.Set(x.Options.Sess_State, state)
-		ctx.Redirect(x.OAuth2Config.AuthCodeURL(state), http.StatusFound)
+		ctx.Redirect(x.OAuth2Config.AuthCodeURL(state, oauth2.SetAuthURLParam("redirectUrl", requestUrl)), http.StatusFound)
 	}
 }
 
