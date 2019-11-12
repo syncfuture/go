@@ -32,7 +32,7 @@ type ClientOptions struct {
 	Session_State       string
 	Cookie_RefreshToken string
 	Cookie_AccesToken   string
-	Cookie_State        string
+	Cookie_Session      string
 	Scopes              []string
 	Sessions            *sessions.Sessions
 	PermissionAuditor   security.IPermissionAuditor
@@ -169,7 +169,7 @@ func (x *defaultOIDCClient) HandleSignOutCallback(ctx context.Context) {
 	session.Destroy()
 	ctx.RemoveCookie(x.Options.Cookie_AccesToken)
 	ctx.RemoveCookie(x.Options.Cookie_RefreshToken)
-	ctx.RemoveCookie(x.Options.Cookie_State)
+	ctx.RemoveCookie(x.Options.Cookie_Session)
 
 	// Todo: 去Passport注销
 	ctx.Redirect("/", http.StatusFound)
@@ -210,8 +210,8 @@ func checkOptions(options *ClientOptions) {
 	if options.Cookie_RefreshToken == "" {
 		options.Cookie_RefreshToken = ".RFT"
 	}
-	if options.Cookie_State == "" {
-		options.Cookie_State = ".USS"
+	if options.Cookie_Session == "" {
+		options.Cookie_Session = ".USS"
 	}
 
 	if options.Session_ID == "" {
