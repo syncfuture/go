@@ -60,6 +60,8 @@ type IOIDCClient interface {
 	HandleSignInCallback(context.Context)
 	HandleSignOutCallback(context.Context)
 	NewHttpClient(context.Context) (*http.Client, error)
+	GetToken(ctx context.Context) (*oauth2.Token, error)
+	SaveToken(ctx context.Context, token *oauth2.Token) error
 }
 
 type defaultOIDCClient struct {
