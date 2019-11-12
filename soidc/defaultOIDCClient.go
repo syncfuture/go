@@ -3,7 +3,6 @@ package soidc
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/syncfuture/go/json"
 	u "github.com/syncfuture/go/util"
@@ -33,7 +32,7 @@ func NewOIDCClient(options *ClientOptions) IOIDCClient {
 
 	ctx := gocontext.Background()
 	var err error
-	x.OIDCProvider, err = oidc.NewProvider(ctx, options.ProviderUrl)
+	x.OIDCProvider, err = oidc.NewProvider(ctx, options.ProviderURL)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -41,7 +40,7 @@ func NewOIDCClient(options *ClientOptions) IOIDCClient {
 	x.OAuth2Config.ClientID = options.ClientID
 	x.OAuth2Config.ClientSecret = options.ClientSecret
 	x.OAuth2Config.Endpoint = x.OIDCProvider.Endpoint()
-	x.OAuth2Config.RedirectURL = options.CallbackURL
+	x.OAuth2Config.RedirectURL = options.SignInCallbackURL
 	x.OAuth2Config.Scopes = append(options.Scopes, oidc.ScopeOpenID)
 
 	return x
@@ -83,11 +82,6 @@ func (x *defaultOIDCClient) HandleAuthentication(ctx context.Context) {
 		session.Set(state, ctx.Request().URL.String())
 		ctx.Redirect(x.OAuth2Config.AuthCodeURL(state), http.StatusFound)
 	}
-}
-
-func (x *defaultOIDCClient) getRoutes(handlerName string) (string, string, string) {
-	array := strings.Split(handlerName, ".")
-	return array[0], array[1], array[2]
 }
 
 func (x *defaultOIDCClient) HandleSignInCallback(ctx context.Context) {
@@ -136,82 +130,33 @@ func (x *defaultOIDCClient) HandleSignInCallback(ctx context.Context) {
 	ctx.Redirect(redirectUrl, http.StatusFound)
 }
 
-func (x *defaultOIDCClient) HandleSignOutCallback(ctx context.Context) {
+func (x *defaultOIDCClient) HandleSignOut(ctx context.Context) {
 	session := x.Options.Sessions.Start(ctx)
 
-	session.Destroy()
 	ctx.RemoveCookie(x.Options.Coki_Token)
 	ctx.RemoveCookie(x.Options.Coki_Session)
 
-	// Todo: 去Passport注销
-	ctx.Redirect("/", http.StatusFound)
+	// 去Passport注销
+	state := rand.String(32)
+	session.Set(state, ctx.FormValue("returnUrl"))
+	signoutUrl, _ := u.JointURLString(x.Options.ProviderURL, "/connect/endsession?post_logout_redirect_uri="+x.Options.SignOutCallbackURL+"&state="+state)
+	ctx.Redirect(signoutUrl, http.StatusFound)
 }
 
-func getRoutes(handlerName string) (string, string, string) {
-	array := strings.Split(handlerName, ".")
-	return array[0], array[1], array[2]
-}
+func (x *defaultOIDCClient) HandleSignOutCallback(ctx context.Context) {
+	session := x.Options.Sessions.Start(ctx)
 
-func checkOptions(options *ClientOptions) {
-	if options.ClientID == "" {
-		log.Fatal("OIDCClient.Options.ClientID cannot be empty.")
+	state := ctx.FormValue("state")
+	redirectUrl := session.GetString(state)
+	if redirectUrl == "" {
+		ctx.WriteString("invalid state")
+		ctx.StatusCode(http.StatusBadRequest)
+		return
 	}
-	if options.ClientSecret == "" {
-		log.Fatal("OIDCClient.Options.ClientSecret cannot be empty.")
-	}
-	if len(options.Scopes) == 0 {
-		log.Fatal("OIDCClient.Options.Scopes cannot be empty")
-	}
-	if options.ProviderUrl == "" {
-		log.Fatal("OIDCClient.Options.ProviderUrl cannot be empty.")
-	}
-	if options.CallbackURL == "" {
-		log.Fatal("OIDCClient.Options.CallbackURL cannot be empty.")
-	}
+	session.Destroy()
 
-	if options.Sessions == nil {
-		log.Fatal("OIDCClient.Options.Sessions cannot be nil")
-	}
-	if options.PermissionAuditor == nil {
-		log.Fatal("OIDCClient.Options.PermissionAuditor cannot be nil")
-	}
-	if options.SecureCookie == nil {
-		log.Fatal("OIDCClient.Options.SecureCookie cannot be nil")
-	}
-
-	if options.Coki_Token == "" {
-		options.Coki_Token = COKI_TOKEN
-	}
-	if options.Coki_Session == "" {
-		options.Coki_Session = COKI_SESSION
-	}
-
-	if options.Sess_ID == "" {
-		options.Sess_ID = SESS_ID
-	}
-	if options.Sess_Username == "" {
-		options.Sess_Username = SESS_USERNAME
-	}
-	if options.Sess_Email == "" {
-		options.Sess_Email = SESS_EMAIL
-	}
-	if options.Sess_Roles == "" {
-		options.Sess_Roles = SESS_ROLES
-	}
-	if options.Sess_Level == "" {
-		options.Sess_Level = SESS_LEVEL
-	}
-	if options.Sess_Status == "" {
-		options.Sess_Status = SESS_STATUS
-	}
-
-	if options.Sess_State == "" {
-		options.Sess_State = SESS_STATE
-	}
-
-	if options.AccessDeniedURL == "" {
-		options.AccessDeniedURL = "/"
-	}
+	// 跳转回登出时的页面
+	ctx.Redirect(redirectUrl, http.StatusFound)
 }
 
 func (x *defaultOIDCClient) NewHttpClient(ctx context.Context) (*http.Client, error) {
