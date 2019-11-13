@@ -1,1 +1,14 @@
-{"Count":11,"Path":"/data/es","Services":[{"Enabled":true,"Name":"AAA"},{"Enabled":false,"Name":"BBB"}]}
+{
+    "Count": 11,
+    "Path": "/data/es",
+    "Services": [
+        {
+            "Enabled": true,
+            "Name": "AAA"
+        },
+        {
+            "Enabled": false,
+            "Name": "BBB"
+        }
+    ]
+}
