@@ -18,9 +18,9 @@ const (
 )
 
 var (
-	BytesPool = &sync.Pool{
+	_bytesPool = &sync.Pool{
 		New: func() interface{} {
-			b := make([]byte, 32)
+			b := make([]byte, 1024)
 			return &b
 		},
 	}
@@ -37,7 +37,7 @@ func (x *APIClient) CallAPI(client *http.Client, method, url string, bodyObj int
 }
 
 func (x *APIClient) SendRequest(client *http.Client, method, url string, configRequest func(*http.Request), bodyObj interface{}) *[]byte {
-	buffer := BytesPool.Get().(*[]byte)
+	buffer := _bytesPool.Get().(*[]byte)
 
 	var err error
 	var request *http.Request
@@ -97,4 +97,10 @@ func (x *APIClient) SendRequest(client *http.Client, method, url string, configR
 	}
 
 	return buffer
+}
+
+// RecycleBuffer put back buffer to pool
+func (x *APIClient) RecycleBuffer(buffer *[]byte) {
+	*buffer = (*buffer)[:0]
+	_bytesPool.Put(buffer)
 }
