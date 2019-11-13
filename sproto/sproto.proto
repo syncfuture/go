@@ -6,6 +6,9 @@ option csharp_namespace = "SyncSoft.Protobuf.WellKnownTypes";
 option cc_enable_arenas = true;
 option go_package = "github.com/syncfuture/go/sproto";
 
+message DateTime {
+}
+
 message Address {
     string Address1 = 1;
     string Address2 = 2;
