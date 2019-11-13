@@ -133,7 +133,7 @@ func (x *defaultOIDCClient) HandleSignInCallback(ctx context.Context) {
 
 func (x *defaultOIDCClient) HandleSignOut(ctx context.Context) {
 	session := x.Options.Sessions.Start(ctx)
-	idToken, _ := x.Options.SecureCookie.Get(ctx, COKI_IDTOKEN)
+	_, idToken, _ := x.GetToken(ctx)
 
 	session.Delete(SESS_ID)
 	session.Delete(SESS_USERNAME)
@@ -178,7 +178,7 @@ func (x *defaultOIDCClient) NewHttpClient(ctx context.Context) (*http.Client, er
 		return nil, fmt.Errorf("user id not exists in session")
 	}
 
-	t, err := x.GetToken(ctx)
+	t, _, err := x.GetToken(ctx)
 	if u.LogError(err) {
 		return nil, err
 	}
@@ -205,29 +205,41 @@ func (x *defaultOIDCClient) SaveToken(ctx context.Context, token *oauth2.Token) 
 	}
 
 	// 保存常规令牌
-	err = x.Options.SecureCookie.Set(ctx, COKI_TOKEN, j)
-	if u.LogError(err) {
-		return err
-	}
+	session := x.Options.Sessions.Start(ctx)
+	session.Set(COKI_TOKEN, j)
 
 	// 保存ID令牌
 	idToken := token.Extra("id_token").(string)
-	if idToken != "" {
-		err = x.Options.SecureCookie.Set(ctx, COKI_IDTOKEN, idToken)
-		return err
-	}
+	session.Set(COKI_IDTOKEN, idToken)
+	// err = x.Options.SecureCookie.Set(ctx, COKI_TOKEN, j)
+	// if u.LogError(err) {
+	// 	return err
+	// }
+
+	// // 保存ID令牌
+	// if idToken != "" {
+	// 	err = x.Options.SecureCookie.Set(ctx, COKI_IDTOKEN, idToken)
+	// 	return err
+	// }
 
 	return nil
 }
 
-func (x *defaultOIDCClient) GetToken(ctx context.Context) (*oauth2.Token, error) {
-	j, err := x.Options.SecureCookie.Get(ctx, COKI_TOKEN)
-	if u.LogError(err) {
-		return nil, err
-	}
+func (x *defaultOIDCClient) GetToken(ctx context.Context) (*oauth2.Token, string, error) {
+	session := x.Options.Sessions.Start(ctx)
+	j := session.GetString(COKI_TOKEN)
+	// j, err := x.Options.SecureCookie.Get(ctx, COKI_TOKEN)
+	// if u.LogError(err) {
+	// 	return nil, err
+	// }
 
 	t := new(oauth2.Token)
-	err = json.Deserialize(j, t)
-	u.LogError(err)
-	return t, err
+	err := json.Deserialize(j, t)
+	if u.LogError(err) {
+		return nil, "", err
+	}
+
+	idToken := session.GetString(COKI_TOKEN)
+
+	return t, idToken, err
 }

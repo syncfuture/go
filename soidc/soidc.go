@@ -29,7 +29,8 @@ type IOIDCClient interface {
 	HandleSignOut(context.Context)
 	HandleSignOutCallback(context.Context)
 	NewHttpClient(context.Context) (*http.Client, error)
-	GetToken(ctx context.Context) (*oauth2.Token, error)
+	// GetToken get access (with refresh)token, id token
+	GetToken(ctx context.Context) (*oauth2.Token, string, error)
 	SaveToken(ctx context.Context, token *oauth2.Token) error
 }
 
@@ -62,8 +63,8 @@ type ClientOptions struct {
 	Coki_Session       string
 	Scopes             []string
 	Sessions           *sessions.Sessions
-	SecureCookie       security.ISecureCookie
-	PermissionAuditor  security.IPermissionAuditor
+	// SecureCookie       security.ISecureCookie
+	PermissionAuditor security.IPermissionAuditor
 }
 
 func getRoutes(handlerName string) (string, string, string) {
@@ -97,9 +98,9 @@ func checkOptions(options *ClientOptions) {
 	if options.PermissionAuditor == nil {
 		log.Fatal("OIDCClient.Options.PermissionAuditor cannot be nil")
 	}
-	if options.SecureCookie == nil {
-		log.Fatal("OIDCClient.Options.SecureCookie cannot be nil")
-	}
+	// if options.SecureCookie == nil {
+	// 	log.Fatal("OIDCClient.Options.SecureCookie cannot be nil")
+	// }
 
 	if options.Coki_Token == "" {
 		options.Coki_Token = COKI_TOKEN
