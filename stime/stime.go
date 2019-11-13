@@ -1,7 +1,10 @@
-package time
+package stime
 
 import (
+	"time"
 	t "time"
+
+	"github.com/syncfuture/go/sproto"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/timestamp"
@@ -14,4 +17,16 @@ func TimestampUTCNow() *timestamp.Timestamp {
 		log.Error("ptypes: time.Now().UTC() out of Timestamp range")
 	}
 	return ts
+}
+
+func DateTimeNow() *sproto.DateTime {
+	return &sproto.DateTime{
+		time.Now(),
+	}
+}
+
+func DateTimeUTCNow() *sproto.DateTime {
+	return &sproto.DateTime{
+		time.Now().UTC(),
+	}
 }
