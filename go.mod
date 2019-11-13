@@ -22,6 +22,7 @@ require (
 	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/onsi/ginkgo v1.10.3 // indirect
 	github.com/onsi/gomega v1.7.1 // indirect
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 // indirect
 	github.com/sergi/go-diff v1.0.0 // indirect
 	github.com/smartystreets/goconvey v1.6.4 // indirect
