@@ -27,14 +27,14 @@ var (
 )
 
 type APIClient struct {
-	urlProvider surl.IURLProvider
+	URLProvider surl.IURLProvider
 }
 
 // NewAPIClient create new api client
 // urlProvider is optional, if doesn't provide, it will not render url
 func NewAPIClient(urlProvider surl.IURLProvider) *APIClient {
 	return &APIClient{
-		urlProvider: urlProvider,
+		URLProvider: urlProvider,
 	}
 }
 
