@@ -1,6 +1,7 @@
 package surl
 
 import (
+	"regexp"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -15,6 +16,7 @@ const (
 
 var (
 	_cache = cache.New(1*time.Hour, 1*time.Hour)
+	_regex = regexp.MustCompile("{{[^}]+}}")
 )
 
 type redisURLProvider struct {
@@ -44,4 +46,12 @@ func (x *redisURLProvider) GetURLCache(urlKey string) string {
 		_cache.Set(urlKey, r, 1*time.Hour)
 	}
 	return r.(string)
+}
+
+func (x *redisURLProvider) RenderURL(url string) string {
+	return _regex.ReplaceAllStringFunc(url, x.GetURL)
+}
+
+func (x *redisURLProvider) RenderURLCache(url string) string {
+	return _regex.ReplaceAllStringFunc(url, x.GetURLCache)
 }
