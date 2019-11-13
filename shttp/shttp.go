@@ -1,4 +1,4 @@
-package core
+package shttp
 
 import (
 	"bytes"
