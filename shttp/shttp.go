@@ -30,14 +30,6 @@ type APIClient struct {
 	URLProvider surl.IURLProvider
 }
 
-// NewAPIClient create new api client
-// urlProvider is optional, if doesn't provide, it will not render url
-func NewAPIClient(urlProvider surl.IURLProvider) *APIClient {
-	return &APIClient{
-		URLProvider: urlProvider,
-	}
-}
-
 // CallAPI call api
 // bodyObj is optional
 func (x *APIClient) CallAPI(client *http.Client, method, url string, bodyObj interface{}) *[]byte {
@@ -50,9 +42,9 @@ func (x *APIClient) SendRequest(client *http.Client, method, url string, configR
 	var err error
 	var request *http.Request
 
-	if x.urlProvider != nil {
+	if x.URLProvider != nil {
 		// 渲染Url
-		url = x.urlProvider.RenderURLCache(url)
+		url = x.URLProvider.RenderURLCache(url)
 	}
 
 	// 创建Request
