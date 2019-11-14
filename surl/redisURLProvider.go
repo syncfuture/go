@@ -53,5 +53,7 @@ func (x *redisURLProvider) RenderURL(url string) string {
 }
 
 func (x *redisURLProvider) RenderURLCache(url string) string {
-	return _regex.ReplaceAllStringFunc(url, x.GetURLCache)
+	return _regex.ReplaceAllStringFunc(url, func(match string) string {
+		return x.GetURLCache(match[2 : len(match)-2])
+	})
 }
