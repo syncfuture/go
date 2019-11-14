@@ -21,7 +21,7 @@ var (
 	_bytesPool = &sync.Pool{
 		New: func() interface{} {
 			b := make([]byte, 1024)
-			return &b
+			return b
 		},
 	}
 )
@@ -37,7 +37,7 @@ func (x *APIClient) CallAPI(client *http.Client, method, url string, bodyObj int
 }
 
 func (x *APIClient) SendRequest(client *http.Client, method, url string, configRequest func(*http.Request), bodyObj interface{}) *[]byte {
-	buffer := _bytesPool.Get().(*[]byte)
+	buffer := _bytesPool.Get().([]byte)
 
 	var err error
 	var request *http.Request
@@ -61,8 +61,8 @@ func (x *APIClient) SendRequest(client *http.Client, method, url string, configR
 		default:
 			body, err = json.Marshal(v)
 			if u.LogError(err) {
-				*buffer = []byte(err.Error())
-				return buffer
+				buffer = []byte(err.Error())
+				return &buffer
 			}
 		}
 
@@ -71,8 +71,8 @@ func (x *APIClient) SendRequest(client *http.Client, method, url string, configR
 		request, err = http.NewRequest(method, url, nil)
 	}
 	if u.LogError(err) {
-		*buffer = []byte(err.Error())
-		return buffer
+		buffer = []byte(err.Error())
+		return &buffer
 	}
 
 	// 配置Request
@@ -84,23 +84,23 @@ func (x *APIClient) SendRequest(client *http.Client, method, url string, configR
 	// 发送请求
 	resp, err := client.Do(request)
 	if u.LogError(err) {
-		*buffer = []byte(err.Error())
-		return buffer
+		buffer = []byte(err.Error())
+		return &buffer
 	}
 	defer resp.Body.Close()
 
 	// 读取Response Body
-	*buffer, err = ioutil.ReadAll(resp.Body)
+	buffer, err = ioutil.ReadAll(resp.Body)
 	if u.LogError(err) {
-		*buffer = []byte(err.Error())
-		return buffer
+		buffer = []byte(err.Error())
+		return &buffer
 	}
 
-	return buffer
+	return &buffer
 }
 
 // RecycleBuffer put back buffer to pool
 func (x *APIClient) RecycleBuffer(buffer *[]byte) {
 	*buffer = (*buffer)[:0]
-	_bytesPool.Put(buffer)
+	_bytesPool.Put(*buffer)
 }
