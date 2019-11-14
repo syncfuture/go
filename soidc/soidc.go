@@ -38,7 +38,7 @@ type OIDCConfig struct {
 	ProjectName        string
 	ClientID           string
 	ClientSecret       string
-	ProviderUrl        string
+	ProviderURL        string
 	SignInCallbackURL  string
 	SignOutCallbackURL string
 	AccessDeniedURL    string
@@ -83,7 +83,7 @@ func checkOptions(options *ClientOptions) {
 		log.Fatal("OIDCClient.Options.Scopes cannot be empty")
 	}
 	if options.ProviderURL == "" {
-		log.Fatal("OIDCClient.Options.ProviderUrl cannot be empty.")
+		log.Fatal("OIDCClient.Options.ProviderURL cannot be empty.")
 	}
 	if options.SignInCallbackURL == "" {
 		log.Fatal("OIDCClient.Options.SignInCallbackURL cannot be empty.")
