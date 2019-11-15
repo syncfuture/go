@@ -5,11 +5,13 @@ go 1.13
 require (
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/coreos/go-oidc v2.1.0+incompatible
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fasthttp-contrib/websocket v0.0.0-20160511215533-1f3b11f56072 // indirect
 	github.com/go-redis/redis v6.15.6+incompatible
 	github.com/golang/protobuf v1.3.2
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/gorilla/securecookie v1.1.1
+	github.com/hashicorp/golang-lru v0.5.3
 	github.com/imkira/go-interpol v1.1.0 // indirect
 	github.com/json-iterator/go v1.1.8 // indirect
 	github.com/juju/errors v0.0.0-20190930114154-d42613fe1ab9 // indirect
@@ -41,6 +43,7 @@ require (
 	google.golang.org/genproto v0.0.0-20190905072037-92dd089d5514 // indirect
 	google.golang.org/grpc v1.25.1
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
+	gopkg.in/square/go-jose.v1 v1.1.2
 	gopkg.in/square/go-jose.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v2 v2.2.5 // indirect
 )

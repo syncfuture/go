@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/dgrijalva/jwt-go"
 	log "github.com/kataras/golog"
 	"github.com/kataras/iris/v12/context"
 	"github.com/kataras/iris/v12/sessions"
@@ -32,6 +33,11 @@ type IOIDCClient interface {
 	// GetToken get access (with refresh)token, id token
 	GetToken(ctx context.Context) (*oauth2.Token, string, error)
 	SaveToken(ctx context.Context, token *oauth2.Token) error
+}
+
+type IPublicKeyProvider interface {
+	// GetKey get public key for validating token
+	GetKey(token *jwt.Token) (interface{}, error)
 }
 
 type OIDCConfig struct {
