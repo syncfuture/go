@@ -41,10 +41,10 @@ type IPublicKeyProvider interface {
 }
 
 type OIDCConfig struct {
-	ProjectName        string
 	ClientID           string
 	ClientSecret       string
-	ProviderURL        string
+	PassportURL        string
+	JWKSURL            string
 	SignInCallbackURL  string
 	SignOutCallbackURL string
 	AccessDeniedURL    string
@@ -52,7 +52,7 @@ type OIDCConfig struct {
 }
 
 type ClientOptions struct {
-	ProviderURL        string
+	PassportURL        string
 	ClientID           string
 	ClientSecret       string
 	SignInCallbackURL  string
@@ -69,8 +69,7 @@ type ClientOptions struct {
 	Coki_Session       string
 	Scopes             []string
 	Sessions           *sessions.Sessions
-	// SecureCookie       security.ISecureCookie
-	PermissionAuditor security.IPermissionAuditor
+	PermissionAuditor  security.IPermissionAuditor
 }
 
 func getRoutes(handlerName string) (string, string, string) {
@@ -88,8 +87,8 @@ func checkOptions(options *ClientOptions) {
 	if len(options.Scopes) == 0 {
 		log.Fatal("OIDCClient.Options.Scopes cannot be empty")
 	}
-	if options.ProviderURL == "" {
-		log.Fatal("OIDCClient.Options.ProviderURL cannot be empty.")
+	if options.PassportURL == "" {
+		log.Fatal("OIDCClient.Options.PassportURL cannot be empty.")
 	}
 	if options.SignInCallbackURL == "" {
 		log.Fatal("OIDCClient.Options.SignInCallbackURL cannot be empty.")

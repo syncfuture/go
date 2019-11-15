@@ -33,7 +33,7 @@ func NewOIDCClient(options *ClientOptions) IOIDCClient {
 
 	ctx := gocontext.Background()
 	var err error
-	x.OIDCProvider, err = oidc.NewProvider(ctx, options.ProviderURL)
+	x.OIDCProvider, err = oidc.NewProvider(ctx, options.PassportURL)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -148,7 +148,7 @@ func (x *defaultOIDCClient) HandleSignOut(ctx context.Context) {
 	// 去Passport注销
 	state := rand.String(32)
 	session.Set(state, ctx.FormValue("returnUrl"))
-	signoutUrl, _ := u.JointURLString(x.Options.ProviderURL, "/connect/endsession")
+	signoutUrl, _ := u.JointURLString(x.Options.PassportURL, "/connect/endsession")
 	signoutUrl += "?post_logout_redirect_uri=" + url.PathEscape(x.Options.SignOutCallbackURL) + "&id_token_hint=" + idToken + "&state=" + state
 	ctx.Redirect(signoutUrl, http.StatusFound)
 }
