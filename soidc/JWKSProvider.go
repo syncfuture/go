@@ -29,16 +29,16 @@ func init() {
 	}
 }
 
-type JWKSProvider struct {
+type jwksProvider struct {
 	URL      string
 	Issuer   string
 	Audience string
 }
 
-func New(issuer, jwksPath, audience string) *JWKSProvider {
+func NewPublicKeyProvider(issuer, jwksPath, audience string) IPublicKeyProvider {
 	url := issuer + jwksPath
 
-	return &JWKSProvider{
+	return &jwksProvider{
 		URL:      url,
 		Issuer:   issuer,
 		Audience: audience,
@@ -48,7 +48,7 @@ func New(issuer, jwksPath, audience string) *JWKSProvider {
 // GetPublicKey verifies the desired iss and aud against the token's claims, and then
 // tries to fetch a public key from the iss. It returns the public key as byte slice
 // on success and error on failure.
-func (x *JWKSProvider) GetKey(token *jwt.Token) (interface{}, error) {
+func (x *jwksProvider) GetKey(token *jwt.Token) (interface{}, error) {
 	claims := token.Claims.(jwt.MapClaims)
 
 	// Get iss from JWT and validate against desired iss
