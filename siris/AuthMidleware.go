@@ -17,6 +17,7 @@ import (
 type AuthMidleware struct {
 	PermissionAuditor security.IPermissionAuditor
 	ActionMap         *map[string]*Action
+	ProjectName       string
 }
 
 func (x *AuthMidleware) Serve(ctx context.Context) {
@@ -24,16 +25,28 @@ func (x *AuthMidleware) Serve(ctx context.Context) {
 	token := ctx.Values().Get("jwt").(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 
+	// if scopeStr, ok := claims["scope"].(string); ok && scopeStr != "" {
+	// 	var allowedScopes sys.StringSlice
+	// 	allowedScopes = strings.Split(scopeStr, " ")
+	// 	if allowedScopes.Has(x.ProjectName) {
+
+	// 	} else {
+	// 		msgCode = "token scope validate failed"
+	// 		log.Warnf("Token scope '%s' doesn't contain current resource '%s'", scopeStr, x.ProjectName)
+	// 	}
+	// } else {
+	// 	msgCode = "token doesn't have scope field"
+	// }
 	if roleStr, ok := claims["role"].(string); ok && roleStr != "" {
-		// 有角色
+		// Has role filed
 		roles, err := strconv.ParseInt(roleStr, 10, 64)
 		if !u.LogError(err) {
-			// 角色是数字
+			// Role can parse to int64
 			route := ctx.GetCurrentRoute().Name()
 			if action, ok := (*x.ActionMap)[route]; ok {
-				// 找到了对应的Action
+				// foud action
 				if x.PermissionAuditor.CheckRoute(action.Area, action.Controller, action.Action, roles) {
-					// 有权限，允许访问
+					// Has permission, allow
 					ctx.Next()
 					return
 				} else {
@@ -51,7 +64,7 @@ func (x *AuthMidleware) Serve(ctx context.Context) {
 		log.Warn(msgCode, " ", claims)
 	}
 
-	// 无权限
+	// Not allow
 	ctx.StatusCode(http.StatusUnauthorized)
 	ctx.WriteString(msgCode)
 }
