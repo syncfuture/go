@@ -13,6 +13,7 @@ require (
 	github.com/gorilla/securecookie v1.1.1
 	github.com/hashicorp/golang-lru v0.5.3
 	github.com/imkira/go-interpol v1.1.0 // indirect
+	github.com/iris-contrib/middleware/jwt v0.0.0-20191111233249-6e1f5f92190e
 	github.com/json-iterator/go v1.1.8 // indirect
 	github.com/juju/errors v0.0.0-20190930114154-d42613fe1ab9 // indirect
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
