@@ -1,11 +1,13 @@
 package siris
 
 import (
+	"net/http"
 	"reflect"
 	"runtime"
 	"strings"
 
 	"github.com/kataras/iris/v12/context"
+	u "github.com/syncfuture/go/util"
 )
 
 type (
@@ -41,4 +43,13 @@ func CreateActionMap(actionGroups ...*[]*Action) *map[string]*Action {
 	}
 
 	return &actionMap
+}
+
+func HandleError(ctx context.Context, err error) bool {
+	if u.LogError(err) {
+		ctx.StatusCode(http.StatusInternalServerError)
+		ctx.WriteString(err.Error())
+		return true
+	}
+	return false
 }
