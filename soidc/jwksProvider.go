@@ -111,7 +111,8 @@ func (x *jwksProvider) GetKey(token *jwt.Token) (interface{}, error) {
 		return nil, fmt.Errorf("mismatch in token and JWKS algorithms")
 	}
 
-	pk := key.Certificates[0].PublicKey
+	// pk := key.Certificates[0].PublicKey
+	pk := key.Key
 
 	// Store value in cache
 	exp := claims["exp"].(float64)
