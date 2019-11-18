@@ -36,11 +36,11 @@ func NewAPIServer(
 ) *APIServer {
 	r := new(APIServer)
 
-	r.app = iris.New()
-	r.app.Logger().SetLevel(logLevel)
+	r.App = iris.New()
+	r.App.Logger().SetLevel(logLevel)
 
-	r.app.Use(recover.New())
-	r.app.Use(logger.New())
+	r.App.Use(recover.New())
+	r.App.Use(logger.New())
 
 	r.actionMap = actionMap
 	r.listenAddr = listenAddr
@@ -71,7 +71,7 @@ func NewAPIServer(
 
 func (x *APIServer) Run() {
 	x.registerActions()
-	x.app.Run(iris.Addr(x.listenAddr))
+	x.App.Run(iris.Addr(x.listenAddr))
 }
 
 func (x *APIServer) registerActions() {
@@ -88,16 +88,16 @@ func (x *APIServer) registerAction(name string, handlers ...context.Handler) {
 
 	switch method {
 	case http.MethodPost:
-		x.app.Post(path, handlers...)
+		x.App.Post(path, handlers...)
 		break
 	case http.MethodGet:
-		x.app.Get(path, handlers...)
+		x.App.Get(path, handlers...)
 		break
 	case http.MethodPut:
-		x.app.Put(path, handlers...)
+		x.App.Put(path, handlers...)
 		break
 	case http.MethodDelete:
-		x.app.Delete(path, handlers...)
+		x.App.Delete(path, handlers...)
 		break
 	default:
 		panic("does not support method " + method)

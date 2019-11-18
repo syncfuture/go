@@ -26,26 +26,26 @@ func NewWebServer(
 ) *WebServer {
 	r := new(WebServer)
 
-	r.app = iris.New()
-	r.app.Logger().SetLevel(logLevel)
+	r.App = iris.New()
+	r.App.Logger().SetLevel(logLevel)
 
-	r.app.Use(recover.New())
-	r.app.Use(logger.New())
+	r.App.Use(recover.New())
+	r.App.Use(logger.New())
 
 	r.listenAddr = listenAddr
 
-	r.app.Get("/signin-oidc", oidcClient.HandleSignInCallback)
-	r.app.Get("/signout", oidcClient.HandleSignOut)
-	r.app.Get("/signout-callback-oidc", oidcClient.HandleSignOutCallback)
+	r.App.Get("/signin-oidc", oidcClient.HandleSignInCallback)
+	r.App.Get("/signout", oidcClient.HandleSignOut)
+	r.App.Get("/signout-callback-oidc", oidcClient.HandleSignOutCallback)
 
 	viewEngine := iris.HTML("./views", ".html").Layout("shared/_layout.html").Reload(debug)
-	r.app.RegisterView(viewEngine)
-	r.app.HandleDir("/", "./wwwroot")
-	r.app.Use(oidcClient.HandleAuthentication)
+	r.App.RegisterView(viewEngine)
+	r.App.HandleDir("/", "./wwwroot")
+	r.App.Use(oidcClient.HandleAuthentication)
 
 	return r
 }
 
 func (x *WebServer) Run() {
-	x.app.Run(iris.Addr(x.listenAddr))
+	x.App.Run(iris.Addr(x.listenAddr))
 }
