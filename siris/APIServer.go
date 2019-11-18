@@ -20,7 +20,7 @@ import (
 )
 
 type (
-	IrisServer struct {
+	APIServer struct {
 		listenAddr     string
 		app            *iris.Application
 		preMiddlewares []context.Handler
@@ -33,8 +33,8 @@ func NewAPIServer(
 	redisConfig *sredis.RedisConfig,
 	soidcConfig *soidc.OIDCConfig,
 	actionMap *map[string]*Action,
-) *IrisServer {
-	r := new(IrisServer)
+) *APIServer {
+	r := new(APIServer)
 
 	r.app = iris.New()
 	r.app.Logger().SetLevel(logLevel)
@@ -45,7 +45,11 @@ func NewAPIServer(
 	r.actionMap = actionMap
 	r.listenAddr = listenAddr
 
-	publicKeyProvider := soidc.NewPublicKeyProvider(soidcConfig.PassportURL, soidcConfig.JWKSURL, projectName)
+	jwksURL := soidcConfig.JWKSURL
+	if soidcConfig.JWKSURL == "" {
+		jwksURL = "/.well-known/openid-configuration/jwks"
+	}
+	publicKeyProvider := soidc.NewPublicKeyProvider(soidcConfig.PassportURL, jwksURL, projectName)
 	routePermissionProvider := security.NewRedisRoutePermissionProvider(projectName, redisConfig)
 	permissionAuditor := security.NewPermissionAuditor(routePermissionProvider)
 
@@ -65,19 +69,19 @@ func NewAPIServer(
 	return r
 }
 
-func (x *IrisServer) Run() {
+func (x *APIServer) Run() {
 	x.registerActions()
 	x.app.Run(iris.Addr(x.listenAddr))
 }
 
-func (x *IrisServer) registerActions() {
+func (x *APIServer) registerActions() {
 	for name, action := range *x.actionMap {
 		handlers := append(x.preMiddlewares, action.Handler)
 		x.registerAction(name, handlers...)
 	}
 }
 
-func (x *IrisServer) registerAction(name string, handlers ...context.Handler) {
+func (x *APIServer) registerAction(name string, handlers ...context.Handler) {
 	index := strings.Index(name, "/")
 	method := name[:index]
 	path := name[index:]
