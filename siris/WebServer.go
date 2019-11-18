@@ -20,7 +20,7 @@ type (
 )
 
 func NewWebServer(
-	projectName, logLevel, listenAddr string,
+	logLevel, listenAddr string,
 	debug bool,
 	oidcClient soidc.IOIDCClient,
 ) *WebServer {
