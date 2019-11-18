@@ -13,7 +13,7 @@ import (
 type (
 	WebServer struct {
 		listenAddr     string
-		app            *iris.Application
+		App            *iris.Application
 		preMiddlewares []context.Handler
 		actionMap      *map[string]*Action
 	}
