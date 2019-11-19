@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/syncfuture/go/json"
+	"github.com/syncfuture/go/sjson"
 	u "github.com/syncfuture/go/util"
 
-	"github.com/syncfuture/go/rand"
+	"github.com/syncfuture/go/srand"
 
 	oidc "github.com/coreos/go-oidc"
 	log "github.com/kataras/golog"

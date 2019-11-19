@@ -3,7 +3,7 @@ package config
 import (
 	"reflect"
 
-	"github.com/syncfuture/go/json"
+	"github.com/syncfuture/go/sjson"
 )
 
 type IConfigProvider interface {

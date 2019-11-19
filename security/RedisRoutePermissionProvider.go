@@ -3,7 +3,7 @@ package security
 import (
 	"github.com/go-redis/redis"
 	log "github.com/kataras/golog"
-	"github.com/syncfuture/go/json"
+	"github.com/syncfuture/go/sjson"
 	"github.com/syncfuture/go/sproto"
 	"github.com/syncfuture/go/sredis"
 	u "github.com/syncfuture/go/util"

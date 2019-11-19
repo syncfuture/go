@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"reflect"
 
-	r "github.com/syncfuture/go/rand"
+	r "github.com/syncfuture/go/srand"
 )
 
 func AutoFixture(objPtr interface{}) {
