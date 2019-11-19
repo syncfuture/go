@@ -20,6 +20,14 @@ import (
 )
 
 type (
+	APIServerOption struct {
+		ProjectName, LogLevel, ListenAddr string
+		Debug                             bool
+		RedisConfig                       *sredis.RedisConfig
+		OIDCConfig                        *soidc.OIDCConfig
+		ActionMap                         *map[string]*Action
+		PublicKeyHttpClient               *http.Client
+	}
 	APIServer struct {
 		listenAddr     string
 		App            *iris.Application
@@ -28,30 +36,25 @@ type (
 	}
 )
 
-func NewAPIServer(
-	projectName, logLevel, listenAddr string,
-	redisConfig *sredis.RedisConfig,
-	soidcConfig *soidc.OIDCConfig,
-	actionMap *map[string]*Action,
-	publicKeyHttpClient *http.Client,
-) *APIServer {
+func NewAPIServer(option *APIServerOption) *APIServer {
 	r := new(APIServer)
 
 	r.App = iris.New()
-	r.App.Logger().SetLevel(logLevel)
+	r.App.Logger().SetLevel(option.LogLevel)
 
 	r.App.Use(recover.New())
 	r.App.Use(logger.New())
 
-	r.actionMap = actionMap
-	r.listenAddr = listenAddr
+	r.actionMap = option.ActionMap
+	r.listenAddr = option.ListenAddr
 
-	jwksURL := soidcConfig.JWKSURL
-	if soidcConfig.JWKSURL == "" {
+	jwksURL := option.OIDCConfig.JWKSURL
+	if option.OIDCConfig.JWKSURL == "" {
 		jwksURL = "/.well-known/openid-configuration/jwks"
 	}
-	publicKeyProvider := soidc.NewPublicKeyProvider(soidcConfig.PassportURL, jwksURL, projectName, publicKeyHttpClient)
-	routePermissionProvider := security.NewRedisRoutePermissionProvider(projectName, redisConfig)
+
+	publicKeyProvider := soidc.NewPublicKeyProvider(option.OIDCConfig.PassportURL, jwksURL, option.ProjectName, option.PublicKeyHttpClient)
+	routePermissionProvider := security.NewRedisRoutePermissionProvider(option.ProjectName, option.RedisConfig)
 	permissionAuditor := security.NewPermissionAuditor(routePermissionProvider)
 
 	jwtMiddleware := jwt.New(jwt.Config{

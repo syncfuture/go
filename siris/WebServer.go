@@ -11,6 +11,11 @@ import (
 )
 
 type (
+	WebServerOption struct {
+		ListenAddr, LogLevel string
+		Debug                bool
+		OIDCClient           soidc.IOIDCClient
+	}
 	WebServer struct {
 		listenAddr     string
 		App            *iris.Application
@@ -19,29 +24,25 @@ type (
 	}
 )
 
-func NewWebServer(
-	logLevel, listenAddr string,
-	debug bool,
-	oidcClient soidc.IOIDCClient,
-) *WebServer {
+func NewWebServer(option *WebServerOption) *WebServer {
 	r := new(WebServer)
 
 	r.App = iris.New()
-	r.App.Logger().SetLevel(logLevel)
+	r.App.Logger().SetLevel(option.LogLevel)
 
 	r.App.Use(recover.New())
 	r.App.Use(logger.New())
 
-	r.listenAddr = listenAddr
+	r.listenAddr = option.ListenAddr
 
-	r.App.Get("/signin-oidc", oidcClient.HandleSignInCallback)
-	r.App.Get("/signout", oidcClient.HandleSignOut)
-	r.App.Get("/signout-callback-oidc", oidcClient.HandleSignOutCallback)
+	r.App.Get("/signin-oidc", option.OIDCClient.HandleSignInCallback)
+	r.App.Get("/signout", option.OIDCClient.HandleSignOut)
+	r.App.Get("/signout-callback-oidc", option.OIDCClient.HandleSignOutCallback)
 
-	viewEngine := iris.HTML("./views", ".html").Layout("shared/_layout.html").Reload(debug)
+	viewEngine := iris.HTML("./views", ".html").Layout("shared/_layout.html").Reload(option.Debug)
 	r.App.RegisterView(viewEngine)
 	r.App.HandleDir("/", "./wwwroot")
-	r.App.Use(oidcClient.HandleAuthentication)
+	r.App.Use(option.OIDCClient.HandleAuthentication)
 
 	return r
 }
