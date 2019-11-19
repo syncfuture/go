@@ -44,7 +44,7 @@ func AutoFixture(objPtr interface{}) {
 	}
 }
 
-func CreateTestHttpClient(proxyURL string) *http.Client {
+func NewTestHttpClient(proxyURL string) *http.Client {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // 跳过证书验证
 	}
