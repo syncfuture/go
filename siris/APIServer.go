@@ -33,6 +33,7 @@ func NewAPIServer(
 	redisConfig *sredis.RedisConfig,
 	soidcConfig *soidc.OIDCConfig,
 	actionMap *map[string]*Action,
+	publicKeyHttpClient *http.Client,
 ) *APIServer {
 	r := new(APIServer)
 
@@ -49,7 +50,7 @@ func NewAPIServer(
 	if soidcConfig.JWKSURL == "" {
 		jwksURL = "/.well-known/openid-configuration/jwks"
 	}
-	publicKeyProvider := soidc.NewPublicKeyProvider(soidcConfig.PassportURL, jwksURL, projectName)
+	publicKeyProvider := soidc.NewPublicKeyProvider(soidcConfig.PassportURL, jwksURL, projectName, publicKeyHttpClient)
 	routePermissionProvider := security.NewRedisRoutePermissionProvider(projectName, redisConfig)
 	permissionAuditor := security.NewPermissionAuditor(routePermissionProvider)
 

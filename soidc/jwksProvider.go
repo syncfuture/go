@@ -30,18 +30,20 @@ func init() {
 }
 
 type jwksProvider struct {
-	URL      string
-	Issuer   string
-	Audience string
+	url        string
+	issuer     string
+	audience   string
+	httpClient *http.Client
 }
 
-func NewPublicKeyProvider(issuer, jwksPath, audience string) IPublicKeyProvider {
+func NewPublicKeyProvider(issuer, jwksPath, audience string, httpClient *http.Client) IPublicKeyProvider {
 	url := issuer + jwksPath
 
 	return &jwksProvider{
-		URL:      url,
-		Issuer:   issuer,
-		Audience: audience,
+		url:        url,
+		issuer:     issuer,
+		audience:   audience,
+		httpClient: httpClient,
 	}
 }
 
@@ -52,12 +54,12 @@ func (x *jwksProvider) GetKey(token *jwt.Token) (interface{}, error) {
 	claims := token.Claims.(jwt.MapClaims)
 
 	// Get iss from JWT and validate against desired iss
-	if claims["iss"].(string) != x.Issuer {
+	if claims["iss"].(string) != x.issuer {
 		return nil, fmt.Errorf("cannot validate iss claim")
 	}
 
 	// Get audience from JWT and validate against desired audience
-	if claims["aud"].(string) != x.Audience {
+	if claims["aud"].(string) != x.audience {
 		return nil, fmt.Errorf("cannot validate audience claim")
 	}
 
@@ -81,9 +83,18 @@ func (x *jwksProvider) GetKey(token *jwt.Token) (interface{}, error) {
 		}
 	}
 
-	resp, err := http.Get(x.URL)
-	if err != nil {
-		return nil, fmt.Errorf("json validation error: %s", err)
+	var err error
+	var resp *http.Response
+	if x.httpClient == nil {
+		resp, err = http.Get(x.url)
+		if err != nil {
+			return nil, fmt.Errorf("json validation error: %s", err)
+		}
+	} else {
+		resp, err = x.httpClient.Get(x.url)
+		if err != nil {
+			return nil, fmt.Errorf("json validation error: %s", err)
+		}
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
