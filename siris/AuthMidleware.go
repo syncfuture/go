@@ -25,18 +25,6 @@ func (x *AuthMidleware) Serve(ctx context.Context) {
 	token := ctx.Values().Get("jwt").(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 
-	// if scopeStr, ok := claims["scope"].(string); ok && scopeStr != "" {
-	// 	var allowedScopes sys.StringSlice
-	// 	allowedScopes = strings.Split(scopeStr, " ")
-	// 	if allowedScopes.Has(x.ProjectName) {
-
-	// 	} else {
-	// 		msgCode = "token scope validate failed"
-	// 		log.Warnf("Token scope '%s' doesn't contain current resource '%s'", scopeStr, x.ProjectName)
-	// 	}
-	// } else {
-	// 	msgCode = "token doesn't have scope field"
-	// }
 	if roleStr, ok := claims["role"].(string); ok && roleStr != "" {
 		// Has role filed
 		roles, err := strconv.ParseInt(roleStr, 10, 64)

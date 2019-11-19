@@ -1,4 +1,4 @@
-package sys
+package ssys
 
 type StringSlice []string
 
