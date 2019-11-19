@@ -79,7 +79,7 @@ func (x *defaultOIDCClient) HandleAuthentication(ctx context.Context) {
 		}
 
 		// 记录请求地址，跳转去登录页面
-		state := rand.String(32)
+		state := srand.String(32)
 		session.Set(state, ctx.Request().URL.String())
 		ctx.Redirect(x.OAuth2Config.AuthCodeURL(state), http.StatusFound)
 	}
@@ -146,7 +146,7 @@ func (x *defaultOIDCClient) HandleSignOut(ctx context.Context) {
 	ctx.RemoveCookie(x.Options.Coki_IDToken)
 
 	// 去Passport注销
-	state := rand.String(32)
+	state := srand.String(32)
 	session.Set(state, ctx.FormValue("returnUrl"))
 	signoutUrl, _ := u.JointURLString(x.Options.PassportURL, "/connect/endsession")
 	signoutUrl += "?post_logout_redirect_uri=" + url.PathEscape(x.Options.SignOutCallbackURL) + "&id_token_hint=" + idToken + "&state=" + state
