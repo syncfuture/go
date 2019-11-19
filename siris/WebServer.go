@@ -42,7 +42,6 @@ func NewWebServer(option *WebServerOption) *WebServer {
 	viewEngine := iris.HTML("./views", ".html").Layout("shared/_layout.html").Reload(option.Debug)
 	r.App.RegisterView(viewEngine)
 	r.App.HandleDir("/", "./wwwroot")
-	r.App.Use(option.OIDCClient.HandleAuthentication)
 
 	return r
 }
