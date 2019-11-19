@@ -26,7 +26,6 @@ type (
 		RedisConfig                       *sredis.RedisConfig
 		OIDCConfig                        *soidc.OIDCConfig
 		ActionMap                         *map[string]*Action
-		PublicKeyHttpClient               *http.Client
 	}
 	APIServer struct {
 		listenAddr     string
@@ -53,7 +52,7 @@ func NewAPIServer(option *APIServerOption) *APIServer {
 		jwksURL = "/.well-known/openid-configuration/jwks"
 	}
 
-	publicKeyProvider := soidc.NewPublicKeyProvider(option.OIDCConfig.PassportURL, jwksURL, option.ProjectName, option.PublicKeyHttpClient)
+	publicKeyProvider := soidc.NewPublicKeyProvider(option.OIDCConfig.PassportURL, jwksURL, option.ProjectName)
 	routePermissionProvider := security.NewRedisRoutePermissionProvider(option.ProjectName, option.RedisConfig)
 	permissionAuditor := security.NewPermissionAuditor(routePermissionProvider)
 
