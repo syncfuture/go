@@ -27,6 +27,6 @@ func (x *JsonConfigProvider) GetConfig(configPtr interface{}, args ...string) er
 		panic("configPtr must be a pointer")
 	}
 
-	err := json.DeserializeFromFile(args[0], configPtr)
+	err := sjson.DeserializeFromFile(args[0], configPtr)
 	return err
 }

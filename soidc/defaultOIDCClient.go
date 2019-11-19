@@ -199,7 +199,7 @@ func (x *defaultOIDCClient) NewHttpClient(ctx context.Context) (*http.Client, er
 }
 
 func (x *defaultOIDCClient) SaveToken(ctx context.Context, token *oauth2.Token) error {
-	j, err := json.Serialize(token)
+	j, err := sjson.Serialize(token)
 	if u.LogError(err) {
 		return err
 	}
@@ -234,7 +234,7 @@ func (x *defaultOIDCClient) GetToken(ctx context.Context) (*oauth2.Token, string
 	// }
 
 	t := new(oauth2.Token)
-	err := json.Deserialize(j, t)
+	err := sjson.Deserialize(j, t)
 	if u.LogError(err) {
 		return nil, "", err
 	}

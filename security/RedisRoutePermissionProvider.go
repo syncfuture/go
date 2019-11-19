@@ -34,7 +34,7 @@ func NewRedisRoutePermissionProvider(projectName string, config *sredis.RedisCon
 // *******************************************************************************************************************************
 // Route
 func (x *RedisRoutePermissionProvider) CreateRoute(in *sproto.RouteDTO) error {
-	j, err := json.Serialize(in)
+	j, err := sjson.Serialize(in)
 	if u.LogError(err) {
 		return err
 	}
@@ -55,12 +55,12 @@ func (x *RedisRoutePermissionProvider) GetRoute(id string) (*sproto.RouteDTO, er
 		return nil, err
 	}
 
-	err = json.Deserialize(j, r)
+	err = sjson.Deserialize(j, r)
 	u.LogError(err)
 	return r, err
 }
 func (x *RedisRoutePermissionProvider) UpdateRoute(in *sproto.RouteDTO) error {
-	j, err := json.Serialize(in)
+	j, err := sjson.Serialize(in)
 	if u.LogError(err) {
 		return err
 	}
@@ -82,7 +82,7 @@ func (x *RedisRoutePermissionProvider) GetRoutes() (map[string]*sproto.RouteDTO,
 	m := make(map[string]*sproto.RouteDTO, len(r))
 	for key, value := range r {
 		dto := new(sproto.RouteDTO)
-		err = json.Deserialize(value, dto)
+		err = sjson.Deserialize(value, dto)
 		if !u.LogError(err) {
 			m[key] = dto
 		}
@@ -93,7 +93,7 @@ func (x *RedisRoutePermissionProvider) GetRoutes() (map[string]*sproto.RouteDTO,
 // *******************************************************************************************************************************
 // Permission
 func (x *RedisRoutePermissionProvider) CreatePermission(in *sproto.PermissionDTO) error {
-	j, err := json.Serialize(in)
+	j, err := sjson.Serialize(in)
 	if u.LogError(err) {
 		return err
 	}
@@ -114,12 +114,12 @@ func (x *RedisRoutePermissionProvider) GetPermission(id string) (*sproto.Permiss
 		return nil, err
 	}
 
-	err = json.Deserialize(j, r)
+	err = sjson.Deserialize(j, r)
 	u.LogError(err)
 	return r, err
 }
 func (x *RedisRoutePermissionProvider) UpdatePermission(in *sproto.PermissionDTO) error {
-	j, err := json.Serialize(in)
+	j, err := sjson.Serialize(in)
 	if u.LogError(err) {
 		return err
 	}
@@ -141,7 +141,7 @@ func (x *RedisRoutePermissionProvider) GetPermissions() (map[string]*sproto.Perm
 	m := make(map[string]*sproto.PermissionDTO, len(r))
 	for key, value := range r {
 		dto := new(sproto.PermissionDTO)
-		err = json.Deserialize(value, dto)
+		err = sjson.Deserialize(value, dto)
 		if err == nil {
 			m[key] = dto
 		} else {
