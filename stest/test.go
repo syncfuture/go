@@ -1,10 +1,7 @@
 package stest
 
 import (
-	"crypto/tls"
 	"math/rand"
-	"net/http"
-	"net/url"
 	"reflect"
 
 	r "github.com/syncfuture/go/srand"
@@ -42,20 +39,4 @@ func AutoFixture(objPtr interface{}) {
 			}
 		}
 	}
-}
-
-func CreateTestHttpClient(proxyURL string) *http.Client {
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // 跳过证书验证
-	}
-
-	if proxyURL != "" {
-		proxy, err := url.Parse(proxyURL)
-		if err != nil {
-			panic(err)
-		}
-		tr.Proxy = http.ProxyURL(proxy)
-	}
-
-	return &http.Client{Transport: tr}
 }
