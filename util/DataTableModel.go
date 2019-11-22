@@ -1,6 +1,6 @@
 package u
 
-type DatatableModel struct {
+type DataTableModel struct {
 	Draw    int    `url:"draw" form:"draw" json:"draw"`
 	Start   int    `url:"start" form:"start" json:"start"`
 	Length  int    `url:"length" form:"length" json:"length"`
@@ -9,7 +9,7 @@ type DatatableModel struct {
 	Keyword string `url:"search[value]" form:"search[value]" json:"search[value]"`
 }
 
-func (x *DatatableModel) GetPageIndex() int32 {
+func (x *DataTableModel) GetPageIndex() int32 {
 	if x.Length <= 0 {
 		return 1
 	} else {
