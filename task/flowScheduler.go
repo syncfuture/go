@@ -41,7 +41,7 @@ func (x *flowScheduler) SliceRun(slicePtr interface{}, action func(i int, v inte
 				<-ch
 				wg.Done()
 			}()
-			action(a, s.Index(a))
+			action(a, s.Index(a).Interface())
 		}(i)
 	}
 
