@@ -53,7 +53,7 @@ func NewOIDCClient(options *ClientOptions) IOIDCClient {
 	x.ClientConfig.ClientID = options.ClientID
 	x.ClientConfig.ClientSecret = options.ClientSecret
 	x.ClientConfig.TokenURL = x.OIDCProvider.Endpoint().TokenURL
-	x.ClientConfig.Scopes = *options.Scopes.Remove(offline_access)
+	x.ClientConfig.Scopes = *options.Scopes.Remove(oidc.ScopeOfflineAccess).Remove(oidc.ScopeOpenID)
 
 	return x
 }
