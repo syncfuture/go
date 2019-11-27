@@ -26,11 +26,11 @@ const (
 
 type IOIDCClient interface {
 	HandleAuthentication(context.Context)
+	HandleSignIn(context.Context)
 	HandleSignInCallback(context.Context)
 	HandleSignOut(context.Context)
 	HandleSignOutCallback(context.Context)
 	NewHttpClient(context.Context) (*http.Client, error)
-	// GetToken get access (with refresh)token, id token
 	GetToken(ctx context.Context) (*oauth2.Token, string, error)
 	SaveToken(ctx context.Context, token *oauth2.Token) error
 }

@@ -85,6 +85,26 @@ func (x *defaultOIDCClient) HandleAuthentication(ctx context.Context) {
 	}
 }
 
+func (x *defaultOIDCClient) HandleSignIn(ctx context.Context) {
+	returnURL := ctx.FormValue("returnUrl")
+	if returnURL == "" {
+		returnURL = "/"
+	}
+
+	session := x.Options.Sessions.Start(ctx)
+	userid := session.GetString(x.Options.Sess_ID)
+	if userid != "" {
+		// 已登录
+		ctx.Redirect(returnURL, http.StatusFound)
+		return
+	}
+
+	// 记录请求地址，跳转去登录页面
+	state := srand.String(32)
+	session.Set(state, returnURL)
+	ctx.Redirect(x.OAuth2Config.AuthCodeURL(state), http.StatusFound)
+}
+
 func (x *defaultOIDCClient) HandleSignInCallback(ctx context.Context) {
 	session := x.Options.Sessions.Start(ctx)
 
