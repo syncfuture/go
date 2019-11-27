@@ -28,7 +28,7 @@ type (
 
 func NewWebServer(option *WebServerOption) *WebServer {
 	if option.ViewEngine == nil {
-		option.ViewEngine = iris.HTML("./view", ".html").Layout("shared/_layout.html").Reload(option.Debug)
+		option.ViewEngine = iris.HTML("./views", ".html").Layout("shared/_layout.html").Reload(option.Debug)
 	}
 	if option.StaticFilesDir == "" {
 		option.StaticFilesDir = "./wwwroot"
