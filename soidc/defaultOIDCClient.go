@@ -28,6 +28,8 @@ type defaultOIDCClient struct {
 	ClientConfig *clientcredentials.Config
 }
 
+const offline_access = "offline_access"
+
 func NewOIDCClient(options *ClientOptions) IOIDCClient {
 	checkOptions(options)
 
@@ -45,13 +47,13 @@ func NewOIDCClient(options *ClientOptions) IOIDCClient {
 	x.OAuth2Config.ClientSecret = options.ClientSecret
 	x.OAuth2Config.Endpoint = x.OIDCProvider.Endpoint()
 	x.OAuth2Config.RedirectURL = options.SignInCallbackURL
-	x.OAuth2Config.Scopes = append(options.Scopes, oidc.ScopeOpenID)
+	x.OAuth2Config.Scopes = *options.Scopes.Add(oidc.ScopeOpenID)
 
 	x.ClientConfig = new(clientcredentials.Config)
 	x.ClientConfig.ClientID = options.ClientID
 	x.ClientConfig.ClientSecret = options.ClientSecret
 	x.ClientConfig.TokenURL = x.OIDCProvider.Endpoint().TokenURL
-	x.ClientConfig.Scopes = options.Scopes
+	x.ClientConfig.Scopes = *options.Scopes.Remove(offline_access)
 
 	return x
 }

@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/syncfuture/go/sslice"
+
 	"github.com/dgrijalva/jwt-go"
 	log "github.com/kataras/golog"
 	"github.com/kataras/iris/v12/context"
@@ -48,7 +50,7 @@ type OIDCConfig struct {
 	SignInCallbackURL  string
 	SignOutCallbackURL string
 	AccessDeniedURL    string
-	Scopes             []string
+	Scopes             *sslice.StringSlice
 }
 
 type ClientOptions struct {
@@ -67,7 +69,7 @@ type ClientOptions struct {
 	Coki_Token         string
 	Coki_IDToken       string
 	Coki_Session       string
-	Scopes             []string
+	Scopes             *sslice.StringSlice
 	Sessions           *sessions.Sessions
 	PermissionAuditor  security.IPermissionAuditor
 }
@@ -84,7 +86,7 @@ func checkOptions(options *ClientOptions) {
 	if options.ClientSecret == "" {
 		log.Fatal("OIDCClient.Options.ClientSecret cannot be empty.")
 	}
-	if len(options.Scopes) == 0 {
+	if len(*options.Scopes) == 0 {
 		log.Fatal("OIDCClient.Options.Scopes cannot be empty")
 	}
 	if options.PassportURL == "" {
