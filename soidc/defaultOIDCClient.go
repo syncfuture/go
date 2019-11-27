@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"net/url"
 
+	"golang.org/x/oauth2/clientcredentials"
+
 	"github.com/syncfuture/go/sjson"
 	u "github.com/syncfuture/go/util"
 
@@ -23,6 +25,7 @@ type defaultOIDCClient struct {
 	Options      *ClientOptions
 	OIDCProvider *oidc.Provider
 	OAuth2Config *oauth2.Config
+	ClientConfig *clientcredentials.Config
 }
 
 func NewOIDCClient(options *ClientOptions) IOIDCClient {
@@ -44,7 +47,46 @@ func NewOIDCClient(options *ClientOptions) IOIDCClient {
 	x.OAuth2Config.RedirectURL = options.SignInCallbackURL
 	x.OAuth2Config.Scopes = append(options.Scopes, oidc.ScopeOpenID)
 
+	x.ClientConfig = new(clientcredentials.Config)
+	x.ClientConfig.ClientID = options.ClientID
+	x.ClientConfig.ClientSecret = options.ClientSecret
+	x.ClientConfig.TokenURL = x.OIDCProvider.Endpoint().TokenURL
+	x.ClientConfig.Scopes = options.Scopes
+
 	return x
+}
+
+func (x *defaultOIDCClient) NewHttpClient(ctx context.Context) (*http.Client, error) {
+	goctx := gocontext.Background()
+
+	if ctx == nil {
+		// ClientCredential令牌方式
+		return x.ClientConfig.Client(goctx), nil
+	}
+
+	session := x.Options.Sessions.Start(ctx)
+	userID := session.GetString(SESS_ID)
+	if userID == "" {
+		return nil, fmt.Errorf("user id not exists in session")
+	}
+
+	t, _, err := x.GetToken(ctx)
+	if u.LogError(err) {
+		return nil, err
+	}
+
+	tokenSource := x.OAuth2Config.TokenSource(goctx, t)
+	newToken, err := tokenSource.Token()
+	if u.LogError(err) {
+		return nil, err
+	}
+
+	if newToken.AccessToken != t.AccessToken {
+		x.SaveToken(ctx, newToken)
+		log.Debugf("Saved new token for user %s", userID)
+	}
+
+	return oauth2.NewClient(goctx, tokenSource), nil
 }
 
 func (x *defaultOIDCClient) HandleAuthentication(ctx context.Context) {
@@ -189,33 +231,6 @@ func (x *defaultOIDCClient) HandleSignOutCallback(ctx context.Context) {
 
 	// 跳转回登出时的页面
 	ctx.Redirect(redirectUrl, http.StatusFound)
-}
-
-func (x *defaultOIDCClient) NewHttpClient(ctx context.Context) (*http.Client, error) {
-	session := x.Options.Sessions.Start(ctx)
-	userID := session.GetString(SESS_ID)
-	if userID == "" {
-		return nil, fmt.Errorf("user id not exists in session")
-	}
-
-	t, _, err := x.GetToken(ctx)
-	if u.LogError(err) {
-		return nil, err
-	}
-
-	goctx := gocontext.Background()
-	tokenSource := x.OAuth2Config.TokenSource(goctx, t)
-	newToken, err := tokenSource.Token()
-	if u.LogError(err) {
-		return nil, err
-	}
-
-	if newToken.AccessToken != t.AccessToken {
-		x.SaveToken(ctx, newToken)
-		log.Debugf("Saved new token for user %s", userID)
-	}
-
-	return oauth2.NewClient(goctx, tokenSource), nil
 }
 
 func (x *defaultOIDCClient) SaveToken(ctx context.Context, token *oauth2.Token) error {
