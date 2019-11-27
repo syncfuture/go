@@ -56,12 +56,16 @@ func NewOIDCClient(options *ClientOptions) IOIDCClient {
 	return x
 }
 
-func (x *defaultOIDCClient) NewHttpClient(ctx context.Context) (*http.Client, error) {
+func (x *defaultOIDCClient) NewHttpClient(args ...interface{}) (*http.Client, error) {
 	goctx := gocontext.Background()
-
-	if ctx == nil {
+	if len(args) == 0 {
 		// ClientCredential令牌方式
 		return x.ClientConfig.Client(goctx), nil
+	}
+
+	ctx, ok := args[0].(context.Context)
+	if !ok {
+		panic("first parameter must be iris context")
 	}
 
 	session := x.Options.Sessions.Start(ctx)

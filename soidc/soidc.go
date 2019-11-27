@@ -30,7 +30,7 @@ type IOIDCClient interface {
 	HandleSignInCallback(context.Context)
 	HandleSignOut(context.Context)
 	HandleSignOutCallback(context.Context)
-	NewHttpClient(context.Context) (*http.Client, error)
+	NewHttpClient(args ...interface{}) (*http.Client, error)
 	GetToken(ctx context.Context) (*oauth2.Token, string, error)
 	SaveToken(ctx context.Context, token *oauth2.Token) error
 }
