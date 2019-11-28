@@ -20,9 +20,10 @@ type (
 	}
 	WebServer struct {
 		listenAddr     string
-		App            *iris.Application
 		preMiddlewares []context.Handler
 		actionMap      *map[string]*Action
+		App            *iris.Application
+		ViewEngine     view.Engine
 	}
 )
 
@@ -35,6 +36,7 @@ func NewWebServer(option *WebServerOption) *WebServer {
 	}
 
 	r := new(WebServer)
+	r.ViewEngine = option.ViewEngine
 
 	r.App = iris.New()
 	r.App.Logger().SetLevel(option.LogLevel)
