@@ -280,7 +280,7 @@ func (x *defaultOIDCClient) GetToken(ctx context.Context) (*oauth2.Token, string
 		return nil, "", err
 	}
 
-	idToken := session.GetString(COKI_TOKEN)
+	idToken := session.GetString(COKI_IDTOKEN)
 
 	return t, idToken, err
 }
