@@ -17,6 +17,7 @@ type IConfigProvider interface {
 	GetBool(key string) bool
 	GetFloat64(key string) float64
 	GetInt(key string) int
+	GetIntDefault(key string, defultValue int) int
 	GetStringSlice(key string) []string
 	GetIntSlice(key string) []int
 	GetRedisConfig() *sredis.RedisConfig

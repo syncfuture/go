@@ -52,6 +52,14 @@ func (x *mapConfiguration) GetInt(key string) int {
 	r := x.GetFloat64(key)
 	return int(r)
 }
+func (x *mapConfiguration) GetIntDefault(key string, defultValue int) int {
+	f := x.GetFloat64(key)
+	if f == 0 {
+		return defultValue
+	} else {
+		return int(f)
+	}
+}
 
 func (x *mapConfiguration) GetStringSlice(key string) []string {
 	v := getValue(key, *x)
