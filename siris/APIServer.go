@@ -1,85 +1,119 @@
 package siris
 
 import (
-	"net/http"
-	"strings"
-
-	"github.com/syncfuture/go/security"
-
-	"github.com/syncfuture/go/sredis"
-
-	"github.com/iris-contrib/middleware/jwt"
-	"github.com/syncfuture/go/soidc"
-
-	"github.com/kataras/iris/v12/middleware/logger"
-	"github.com/kataras/iris/v12/middleware/recover"
-
+	"crypto/tls"
 	jwtgo "github.com/dgrijalva/jwt-go"
+	"github.com/iris-contrib/middleware/jwt"
+	log "github.com/kataras/golog"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
+	"github.com/kataras/iris/v12/middleware/logger"
+	"github.com/kataras/iris/v12/middleware/recover"
+	"github.com/syncfuture/go/config"
+	"github.com/syncfuture/go/security"
+	"github.com/syncfuture/go/soidc"
+	"github.com/syncfuture/go/surl"
+	"net/http"
+	"net/url"
+	"strings"
 )
 
-type (
-	APIServerOption struct {
-		ProjectName, LogLevel, ListenAddr string
-		Debug                             bool
-		RedisConfig                       *sredis.RedisConfig
-		OIDCConfig                        *soidc.OIDCConfig
-		ActionMap                         *map[string]*Action
+type APIServerOption struct {
+	ActionMap *map[string]*Action
+}
+
+type APIServer struct {
+	ConfigProvider          config.IConfigProvider
+	App                     *iris.Application
+	PublicKeyProvider       soidc.IPublicKeyProvider
+	URLProvider             surl.IURLProvider
+	RoutePermissionProvider security.IRoutePermissionProvider
+	PermissionAuditor       security.IPermissionAuditor
+	PreMiddlewares          []context.Handler
+	ActionMap               *map[string]*Action
+}
+
+func NewApiServer(option *APIServerOption) (r *APIServer) {
+	r.ConfigProvider = config.NewJsonConfigProvider()
+	// 日志和配置
+	logLevel := r.ConfigProvider.GetString("Log.Level")
+	log.SetLevel(logLevel)
+
+	// 调试
+	isDebug := r.ConfigProvider.GetBool("Dev.Debug")
+	if isDebug {
+		// 跳过证书验证
+		transport := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+		// 使用代理
+		proxy := r.ConfigProvider.GetString("Dev.Proxy")
+		if proxy != "" {
+			transport.Proxy = func(r *http.Request) (*url.URL, error) {
+				return url.Parse(proxy)
+			}
+		}
+		http.DefaultClient.Transport = transport
 	}
-	APIServer struct {
-		listenAddr     string
-		App            *iris.Application
-		preMiddlewares []context.Handler
-		actionMap      *map[string]*Action
-	}
-)
 
-func NewAPIServer(option *APIServerOption) *APIServer {
-	r := new(APIServer)
+	// URLProvider
+	redisConfig := r.ConfigProvider.GetRedisConfig()
+	r.URLProvider = surl.NewRedisURLProvider(redisConfig)
 
-	r.App = iris.New()
-	r.App.Logger().SetLevel(option.LogLevel)
-
-	r.App.Use(recover.New())
-	r.App.Use(logger.New())
-
-	r.actionMap = option.ActionMap
-	r.listenAddr = option.ListenAddr
-
-	jwksURL := option.OIDCConfig.JWKSURL
-	if option.OIDCConfig.JWKSURL == "" {
+	oidcConfig := r.ConfigProvider.GetOIDCConfig()
+	jwksURL := oidcConfig.JWKSURL
+	if jwksURL == "" {
 		jwksURL = "/.well-known/openid-configuration/jwks"
 	}
 
-	publicKeyProvider := soidc.NewPublicKeyProvider(option.OIDCConfig.PassportURL, jwksURL, option.ProjectName)
-	routePermissionProvider := security.NewRedisRoutePermissionProvider(option.ProjectName, option.RedisConfig)
-	permissionAuditor := security.NewPermissionAuditor(routePermissionProvider)
+	// 权限
+	projectName := r.ConfigProvider.GetString("ProjectName")
+	r.RoutePermissionProvider = security.NewRedisRoutePermissionProvider(projectName, redisConfig)
+	r.PermissionAuditor = security.NewPermissionAuditor(r.RoutePermissionProvider)
 
+	// 渲染URL
+	oidcConfig.PassportURL = r.URLProvider.RenderURLCache(oidcConfig.PassportURL)
+
+	// 公钥提供器
+	r.PublicKeyProvider = soidc.NewPublicKeyProvider(oidcConfig.PassportURL, jwksURL, projectName)
+
+	// JWT验证中间件
 	jwtMiddleware := jwt.New(jwt.Config{
-		ValidationKeyGetter: publicKeyProvider.GetKey,
+		ValidationKeyGetter: r.PublicKeyProvider.GetKey,
 		SigningMethod:       jwtgo.SigningMethodRS256,
 	})
 
+	// 授权中间件
 	authMiddleware := &AuthMidleware{
-		ActionMap:         r.actionMap,
-		PermissionAuditor: permissionAuditor,
+		ActionMap:         r.ActionMap,
+		PermissionAuditor: r.PermissionAuditor,
 	}
 
-	r.preMiddlewares = append(r.preMiddlewares, jwtMiddleware.Serve)
-	r.preMiddlewares = append(r.preMiddlewares, authMiddleware.Serve)
+	// 添加中间件
+	r.PreMiddlewares = append(r.PreMiddlewares, jwtMiddleware.Serve)
+	r.PreMiddlewares = append(r.PreMiddlewares, authMiddleware.Serve)
+
+	// IRIS App
+	r.App = iris.New()
+	r.App.Logger().SetLevel(logLevel)
+	r.App.Use(recover.New())
+	r.App.Use(logger.New())
+
+	r.ActionMap = option.ActionMap
 
 	return r
 }
 
 func (x *APIServer) Run() {
 	x.registerActions()
-	x.App.Run(iris.Addr(x.listenAddr))
+
+	listenAddr := x.ConfigProvider.GetString("ListenAddr")
+	x.App.Run(iris.Addr(listenAddr))
 }
 
 func (x *APIServer) registerActions() {
-	for name, action := range *x.actionMap {
-		handlers := append(x.preMiddlewares, action.Handler)
+	for name, action := range *x.ActionMap {
+		handlers := append(x.PreMiddlewares, action.Handler)
 		x.registerAction(name, handlers...)
 	}
 }
@@ -98,6 +132,9 @@ func (x *APIServer) registerAction(name string, handlers ...context.Handler) {
 		break
 	case http.MethodPut:
 		x.App.Put(path, handlers...)
+		break
+	case http.MethodPatch:
+		x.App.Patch(path, handlers...)
 		break
 	case http.MethodDelete:
 		x.App.Delete(path, handlers...)
