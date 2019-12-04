@@ -2,12 +2,14 @@ package config
 
 import (
 	log "github.com/kataras/golog"
+	"github.com/syncfuture/go/soidc"
+	"github.com/syncfuture/go/sredis"
 	"strings"
 )
 
-type Configuration map[string]interface{}
+type mapConfiguration map[string]interface{}
 
-func (x *Configuration) GetString(key string) string {
+func (x *mapConfiguration) GetString(key string) string {
 	v := getValue(key, *x)
 	if v != nil {
 		r, ok := v.(string)
@@ -20,7 +22,7 @@ func (x *Configuration) GetString(key string) string {
 	return ""
 }
 
-func (x *Configuration) GetBool(key string) bool {
+func (x *mapConfiguration) GetBool(key string) bool {
 	v := getValue(key, *x)
 	if v != nil {
 		r, ok := v.(bool)
@@ -33,7 +35,7 @@ func (x *Configuration) GetBool(key string) bool {
 	return false
 }
 
-func (x *Configuration) GetFloat64(key string) float64 {
+func (x *mapConfiguration) GetFloat64(key string) float64 {
 	v := getValue(key, *x)
 	if v != nil {
 		r, ok := v.(float64)
@@ -46,12 +48,73 @@ func (x *Configuration) GetFloat64(key string) float64 {
 	return 0
 }
 
-func (x *Configuration) GetInt(key string) int {
+func (x *mapConfiguration) GetInt(key string) int {
 	r := x.GetFloat64(key)
 	return int(r)
 }
 
-func getValue(key string, c Configuration) interface{} {
+func (x *mapConfiguration) GetStringSlice(key string) []string {
+	v := getValue(key, *x)
+	if v != nil {
+		slice, ok := v.([]interface{})
+		if !ok {
+			log.Warnf("convert failed. %t -> interface slice", v)
+		} else {
+			var r []string
+			for _, e := range slice {
+				a, ok := e.(string)
+				if ok {
+					r = append(r, a)
+				}
+			}
+			return r
+		}
+	}
+	return make([]string, 0)
+}
+
+func (x *mapConfiguration) GetIntSlice(key string) []int {
+	v := getValue(key, *x)
+	if v != nil {
+		slice, ok := v.([]interface{})
+		if !ok {
+			log.Warnf("convert failed. %t -> interface slice", v)
+		} else {
+			var r []int
+			for _, e := range slice {
+				a, ok := e.(float64)
+				if ok {
+					r = append(r, int(a))
+				}
+			}
+			return r
+		}
+	}
+	return make([]int, 0)
+}
+
+func (x *mapConfiguration) GetRedisConfig() *sredis.RedisConfig {
+	r := new(sredis.RedisConfig)
+	r.Addrs = x.GetStringSlice("Redis.Addrs")
+	r.Password = x.GetString("Redis.Password")
+	r.ClusterEnabled = x.GetBool("Redis.ClusterEnabled")
+	return r
+}
+
+func (x *mapConfiguration) GetOIDCConfig() *soidc.OIDCConfig {
+	r := new(soidc.OIDCConfig)
+	r.ClientID = x.GetString("OIDC.Addrs")
+	r.ClientSecret = x.GetString("OIDC.ClientSecret")
+	r.PassportURL = x.GetString("OIDC.PassportURL")
+	r.JWKSURL = x.GetString("OIDC.JWKSURL")
+	r.SignInCallbackURL = x.GetString("OIDC.SignInCallbackURL")
+	r.SignOutCallbackURL = x.GetString("OIDC.SignOutCallbackURL")
+	r.AccessDeniedURL = x.GetString("OIDC.AccessDeniedURL")
+	r.Scopes = x.GetStringSlice("OIDC.Scopes")
+	return r
+}
+
+func getValue(key string, c mapConfiguration) interface{} {
 	keys := strings.Split(key, ".")
 	keyCount := len(keys)
 

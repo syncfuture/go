@@ -1,0 +1,32 @@
+{
+    "Log": {
+        "Level": "debug"
+    },
+    "Dev": {
+        "Debug": true
+    },
+    "Redis": {
+        "Addrs": [
+            "192.168.188.200:6379",
+            "192.168.188.166:6379"
+        ],
+        "Password": "Famous901",
+        "ClusterEnabled": true
+    },
+    "OIDC": {
+        "ClientID": "amsadmin",
+        "ClientSecret": "Famous901",
+        "PassportURL": "{{amspass}}",
+        "SignInCallbackURL": "{{amsadmin}}/signin-oidc",
+        "SignOutCallbackURL": "{{amsadmin}}/signout-callback-oidc",
+        "AccessDeniedURL": "/accessdenied",
+        "Scopes": [
+            "offline_access",
+            "user"
+        ]
+    },
+    "ProjectName": "amsadmin",
+    "ListenAddr": ":8002",
+    "TestInt": 79,
+    "TestIntSlice": [5, 64, 36, 29, 78]
+}
