@@ -48,13 +48,13 @@ func NewOIDCClient(options *ClientOptions) IOIDCClient {
 	x.OAuth2Config.ClientSecret = options.ClientSecret
 	x.OAuth2Config.Endpoint = x.OIDCProvider.Endpoint()
 	x.OAuth2Config.RedirectURL = options.SignInCallbackURL
-	x.OAuth2Config.Scopes = sslice.AppendString(options.Scopes, oidc.ScopeOpenID)
+	x.OAuth2Config.Scopes = sslice.AppendStringToNew(options.Scopes, oidc.ScopeOpenID)
 
 	x.ClientConfig = new(clientcredentials.Config)
 	x.ClientConfig.ClientID = options.ClientID
 	x.ClientConfig.ClientSecret = options.ClientSecret
 	x.ClientConfig.TokenURL = x.OIDCProvider.Endpoint().TokenURL
-	x.ClientConfig.Scopes = sslice.RemoveString(options.Scopes, oidc.ScopeOfflineAccess, oidc.ScopeOpenID)
+	x.ClientConfig.Scopes = sslice.RemoveStringToNew(options.Scopes, oidc.ScopeOfflineAccess, oidc.ScopeOpenID)
 
 	return x
 }
