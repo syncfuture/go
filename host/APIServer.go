@@ -62,10 +62,6 @@ func NewAPIServer() (r *APIServer) {
 	r.URLProvider = surl.NewRedisURLProvider(r.RedisConfig)
 
 	oidcConfig := r.ConfigProvider.GetOIDCConfig()
-	jwksURL := oidcConfig.JWKSURL
-	if jwksURL == "" {
-		jwksURL = "/.well-known/openid-configuration/jwks"
-	}
 
 	// 权限
 	projectName := r.ConfigProvider.GetString("ProjectName")
@@ -79,23 +75,11 @@ func NewAPIServer() (r *APIServer) {
 	oidcConfig.PassportURL = r.URLProvider.RenderURLCache(oidcConfig.PassportURL)
 
 	// 公钥提供器
-	r.PublicKeyProvider = soidc.NewPublicKeyProvider(oidcConfig.PassportURL, jwksURL, projectName)
-
-	// JWT验证中间件
-	jwtMiddleware := jwt.New(jwt.Config{
-		ValidationKeyGetter: r.PublicKeyProvider.GetKey,
-		SigningMethod:       jwtgo.SigningMethodRS256,
-	})
-
-	// 授权中间件
-	authMiddleware := &AuthMidleware{
-		ActionMap:         r.ActionMap,
-		PermissionAuditor: r.PermissionAuditor,
+	jwksURL := oidcConfig.JWKSURL
+	if jwksURL == "" {
+		jwksURL = "/.well-known/openid-configuration/jwks"
 	}
-
-	// 添加中间件
-	r.PreMiddlewares = append(r.PreMiddlewares, jwtMiddleware.Serve)
-	r.PreMiddlewares = append(r.PreMiddlewares, authMiddleware.Serve)
+	r.PublicKeyProvider = soidc.NewPublicKeyProvider(oidcConfig.PassportURL, jwksURL, projectName)
 
 	// IRIS App
 	r.App = iris.New()
@@ -106,7 +90,7 @@ func NewAPIServer() (r *APIServer) {
 	return r
 }
 
-func (x *APIServer) RegisterActionMap(actionGroups ...*[]*Action) {
+func (x *APIServer) Init(actionGroups ...*[]*Action) {
 	actionMap := make(map[string]*Action)
 
 	for _, actionGroup := range actionGroups {
@@ -115,6 +99,22 @@ func (x *APIServer) RegisterActionMap(actionGroups ...*[]*Action) {
 		}
 	}
 	x.ActionMap = &actionMap
+
+	// JWT验证中间件
+	jwtMiddleware := jwt.New(jwt.Config{
+		ValidationKeyGetter: x.PublicKeyProvider.GetKey,
+		SigningMethod:       jwtgo.SigningMethodRS256,
+	})
+
+	// 授权中间件
+	authMiddleware := &AuthMidleware{
+		ActionMap:         x.ActionMap,
+		PermissionAuditor: x.PermissionAuditor,
+	}
+
+	// 添加中间件
+	x.PreMiddlewares = append(x.PreMiddlewares, jwtMiddleware.Serve)
+	x.PreMiddlewares = append(x.PreMiddlewares, authMiddleware.Serve)
 }
 
 func (x *APIServer) Run() {
