@@ -22,6 +22,14 @@ func (x *mapConfiguration) GetString(key string) string {
 	return ""
 }
 
+func (x *mapConfiguration) GetStringDefault(key, defaultValue string) string {
+	r := x.GetString(key)
+	if r != "" {
+		return r
+	}
+	return defaultValue
+}
+
 func (x *mapConfiguration) GetBool(key string) bool {
 	v := getValue(key, *x)
 	if v != nil {
@@ -52,13 +60,12 @@ func (x *mapConfiguration) GetInt(key string) int {
 	r := x.GetFloat64(key)
 	return int(r)
 }
-func (x *mapConfiguration) GetIntDefault(key string, defultValue int) int {
-	f := x.GetFloat64(key)
-	if f == 0 {
-		return defultValue
-	} else {
-		return int(f)
+func (x *mapConfiguration) GetIntDefault(key string, defaultValue int) int {
+	r := x.GetInt(key)
+	if r != 0 {
+		return r
 	}
+	return defaultValue
 }
 
 func (x *mapConfiguration) GetStringSlice(key string) []string {
