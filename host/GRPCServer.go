@@ -19,7 +19,7 @@ type GRPCServer struct {
 func NewGRPCServer() (r *GRPCServer) {
 	r.ConfigProvider = config.NewJsonConfigProvider()
 	// 日志和配置
-	logLevel := r.ConfigProvider.GetString("Log.Level")
+	logLevel := r.ConfigProvider.GetStringDefault("Log.Level", "warn")
 	log.SetLevel(logLevel)
 
 	// 调试
@@ -52,6 +52,10 @@ func NewGRPCServer() (r *GRPCServer) {
 
 func (x *GRPCServer) Run() {
 	listenAddr := x.ConfigProvider.GetString("ListenAddr")
+	if listenAddr == "" {
+		log.Fatal("Cannot find 'ListenAddr' config")
+	}
+
 	lis, err := net.Listen("tcp", listenAddr)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)

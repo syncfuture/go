@@ -33,7 +33,7 @@ type WebServer struct {
 func NewWebServer() (r *WebServer) {
 	r.ConfigProvider = config.NewJsonConfigProvider()
 	// 日志和配置
-	logLevel := r.ConfigProvider.GetString("Log.Level")
+	logLevel := r.ConfigProvider.GetStringDefault("Log.Level", "warn")
 	log.SetLevel(logLevel)
 
 	// 调试
@@ -58,7 +58,11 @@ func NewWebServer() (r *WebServer) {
 	r.URLProvider = surl.NewRedisURLProvider(redisConfig)
 
 	// 权限
-	r.RoutePermissionProvider = security.NewRedisRoutePermissionProvider(r.ConfigProvider.GetString("ProjectName"), redisConfig)
+	projectName := r.ConfigProvider.GetString("ProjectName")
+	if projectName == "" {
+		log.Fatal("cannot find 'ProjectName' config")
+	}
+	r.RoutePermissionProvider = security.NewRedisRoutePermissionProvider(projectName, redisConfig)
 	r.PermissionAuditor = security.NewPermissionAuditor(r.RoutePermissionProvider)
 
 	// 渲染URL
@@ -83,7 +87,15 @@ func NewWebServer() (r *WebServer) {
 	r.OIDCClient = soidc.NewOIDCClient(oidcOptions)
 
 	// Cookie和Session
-	r.SecureCookie = security.NewDefaultSecureCookie([]byte(r.ConfigProvider.GetString("Cookie.HashKey")), []byte(r.ConfigProvider.GetString("Cookie.BlockKey")))
+	hashKey := r.ConfigProvider.GetString("Cookie.HashKey")
+	if hashKey == "" {
+		log.Fatal("Cannot find 'Cookie.HashKey' config")
+	}
+	blockKey := r.ConfigProvider.GetString("Cookie.BlockKey")
+	if blockKey == "" {
+		log.Fatal("Cannot find 'Cookie.BlockKey' config")
+	}
+	r.SecureCookie = security.NewDefaultSecureCookie([]byte(hashKey), []byte(blockKey))
 	r.SessionManager = sessions.New(sessions.Config{
 		Expires:      -1 * time.Hour,
 		Cookie:       soidc.COKI_SESSION,
@@ -121,5 +133,8 @@ func NewWebServer() (r *WebServer) {
 
 func (x *WebServer) Run() {
 	listenAddr := x.ConfigProvider.GetString("ListenAddr")
+	if listenAddr == "" {
+		log.Fatal("Cannot find 'ListenAddr' config")
+	}
 	x.App.Run(iris.Addr(listenAddr))
 }

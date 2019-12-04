@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis"
+	log "github.com/kataras/golog"
 	"github.com/patrickmn/go-cache"
 	"github.com/syncfuture/go/sredis"
 	u "github.com/syncfuture/go/util"
@@ -25,6 +26,9 @@ type redisURLProvider struct {
 
 // NewRedisURLProvider create new url provider
 func NewRedisURLProvider(redisConfig *sredis.RedisConfig) IURLProvider {
+	if len(redisConfig.Addrs) == 0 || redisConfig.Addrs[0] == "" {
+		log.Fatal("cannot find 'Redis.Addrs' config")
+	}
 	return &redisURLProvider{
 		client: sredis.NewClient(redisConfig),
 	}

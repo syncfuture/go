@@ -36,7 +36,7 @@ type APIServer struct {
 func NewApiServer(option *APIServerOption) (r *APIServer) {
 	r.ConfigProvider = config.NewJsonConfigProvider()
 	// 日志和配置
-	logLevel := r.ConfigProvider.GetString("Log.Level")
+	logLevel := r.ConfigProvider.GetStringDefault("Log.Level", "warn")
 	log.SetLevel(logLevel)
 
 	// 调试
@@ -68,6 +68,9 @@ func NewApiServer(option *APIServerOption) (r *APIServer) {
 
 	// 权限
 	projectName := r.ConfigProvider.GetString("ProjectName")
+	if projectName == "" {
+		log.Fatal("cannot find 'ProjectName' config")
+	}
 	r.RoutePermissionProvider = security.NewRedisRoutePermissionProvider(projectName, redisConfig)
 	r.PermissionAuditor = security.NewPermissionAuditor(r.RoutePermissionProvider)
 
@@ -108,6 +111,9 @@ func (x *APIServer) Run() {
 	x.registerActions()
 
 	listenAddr := x.ConfigProvider.GetString("ListenAddr")
+	if listenAddr == "" {
+		log.Fatal("Cannot find 'ListenAddr' config")
+	}
 	x.App.Run(iris.Addr(listenAddr))
 }
 
