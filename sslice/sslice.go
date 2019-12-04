@@ -28,7 +28,7 @@ func RemoveString(slice []string, elems ...string) []string {
 func AppendStringToNew(slice []string, elems ...string) []string {
 	// 制作拷贝，防止复用
 	r := make([]string, len(slice))
-	copy(r, r)
+	copy(r, slice)
 
 	return AppendString(r, elems...)
 }
@@ -36,6 +36,6 @@ func AppendStringToNew(slice []string, elems ...string) []string {
 func RemoveStringToNew(slice []string, elems ...string) []string {
 	// 制作拷贝，防止复用
 	r := make([]string, len(slice))
-	copy(r, r)
+	copy(r, slice)
 	return RemoveString(r, elems...)
 }
