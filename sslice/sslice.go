@@ -11,10 +11,13 @@ func RemoveString(slice []string, elems ...string) []string {
 	}
 
 	for i := 0; i < len(slice); i++ {
-		for _, e := range elems {
-			if slice[i] == e {
+		v := slice[i]
+		for j := 0; j < len(elems); j++ {
+			if v == elems[j] {
 				slice = append(slice[:i], slice[i+1:]...)
-				i-- // maintain the correct index
+				i--
+				// elems = append(elems[:j], elems[j+1:]...)
+				// j--
 			}
 		}
 	}
