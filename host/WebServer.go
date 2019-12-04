@@ -33,6 +33,7 @@ type WebServer struct {
 }
 
 func NewWebServer() (r *WebServer) {
+	r = new(WebServer)
 	r.ConfigProvider = config.NewJsonConfigProvider()
 	// 日志和配置
 	logLevel := r.ConfigProvider.GetStringDefault("Log.Level", "warn")

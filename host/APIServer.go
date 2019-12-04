@@ -36,6 +36,7 @@ type APIServer struct {
 }
 
 func NewApiServer(option *APIServerOption) (r *APIServer) {
+	r = new(APIServer)
 	r.ConfigProvider = config.NewJsonConfigProvider()
 	// 日志和配置
 	logLevel := r.ConfigProvider.GetStringDefault("Log.Level", "warn")

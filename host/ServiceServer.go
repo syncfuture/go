@@ -13,14 +13,15 @@ import (
 	"net/url"
 )
 
-type GRPCServer struct {
+type ServiceServer struct {
 	ConfigProvider config.IConfigProvider
-	Server         *grpc.Server
+	GRPCServer     *grpc.Server
 	URLProvider    surl.IURLProvider
 	RedisConfig    *sredis.RedisConfig
 }
 
-func NewGRPCServer() (r *GRPCServer) {
+func NewGRPCServer() (r *ServiceServer) {
+	r = new(ServiceServer)
 	r.ConfigProvider = config.NewJsonConfigProvider()
 	// 日志和配置
 	logLevel := r.ConfigProvider.GetStringDefault("Log.Level", "warn")
@@ -55,12 +56,12 @@ func NewGRPCServer() (r *GRPCServer) {
 	panichandler.InstallPanicHandler(func(r interface{}) {
 		log.Error(r)
 	})
-	r.Server = grpc.NewServer(uIntOpt, sIntOpt)
+	r.GRPCServer = grpc.NewServer(uIntOpt, sIntOpt)
 
 	return r
 }
 
-func (x *GRPCServer) Run() {
+func (x *ServiceServer) Run() {
 	listenAddr := x.ConfigProvider.GetString("ListenAddr")
 	if listenAddr == "" {
 		log.Fatal("Cannot find 'ListenAddr' config")
@@ -71,7 +72,9 @@ func (x *GRPCServer) Run() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	if err := x.Server.Serve(lis); err != nil {
+	if err := x.GRPCServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
+	} else {
+		log.Infof("Listening at %v\n", listenAddr)
 	}
 }
