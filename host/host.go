@@ -33,18 +33,6 @@ func NewAction(route, area, controller string, handler context.Handler) *Action 
 	}
 }
 
-func CreateActionMap(actionGroups ...*[]*Action) *map[string]*Action {
-	actionMap := make(map[string]*Action)
-
-	for _, actionGroup := range actionGroups {
-		for _, action := range *actionGroup {
-			actionMap[action.Route] = action
-		}
-	}
-
-	return &actionMap
-}
-
 func HandleError(ctx context.Context, err error) bool {
 	if u.LogError(err) {
 		ctx.StatusCode(http.StatusInternalServerError)

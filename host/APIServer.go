@@ -19,10 +19,6 @@ import (
 	"strings"
 )
 
-type APIServerOption struct {
-	ActionMap *map[string]*Action
-}
-
 type APIServer struct {
 	ConfigProvider          config.IConfigProvider
 	App                     *iris.Application
@@ -35,7 +31,7 @@ type APIServer struct {
 	ActionMap               *map[string]*Action
 }
 
-func NewAPIServer(option *APIServerOption) (r *APIServer) {
+func NewAPIServer() (r *APIServer) {
 	r = new(APIServer)
 	r.ConfigProvider = config.NewJsonConfigProvider()
 	// 日志和配置
@@ -107,9 +103,18 @@ func NewAPIServer(option *APIServerOption) (r *APIServer) {
 	r.App.Use(recover.New())
 	r.App.Use(logger.New())
 
-	r.ActionMap = option.ActionMap
-
 	return r
+}
+
+func (x *APIServer) RegisterActionMap(actionGroups ...*[]*Action) {
+	actionMap := make(map[string]*Action)
+
+	for _, actionGroup := range actionGroups {
+		for _, action := range *actionGroup {
+			actionMap[action.Route] = action
+		}
+	}
+	x.ActionMap = &actionMap
 }
 
 func (x *APIServer) Run() {
