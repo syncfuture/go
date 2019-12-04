@@ -76,21 +76,6 @@ func NewWebServer() (r *WebServer) {
 	oidcConfig.SignInCallbackURL = r.URLProvider.RenderURLCache(oidcConfig.SignInCallbackURL)
 	oidcConfig.SignOutCallbackURL = r.URLProvider.RenderURLCache(oidcConfig.SignOutCallbackURL)
 
-	// OIDC
-	oidcOptions := &soidc.ClientOptions{
-		ClientID:           oidcConfig.ClientID,
-		ClientSecret:       oidcConfig.ClientSecret,
-		PassportURL:        oidcConfig.PassportURL,
-		SignInCallbackURL:  oidcConfig.SignInCallbackURL,
-		SignOutCallbackURL: oidcConfig.SignOutCallbackURL,
-		AccessDeniedURL:    oidcConfig.AccessDeniedURL,
-		Scopes:             oidcConfig.Scopes,
-		Coki_Session:       soidc.COKI_SESSION,
-		PermissionAuditor:  r.PermissionAuditor,
-		Sessions:           r.SessionManager,
-	}
-	r.OIDCClient = soidc.NewOIDCClient(oidcOptions)
-
 	// Cookie和Session
 	hashKey := r.ConfigProvider.GetString("Cookie.HashKey")
 	if hashKey == "" {
@@ -108,6 +93,21 @@ func NewWebServer() (r *WebServer) {
 		Decode:       r.SecureCookie.Decode,
 		AllowReclaim: true,
 	})
+
+	// OIDC
+	oidcOptions := &soidc.ClientOptions{
+		ClientID:           oidcConfig.ClientID,
+		ClientSecret:       oidcConfig.ClientSecret,
+		PassportURL:        oidcConfig.PassportURL,
+		SignInCallbackURL:  oidcConfig.SignInCallbackURL,
+		SignOutCallbackURL: oidcConfig.SignOutCallbackURL,
+		AccessDeniedURL:    oidcConfig.AccessDeniedURL,
+		Scopes:             oidcConfig.Scopes,
+		Coki_Session:       soidc.COKI_SESSION,
+		PermissionAuditor:  r.PermissionAuditor,
+		Sessions:           r.SessionManager,
+	}
+	r.OIDCClient = soidc.NewOIDCClient(oidcOptions)
 
 	// IRIS App
 	r.App = iris.New()
