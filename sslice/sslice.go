@@ -24,3 +24,18 @@ func RemoveString(slice []string, elems ...string) []string {
 
 	return slice
 }
+
+func AppendStringToNew(slice []string, elems ...string) []string {
+	// 制作拷贝，防止复用
+	r := make([]string, len(slice))
+	copy(r, r)
+
+	return AppendString(r, elems...)
+}
+
+func RemoveStringToNew(slice []string, elems ...string) []string {
+	// 制作拷贝，防止复用
+	r := make([]string, len(slice))
+	copy(r, r)
+	return RemoveString(r, elems...)
+}
