@@ -105,7 +105,7 @@ func NewWebServer() (r *WebServer) {
 		Scopes:             oidcConfig.Scopes,
 		Coki_Session:       soidc.COKI_SESSION,
 		PermissionAuditor:  r.PermissionAuditor,
-		Sessions:           r.SessionManager,
+		SessionManager:     r.SessionManager,
 	}
 	r.OIDCClient = soidc.NewOIDCClient(oidcOptions)
 

@@ -71,21 +71,21 @@ func (x *defaultOIDCClient) NewHttpClient(args ...interface{}) (*http.Client, er
 		panic("first parameter must be iris context")
 	}
 
-	session := x.Options.Sessions.Start(ctx)
+	session := x.Options.SessionManager.Start(ctx)
 	userID := session.GetString(SESS_ID)
 	if userID == "" {
-		return nil, fmt.Errorf("user id not exists in session")
+		return new(http.Client), fmt.Errorf("user id not exists in session")
 	}
 
 	t, _, err := x.GetToken(ctx)
 	if u.LogError(err) {
-		return nil, err
+		return new(http.Client), err
 	}
 
 	tokenSource := x.OAuth2Config.TokenSource(goctx, t)
 	newToken, err := tokenSource.Token()
 	if u.LogError(err) {
-		return nil, err
+		return new(http.Client), err
 	}
 
 	if newToken.AccessToken != t.AccessToken {
@@ -97,7 +97,7 @@ func (x *defaultOIDCClient) NewHttpClient(args ...interface{}) (*http.Client, er
 }
 
 func (x *defaultOIDCClient) HandleAuthentication(ctx context.Context) {
-	session := x.Options.Sessions.Start(ctx)
+	session := x.Options.SessionManager.Start(ctx)
 
 	handlerName := ctx.GetCurrentRoute().MainHandlerName()
 	area, controller, action := getRoutes(handlerName)
@@ -140,7 +140,7 @@ func (x *defaultOIDCClient) HandleSignIn(ctx context.Context) {
 		returnURL = "/"
 	}
 
-	session := x.Options.Sessions.Start(ctx)
+	session := x.Options.SessionManager.Start(ctx)
 	userid := session.GetString(x.Options.Sess_ID)
 	if userid != "" {
 		// 已登录
@@ -155,7 +155,7 @@ func (x *defaultOIDCClient) HandleSignIn(ctx context.Context) {
 }
 
 func (x *defaultOIDCClient) HandleSignInCallback(ctx context.Context) {
-	session := x.Options.Sessions.Start(ctx)
+	session := x.Options.SessionManager.Start(ctx)
 
 	state := ctx.FormValue("state")
 	redirectUrl := session.GetString(state)
@@ -201,7 +201,7 @@ func (x *defaultOIDCClient) HandleSignInCallback(ctx context.Context) {
 }
 
 func (x *defaultOIDCClient) HandleSignOut(ctx context.Context) {
-	session := x.Options.Sessions.Start(ctx)
+	session := x.Options.SessionManager.Start(ctx)
 	_, idToken, _ := x.GetToken(ctx)
 
 	session.Delete(SESS_ID)
@@ -223,7 +223,7 @@ func (x *defaultOIDCClient) HandleSignOut(ctx context.Context) {
 }
 
 func (x *defaultOIDCClient) HandleSignOutCallback(ctx context.Context) {
-	session := x.Options.Sessions.Start(ctx)
+	session := x.Options.SessionManager.Start(ctx)
 
 	state := ctx.FormValue("state")
 	redirectUrl := session.GetString(state)
@@ -247,7 +247,7 @@ func (x *defaultOIDCClient) SaveToken(ctx context.Context, token *oauth2.Token) 
 	}
 
 	// 保存常规令牌
-	session := x.Options.Sessions.Start(ctx)
+	session := x.Options.SessionManager.Start(ctx)
 	session.Set(COKI_TOKEN, j)
 
 	// 保存ID令牌
@@ -268,7 +268,7 @@ func (x *defaultOIDCClient) SaveToken(ctx context.Context, token *oauth2.Token) 
 }
 
 func (x *defaultOIDCClient) GetToken(ctx context.Context) (*oauth2.Token, string, error) {
-	session := x.Options.Sessions.Start(ctx)
+	session := x.Options.SessionManager.Start(ctx)
 	j := session.GetString(COKI_TOKEN)
 	// j, err := x.Options.SecureCookie.Get(ctx, COKI_TOKEN)
 	// if u.LogError(err) {

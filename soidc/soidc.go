@@ -68,7 +68,7 @@ type ClientOptions struct {
 	Coki_IDToken       string
 	Coki_Session       string
 	Scopes             []string
-	Sessions           *sessions.Sessions
+	SessionManager     *sessions.Sessions
 	PermissionAuditor  security.IPermissionAuditor
 }
 
@@ -97,8 +97,8 @@ func checkOptions(options *ClientOptions) {
 		log.Fatal("OIDCClient.Options.SignOutCallbackURL cannot be empty.")
 	}
 
-	if options.Sessions == nil {
-		log.Fatal("OIDCClient.Options.Sessions cannot be nil")
+	if options.SessionManager == nil {
+		log.Fatal("OIDCClient.Options.SessionManager cannot be nil")
 	}
 	if options.PermissionAuditor == nil {
 		log.Fatal("OIDCClient.Options.PermissionAuditor cannot be nil")
