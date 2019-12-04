@@ -20,7 +20,7 @@ type ServiceServer struct {
 	RedisConfig    *sredis.RedisConfig
 }
 
-func NewGRPCServer() (r *ServiceServer) {
+func NewServiceServer() (r *ServiceServer) {
 	r = new(ServiceServer)
 	r.ConfigProvider = config.NewJsonConfigProvider()
 	// 日志和配置
