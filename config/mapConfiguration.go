@@ -118,7 +118,7 @@ func (x *mapConfiguration) GetRedisConfig() *sredis.RedisConfig {
 
 func (x *mapConfiguration) GetOIDCConfig() *soidc.OIDCConfig {
 	r := new(soidc.OIDCConfig)
-	r.ClientID = x.GetString("OIDC.Addrs")
+	r.ClientID = x.GetString("OIDC.ClientID")
 	r.ClientSecret = x.GetString("OIDC.ClientSecret")
 	r.PassportURL = x.GetString("OIDC.PassportURL")
 	r.JWKSURL = x.GetString("OIDC.JWKSURL")
