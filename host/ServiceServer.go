@@ -72,9 +72,8 @@ func (x *ServiceServer) Run() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
+	log.Infof("Listening at %v\n", listenAddr)
 	if err := x.GRPCServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
-	} else {
-		log.Infof("Listening at %v\n", listenAddr)
 	}
 }
