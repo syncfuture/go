@@ -1,9 +1,10 @@
-package claims
+package siris
 
 import (
+	"strconv"
+
 	"github.com/iris-contrib/middleware/jwt"
 	"github.com/kataras/iris/v12/context"
-	"strconv"
 )
 
 func GetClaimInt64(claimName string, ctx context.Context) int64 {
