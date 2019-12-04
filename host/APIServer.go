@@ -12,6 +12,7 @@ import (
 	"github.com/syncfuture/go/config"
 	"github.com/syncfuture/go/security"
 	"github.com/syncfuture/go/soidc"
+	"github.com/syncfuture/go/sredis"
 	"github.com/syncfuture/go/surl"
 	"net/http"
 	"net/url"
@@ -29,6 +30,7 @@ type APIServer struct {
 	URLProvider             surl.IURLProvider
 	RoutePermissionProvider security.IRoutePermissionProvider
 	PermissionAuditor       security.IPermissionAuditor
+	RedisConfig             *sredis.RedisConfig
 	PreMiddlewares          []context.Handler
 	ActionMap               *map[string]*Action
 }
@@ -56,9 +58,11 @@ func NewApiServer(option *APIServerOption) (r *APIServer) {
 		http.DefaultClient.Transport = transport
 	}
 
+	// Redis
+	r.RedisConfig = r.ConfigProvider.GetRedisConfig()
+
 	// URLProvider
-	redisConfig := r.ConfigProvider.GetRedisConfig()
-	r.URLProvider = surl.NewRedisURLProvider(redisConfig)
+	r.URLProvider = surl.NewRedisURLProvider(r.RedisConfig)
 
 	oidcConfig := r.ConfigProvider.GetOIDCConfig()
 	jwksURL := oidcConfig.JWKSURL
@@ -71,7 +75,7 @@ func NewApiServer(option *APIServerOption) (r *APIServer) {
 	if projectName == "" {
 		log.Fatal("cannot find 'ProjectName' config")
 	}
-	r.RoutePermissionProvider = security.NewRedisRoutePermissionProvider(projectName, redisConfig)
+	r.RoutePermissionProvider = security.NewRedisRoutePermissionProvider(projectName, r.RedisConfig)
 	r.PermissionAuditor = security.NewPermissionAuditor(r.RoutePermissionProvider)
 
 	// 渲染URL

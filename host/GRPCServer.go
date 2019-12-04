@@ -5,6 +5,8 @@ import (
 	log "github.com/kataras/golog"
 	panichandler "github.com/kazegusuri/grpc-panic-handler"
 	"github.com/syncfuture/go/config"
+	"github.com/syncfuture/go/sredis"
+	"github.com/syncfuture/go/surl"
 	"google.golang.org/grpc"
 	"net"
 	"net/http"
@@ -14,6 +16,8 @@ import (
 type GRPCServer struct {
 	ConfigProvider config.IConfigProvider
 	Server         *grpc.Server
+	URLProvider    surl.IURLProvider
+	RedisConfig    *sredis.RedisConfig
 }
 
 func NewGRPCServer() (r *GRPCServer) {
@@ -38,6 +42,12 @@ func NewGRPCServer() (r *GRPCServer) {
 		}
 		http.DefaultClient.Transport = transport
 	}
+
+	// Redis
+	r.RedisConfig = r.ConfigProvider.GetRedisConfig()
+
+	// URLProvider
+	r.URLProvider = surl.NewRedisURLProvider(r.RedisConfig)
 
 	// GRPC Server
 	uIntOpt := grpc.UnaryInterceptor(panichandler.UnaryPanicHandler)
