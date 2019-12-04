@@ -74,18 +74,18 @@ func (x *defaultOIDCClient) NewHttpClient(args ...interface{}) (*http.Client, er
 	session := x.Options.SessionManager.Start(ctx)
 	userID := session.GetString(SESS_ID)
 	if userID == "" {
-		return new(http.Client), fmt.Errorf("user id not exists in session")
+		return http.DefaultClient, fmt.Errorf("user id not exists in session")
 	}
 
 	t, _, err := x.GetToken(ctx)
 	if u.LogError(err) {
-		return new(http.Client), err
+		return http.DefaultClient, err
 	}
 
 	tokenSource := x.OAuth2Config.TokenSource(goctx, t)
 	newToken, err := tokenSource.Token()
 	if u.LogError(err) {
-		return new(http.Client), err
+		return http.DefaultClient, err
 	}
 
 	if newToken.AccessToken != t.AccessToken {
