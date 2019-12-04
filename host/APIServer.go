@@ -35,7 +35,7 @@ type APIServer struct {
 	ActionMap               *map[string]*Action
 }
 
-func NewApiServer(option *APIServerOption) (r *APIServer) {
+func NewAPIServer(option *APIServerOption) (r *APIServer) {
 	r = new(APIServer)
 	r.ConfigProvider = config.NewJsonConfigProvider()
 	// 日志和配置
