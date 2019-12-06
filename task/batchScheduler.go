@@ -14,10 +14,10 @@ type batchScheduler struct {
 	// Intervel intervel milliseconds per batch
 	intervalMS  int
 	action      func(int, interface{})
-	onBatchDone func(int)
+	onBatchDone func(int, int)
 }
 
-func NewBatchScheduler(batchSize, intervalMS int, action func(int, interface{}), batchEvents ...func(int)) *batchScheduler {
+func NewBatchScheduler(batchSize, intervalMS int, action func(int, interface{}), batchEvents ...func(int, int)) *batchScheduler {
 	r := &batchScheduler{
 		batchSize:  batchSize,
 		intervalMS: intervalMS,
@@ -28,8 +28,7 @@ func NewBatchScheduler(batchSize, intervalMS int, action func(int, interface{}),
 	}
 	return r
 }
-
-func (x *batchScheduler) Run(slicePtr interface{}) (totalPages int) {
+func (x *batchScheduler) Run(slicePtr interface{}) {
 	v := reflect.ValueOf(slicePtr)
 	if v.Kind() != reflect.Ptr {
 		log.Fatal("slicePtr must be a slice pointer")
@@ -50,7 +49,7 @@ func (x *batchScheduler) Run(slicePtr interface{}) (totalPages int) {
 
 	totalCount := s.Len()
 	// 总页数
-	totalPages = int(math.Ceil(float64(totalCount) / float64(x.batchSize)))
+	totalPages := int(math.Ceil(float64(totalCount) / float64(x.batchSize)))
 
 	wg := &sync.WaitGroup{}
 	for pageIndex := 0; pageIndex < totalPages; pageIndex++ {
@@ -75,12 +74,10 @@ func (x *batchScheduler) Run(slicePtr interface{}) (totalPages int) {
 
 		if x.onBatchDone != nil {
 			// 触发批次执行完毕事件
-			x.onBatchDone(pageIndex)
+			x.onBatchDone(pageIndex, totalPages)
 		}
 		if x.intervalMS > 0 && pageIndex < totalPages-1 {
 			time.Sleep(time.Duration(x.intervalMS) * time.Millisecond)
 		}
 	}
-
-	return totalPages
 }
