@@ -29,7 +29,7 @@ func NewBatchScheduler(batchSize, intervalMS int, action func(int, interface{}),
 	return r
 }
 
-func (x *batchScheduler) Run(slicePtr interface{}) {
+func (x *batchScheduler) Run(slicePtr interface{}) (totalPages int) {
 	v := reflect.ValueOf(slicePtr)
 	if v.Kind() != reflect.Ptr {
 		log.Fatal("slicePtr must be a slice pointer")
@@ -50,7 +50,7 @@ func (x *batchScheduler) Run(slicePtr interface{}) {
 
 	totalCount := s.Len()
 	// 总页数
-	totalPages := int(math.Ceil(float64(totalCount) / float64(x.batchSize)))
+	totalPages = int(math.Ceil(float64(totalCount) / float64(x.batchSize)))
 
 	wg := &sync.WaitGroup{}
 	for pageIndex := 0; pageIndex < totalPages; pageIndex++ {
@@ -81,4 +81,6 @@ func (x *batchScheduler) Run(slicePtr interface{}) {
 			time.Sleep(time.Duration(x.intervalMS) * time.Millisecond)
 		}
 	}
+
+	return totalPages
 }
