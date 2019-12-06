@@ -54,7 +54,12 @@ func (x *batchScheduler) Run(slicePtr interface{}) {
 	wg := &sync.WaitGroup{}
 	for pageIndex := 0; pageIndex < totalPages; pageIndex++ {
 		if pageIndex == totalPages-1 {
-			wg.Add(totalCount % x.batchSize) // 余下的个数
+			remainder := totalCount % x.batchSize
+			if remainder == 0 {
+				wg.Add(x.batchSize) // 页数
+			} else {
+				wg.Add(remainder) // 余下的个数
+			}
 		} else {
 			wg.Add(x.batchSize) // 页数
 		}
