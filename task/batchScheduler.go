@@ -14,17 +14,17 @@ type batchScheduler struct {
 	// Intervel intervel milliseconds per batch
 	intervalMS  int
 	action      func(int, interface{})
-	onBatchDone func()
+	onBatchDone func(int)
 }
 
-func NewBatchScheduler(batchSize, intervalMS int, action func(int, interface{}), events ...func()) *batchScheduler {
+func NewBatchScheduler(batchSize, intervalMS int, action func(int, interface{}), batchEvents ...func(int)) *batchScheduler {
 	r := &batchScheduler{
 		batchSize:  batchSize,
 		intervalMS: intervalMS,
 		action:     action,
 	}
-	if len(events) > 0 {
-		r.onBatchDone = events[0]
+	if len(batchEvents) > 0 {
+		r.onBatchDone = batchEvents[0]
 	}
 	return r
 }
@@ -75,7 +75,7 @@ func (x *batchScheduler) Run(slicePtr interface{}) {
 
 		if x.onBatchDone != nil {
 			// 触发批次执行完毕事件
-			x.onBatchDone()
+			x.onBatchDone(pageIndex)
 		}
 		if x.intervalMS > 0 && pageIndex < totalPages-1 {
 			time.Sleep(time.Duration(x.intervalMS) * time.Millisecond)
