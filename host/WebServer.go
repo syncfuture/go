@@ -2,6 +2,10 @@ package host
 
 import (
 	"crypto/tls"
+	"net/http"
+	"net/url"
+	"time"
+
 	log "github.com/kataras/golog"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/middleware/logger"
@@ -13,9 +17,6 @@ import (
 	"github.com/syncfuture/go/soidc"
 	"github.com/syncfuture/go/sredis"
 	"github.com/syncfuture/go/surl"
-	"net/http"
-	"net/url"
-	"time"
 )
 
 type WebServer struct {
@@ -39,21 +40,19 @@ func NewWebServer() (r *WebServer) {
 	logLevel := r.ConfigProvider.GetStringDefault("Log.Level", "warn")
 	log.SetLevel(logLevel)
 
-	// 调试
-	isDebug := r.ConfigProvider.GetBool("Dev.Debug")
-	if isDebug {
-		// 跳过证书验证
-		transport := &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	// 跳过证书验证
+	skipCertVerification := r.ConfigProvider.GetBool("Security.SkipCertVerification")
+	if skipCertVerification {
+		transport := http.DefaultClient.Transport.(*http.Transport)
+		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: skipCertVerification}
+	}
+	// 使用代理
+	proxy := r.ConfigProvider.GetString("Dev.Proxy")
+	if proxy != "" {
+		transport := http.DefaultClient.Transport.(*http.Transport)
+		transport.Proxy = func(r *http.Request) (*url.URL, error) {
+			return url.Parse(proxy)
 		}
-		// 使用代理
-		proxy := r.ConfigProvider.GetString("Dev.Proxy")
-		if proxy != "" {
-			transport.Proxy = func(r *http.Request) (*url.URL, error) {
-				return url.Parse(proxy)
-			}
-		}
-		http.DefaultClient.Transport = transport
 	}
 
 	// Redis
@@ -121,6 +120,8 @@ func NewWebServer() (r *WebServer) {
 	r.App.Get("/signout", r.OIDCClient.HandleSignOut)
 	r.App.Get("/signout-callback-oidc", r.OIDCClient.HandleSignOutCallback)
 
+	// Debug模式
+	isDebug := r.ConfigProvider.GetBool("Dev.Debug")
 	// 视图引擎
 	if r.ViewEngine == nil {
 		r.ViewEngine = iris.HTML("./views", ".html").Layout("shared/_layout.html").Reload(isDebug)
