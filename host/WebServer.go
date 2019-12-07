@@ -1,9 +1,6 @@
 package host
 
 import (
-	"crypto/tls"
-	"net/http"
-	"net/url"
 	"time"
 
 	log "github.com/kataras/golog"
@@ -40,20 +37,8 @@ func NewWebServer() (r *WebServer) {
 	logLevel := r.ConfigProvider.GetStringDefault("Log.Level", "warn")
 	log.SetLevel(logLevel)
 
-	// 跳过证书验证
-	skipCertVerification := r.ConfigProvider.GetBool("Security.SkipCertVerification")
-	if skipCertVerification {
-		transport := http.DefaultClient.Transport.(*http.Transport)
-		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: skipCertVerification}
-	}
-	// 使用代理
-	proxy := r.ConfigProvider.GetString("Dev.Proxy")
-	if proxy != "" {
-		transport := http.DefaultClient.Transport.(*http.Transport)
-		transport.Proxy = func(r *http.Request) (*url.URL, error) {
-			return url.Parse(proxy)
-		}
-	}
+	// Http客户端
+	ConfigHttpClient(r)
 
 	// Redis
 	r.RedisConfig = r.ConfigProvider.GetRedisConfig()
@@ -135,6 +120,10 @@ func NewWebServer() (r *WebServer) {
 	r.App.HandleDir("/", r.StaticFilesDir)
 
 	return r
+}
+
+func (x *WebServer) GetConfigProvider() config.IConfigProvider {
+	return x.ConfigProvider
 }
 
 func (x *WebServer) Run() {

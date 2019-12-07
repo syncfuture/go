@@ -1,14 +1,12 @@
 package host
 
 import (
-	"crypto/tls"
+	"net"
+
 	log "github.com/kataras/golog"
 	panichandler "github.com/kazegusuri/grpc-panic-handler"
 	"github.com/syncfuture/go/config"
 	"google.golang.org/grpc"
-	"net"
-	"net/http"
-	"net/url"
 )
 
 type ServiceServer struct {
@@ -23,22 +21,8 @@ func NewServiceServer() (r *ServiceServer) {
 	logLevel := r.ConfigProvider.GetStringDefault("Log.Level", "warn")
 	log.SetLevel(logLevel)
 
-	// 调试
-	isDebug := r.ConfigProvider.GetBool("Dev.Debug")
-	if isDebug {
-		// 跳过证书验证
-		transport := &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
-		// 使用代理
-		proxy := r.ConfigProvider.GetString("Dev.Proxy")
-		if proxy != "" {
-			transport.Proxy = func(r *http.Request) (*url.URL, error) {
-				return url.Parse(proxy)
-			}
-		}
-		http.DefaultClient.Transport = transport
-	}
+	// Http客户端
+	ConfigHttpClient(r)
 
 	// GRPC Server
 	uIntOpt := grpc.UnaryInterceptor(panichandler.UnaryPanicHandler)
@@ -49,6 +33,10 @@ func NewServiceServer() (r *ServiceServer) {
 	r.GRPCServer = grpc.NewServer(uIntOpt, sIntOpt)
 
 	return r
+}
+
+func (x *ServiceServer) GetConfigProvider() config.IConfigProvider {
+	return x.ConfigProvider
 }
 
 func (x *ServiceServer) Run() {
