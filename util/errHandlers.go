@@ -3,6 +3,7 @@ package u
 import (
 	"errors"
 	"reflect"
+	"runtime"
 	"strings"
 
 	log "github.com/kataras/golog"
@@ -33,9 +34,13 @@ func JointErrors(errs ...error) error {
 
 // LogError 记录有错误
 func LogError(err error) bool {
-
 	if err != nil {
-		log.Error(err)
+		_, file, line, ok := runtime.Caller(1)
+		if ok {
+			log.Errorf("<%s:%d> %v", file, line, err)
+		} else {
+			log.Error(err)
+		}
 		return true
 	}
 
@@ -46,7 +51,14 @@ func LogError(err error) bool {
 func LogErrorMsg(err error, mrPtr interface{}) bool {
 
 	if err != nil {
-		log.Error(err)
+		_, file, line, ok := runtime.Caller(1)
+
+		if ok {
+			log.Errorf("<%s:%d> %v", file, line, err)
+		} else {
+			log.Error(err)
+		}
+
 		if reflect.TypeOf(mrPtr).Kind() != reflect.Ptr {
 			panic("mrPtr must be a pointer")
 		}
