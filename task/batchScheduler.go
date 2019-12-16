@@ -13,22 +13,20 @@ type batchScheduler struct {
 	batchSize int
 	// Intervel intervel milliseconds per batch
 	intervalMS  int
-	action      func(int, interface{})
 	onBatchDone func(int, int)
 }
 
-func NewBatchScheduler(batchSize, intervalMS int, action func(int, interface{}), batchEvents ...func(int, int)) *batchScheduler {
+func NewBatchScheduler(batchSize, intervalMS int, batchEvents ...func(int, int)) *batchScheduler {
 	r := &batchScheduler{
 		batchSize:  batchSize,
 		intervalMS: intervalMS,
-		action:     action,
 	}
 	if len(batchEvents) > 0 {
 		r.onBatchDone = batchEvents[0]
 	}
 	return r
 }
-func (x *batchScheduler) Run(slicePtr interface{}) {
+func (x *batchScheduler) SliceRun(slicePtr interface{}, action func(i int, v interface{})) {
 	v := reflect.ValueOf(slicePtr)
 	if v.Kind() != reflect.Ptr {
 		log.Fatal("slicePtr must be a slice pointer")
@@ -71,7 +69,7 @@ func (x *batchScheduler) Run(slicePtr interface{}) {
 			}
 			go func(i int) {
 				defer wg.Done()
-				x.action(i, s.Index(i).Interface())
+				action(i, s.Index(i).Interface())
 			}(itemIndex)
 		}
 
