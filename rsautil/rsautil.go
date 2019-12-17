@@ -182,7 +182,7 @@ func ReadCertFromFile(file string) (*x509.Certificate, error) {
 }
 
 func ReadPrivateKeyFromFile(file string) (*rsa.PrivateKey, error) {
-	keyFile, err := ioutil.ReadFile("private.key")
+	keyFile, err := ioutil.ReadFile(file)
 	if u.LogError(err) {
 		return nil, err
 	}
