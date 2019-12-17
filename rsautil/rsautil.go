@@ -6,6 +6,7 @@ import (
 	"crypto/sha512"
 	"crypto/x509"
 	"encoding/pem"
+	"io/ioutil"
 
 	log "github.com/kataras/golog"
 	u "github.com/syncfuture/go/util"
@@ -164,4 +165,32 @@ func DecryptWithPrivateKey(ciphertext []byte, priv *rsa.PrivateKey) ([]byte, err
 		return nil, err
 	}
 	return plaintext, err
+}
+
+func ReadCertFromFile(file string) (*x509.Certificate, error) {
+	caFile, err := ioutil.ReadFile(file)
+	if u.LogError(err) {
+		return nil, err
+	}
+	caBlock, _ := pem.Decode(caFile)
+	cert, err := x509.ParseCertificate(caBlock.Bytes)
+	if u.LogError(err) {
+		return nil, err
+	}
+
+	return cert, err
+}
+
+func ReadPrivateKeyFromFile(file string) (*rsa.PrivateKey, error) {
+	keyFile, err := ioutil.ReadFile("private.key")
+	if u.LogError(err) {
+		return nil, err
+	}
+	keyBlock, _ := pem.Decode(keyFile)
+	praKey, err := x509.ParsePKCS8PrivateKey(keyBlock.Bytes)
+	if u.LogError(err) {
+		return nil, err
+	}
+
+	return praKey.(*rsa.PrivateKey), nil
 }

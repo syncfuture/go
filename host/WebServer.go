@@ -28,6 +28,7 @@ type WebServer struct {
 	SecureCookie            security.ISecureCookie
 	ViewEngine              view.Engine
 	StaticFilesDir          string
+	IsDebug                 bool
 }
 
 func NewWebServer() (r *WebServer) {
@@ -106,10 +107,10 @@ func NewWebServer() (r *WebServer) {
 	r.App.Get("/signout-callback-oidc", r.OIDCClient.HandleSignOutCallback)
 
 	// Debug模式
-	isDebug := r.ConfigProvider.GetBool("Dev.Debug")
+	r.IsDebug = r.ConfigProvider.GetBool("Dev.Debug")
 	// 视图引擎
 	if r.ViewEngine == nil {
-		r.ViewEngine = iris.HTML("./views", ".html").Layout("shared/_layout.html").Reload(isDebug)
+		r.ViewEngine = iris.HTML("./views", ".html").Layout("shared/_layout.html").Reload(r.IsDebug)
 	}
 	r.App.RegisterView(r.ViewEngine)
 

@@ -10,7 +10,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	lru "github.com/hashicorp/golang-lru"
 	log "github.com/kataras/golog"
-	"gopkg.in/square/go-jose.v1"
+	"gopkg.in/square/go-jose.v2"
 )
 
 var lruCache *lru.Cache
@@ -92,7 +92,7 @@ func (x *jwksProvider) GetKey(token *jwt.Token) (interface{}, error) {
 	}
 	defer resp.Body.Close()
 
-	jwks := &jose.JsonWebKeySet{}
+	jwks := &jose.JSONWebKeySet{}
 	err = json.Unmarshal(body, jwks)
 	if err != nil {
 		return nil, fmt.Errorf("json validation error c: %s", err)
