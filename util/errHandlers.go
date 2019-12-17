@@ -32,12 +32,14 @@ func JointErrors(errs ...error) error {
 	return nil
 }
 
-func Faltal(err error) {
-	_, file, line, ok := runtime.Caller(1)
-	if ok {
-		log.Fatalf("<%s:%d> %v", file, line, err)
-	} else {
-		log.Fatal(err)
+func LogFaltal(err error) {
+	if err != nil {
+		_, file, line, ok := runtime.Caller(1)
+		if ok {
+			log.Fatalf("<%s:%d> %v", file, line, err)
+		} else {
+			log.Fatal(err)
+		}
 	}
 }
 
