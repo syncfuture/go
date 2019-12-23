@@ -2,9 +2,12 @@ package soidc
 
 import (
 	"fmt"
-	"github.com/syncfuture/go/sslice"
 	"net/http"
 	"net/url"
+
+	"github.com/dgrijalva/jwt-go"
+
+	"github.com/syncfuture/go/sslice"
 
 	"golang.org/x/oauth2/clientcredentials"
 
@@ -171,33 +174,34 @@ func (x *defaultOIDCClient) HandleSignInCallback(ctx context.Context) {
 	httpCtx := gocontext.Background()
 	oauth2Token, err := x.OAuth2Config.Exchange(httpCtx, code /*,oauth2.SetAuthURLParam("aaa","bbb")*/)
 	if err != nil {
-		ctx.Write([]byte("Failed to exchange token: " + err.Error()))
+		errStr := "Failed to exchange token: " + err.Error()
+		log.Error(errStr)
+		ctx.Write([]byte(errStr))
 		ctx.StatusCode(http.StatusInternalServerError)
 		return
 	}
 
-	userInfo, err := x.OIDCProvider.UserInfo(httpCtx, oauth2.StaticTokenSource(oauth2Token))
-	if err != nil {
-		ctx.Write([]byte("Failed to get userinfo: " + err.Error()))
-		ctx.StatusCode(http.StatusInternalServerError)
+	jwtToken, err := jwt.Parse(oauth2Token.AccessToken, nil)
+	if u.LogError(err) {
 		return
 	}
+	claims, ok := jwtToken.Claims.(jwt.MapClaims)
+	if ok {
+		session.Set(x.Options.Sess_ID, claims["sub"])
+		session.Set(x.Options.Sess_Username, claims["name"])
+		session.Set(x.Options.Sess_Roles, claims["role"])
+		session.Set(x.Options.Sess_Level, claims["level"])
+		session.Set(x.Options.Sess_Status, claims["status"])
+		session.Set(x.Options.Sess_Email, claims["email"])
 
-	claims := make(map[string]string, 6)
-	userInfo.Claims(&claims)
+		// // 保存令牌
+		x.SaveToken(ctx, oauth2Token)
 
-	session.Set(x.Options.Sess_ID, claims["sub"])
-	session.Set(x.Options.Sess_Username, claims["name"])
-	session.Set(x.Options.Sess_Roles, claims["role"])
-	session.Set(x.Options.Sess_Level, claims["level"])
-	session.Set(x.Options.Sess_Status, claims["status"])
-	session.Set(x.Options.Sess_Email, claims["email"])
-
-	// // 保存令牌
-	x.SaveToken(ctx, oauth2Token)
-
-	// 重定向到登录前页面
-	ctx.Redirect(redirectUrl, http.StatusFound)
+		// 重定向到登录前页面
+		ctx.Redirect(redirectUrl, http.StatusFound)
+	} else {
+		log.Error("cannot convert jwtToken.Claims to jwt.MapClaims")
+	}
 }
 
 func (x *defaultOIDCClient) HandleSignOut(ctx context.Context) {
@@ -251,8 +255,10 @@ func (x *defaultOIDCClient) SaveToken(ctx context.Context, token *oauth2.Token) 
 	session.Set(COKI_TOKEN, j)
 
 	// 保存ID令牌
-	idToken := token.Extra("id_token").(string)
-	session.Set(COKI_IDTOKEN, idToken)
+	idToken, ok := token.Extra("id_token").(string)
+	if ok {
+		session.Set(COKI_IDTOKEN, idToken)
+	}
 	// err = x.Options.SecureCookie.Set(ctx, COKI_TOKEN, j)
 	// if u.LogError(err) {
 	// 	return err

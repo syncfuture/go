@@ -12,6 +12,6 @@ func TestRenderURL(t *testing.T) {
 		Password: "Famous901",
 	})
 
-	b := a.RenderURLCache("{{hub}}/v1/product/items")
+	b := a.RenderURLCache("{{URI 'hubapi'}}/v1/product/items")
 	t.Log(b)
 }

@@ -60,11 +60,7 @@ func NewAPIServer() (r *APIServer) {
 	oidcConfig.PassportURL = r.URLProvider.RenderURLCache(oidcConfig.PassportURL)
 
 	// 公钥提供器
-	jwksURL := oidcConfig.JWKSURL
-	if jwksURL == "" {
-		jwksURL = "/.well-known/openid-configuration/jwks"
-	}
-	r.PublicKeyProvider = soidc.NewPublicKeyProvider(oidcConfig.PassportURL, jwksURL, projectName)
+	r.PublicKeyProvider = soidc.NewPublicKeyProvider(oidcConfig.PassportURL, oidcConfig.JWKSURL, projectName)
 
 	// IRIS App
 	r.App = iris.New()

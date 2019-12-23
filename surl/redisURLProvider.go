@@ -17,7 +17,7 @@ const (
 
 var (
 	_cache = cache.New(1*time.Hour, 1*time.Hour)
-	_regex = regexp.MustCompile("{{[^}]+}}")
+	_regex = regexp.MustCompile("{{URI '(\\w+)'}}")
 )
 
 type redisURLProvider struct {
@@ -57,7 +57,9 @@ func (x *redisURLProvider) RenderURL(url string) string {
 }
 
 func (x *redisURLProvider) RenderURLCache(url string) string {
-	return _regex.ReplaceAllStringFunc(url, func(match string) string {
-		return x.GetURLCache(match[2 : len(match)-2])
-	})
+	matches := _regex.FindAllStringSubmatch(url, 5)
+	if len(matches) > 0 && len(matches[0]) > 1 {
+		return x.GetURLCache(matches[0][1])
+	}
+	return url
 }

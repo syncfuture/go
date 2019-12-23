@@ -1,10 +1,11 @@
 package config
 
 import (
+	"strings"
+
 	log "github.com/kataras/golog"
 	"github.com/syncfuture/go/soidc"
 	"github.com/syncfuture/go/sredis"
-	"strings"
 )
 
 type mapConfiguration map[string]interface{}
@@ -121,7 +122,7 @@ func (x *mapConfiguration) GetOIDCConfig() *soidc.OIDCConfig {
 	r.ClientID = x.GetString("OIDC.ClientID")
 	r.ClientSecret = x.GetString("OIDC.ClientSecret")
 	r.PassportURL = x.GetString("OIDC.PassportURL")
-	r.JWKSURL = x.GetString("OIDC.JWKSURL")
+	r.JWKSURL = x.GetStringDefault("OIDC.JWKSURL", "/.well-known/openid-configuration/jwk")
 	r.SignInCallbackURL = x.GetString("OIDC.SignInCallbackURL")
 	r.SignOutCallbackURL = x.GetString("OIDC.SignOutCallbackURL")
 	r.AccessDeniedURL = x.GetString("OIDC.AccessDeniedURL")

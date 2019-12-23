@@ -20,6 +20,7 @@ type WebServer struct {
 	ConfigProvider          config.IConfigProvider
 	App                     *iris.Application
 	SessionManager          *sessions.Sessions
+	PublicKeyProvider       soidc.IPublicKeyProvider
 	URLProvider             surl.IURLProvider
 	RoutePermissionProvider security.IRoutePermissionProvider
 	PermissionAuditor       security.IPermissionAuditor
@@ -60,6 +61,9 @@ func NewWebServer() (r *WebServer) {
 	oidcConfig.PassportURL = r.URLProvider.RenderURLCache(oidcConfig.PassportURL)
 	oidcConfig.SignInCallbackURL = r.URLProvider.RenderURLCache(oidcConfig.SignInCallbackURL)
 	oidcConfig.SignOutCallbackURL = r.URLProvider.RenderURLCache(oidcConfig.SignOutCallbackURL)
+
+	// 公钥提供器
+	r.PublicKeyProvider = soidc.NewPublicKeyProvider(oidcConfig.PassportURL, oidcConfig.JWKSURL, projectName)
 
 	// Cookie和Session
 	hashKey := r.ConfigProvider.GetString("Cookie.HashKey")
