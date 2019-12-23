@@ -181,8 +181,11 @@ func (x *defaultOIDCClient) HandleSignInCallback(ctx context.Context) {
 		return
 	}
 
-	jwtToken, err := jwt.Parse(oauth2Token.AccessToken, nil)
-	if u.LogError(err) {
+	// 将字符串转化为令牌对象，忽略KeyFunc不存在错误
+	jwtToken, err := new(jwt.Parser).Parse(oauth2Token.AccessToken, nil)
+	vErr := err.(*jwt.ValidationError)
+	if vErr.Errors != jwt.ValidationErrorUnverifiable {
+		u.LogError(err)
 		return
 	}
 	claims, ok := jwtToken.Claims.(jwt.MapClaims)
