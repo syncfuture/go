@@ -18,7 +18,7 @@ const (
 
 var (
 	_cache = cache.New(1*time.Hour, 1*time.Hour)
-	_regex = regexp.MustCompile("{{URI '(\\w+)'}}")
+	_regex = regexp.MustCompile("{{URI '([^']+)'}}")
 )
 
 type redisURLProvider struct {
