@@ -2,6 +2,7 @@ package surl
 
 import (
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -59,7 +60,9 @@ func (x *redisURLProvider) RenderURL(url string) string {
 func (x *redisURLProvider) RenderURLCache(url string) string {
 	matches := _regex.FindAllStringSubmatch(url, 5)
 	if len(matches) > 0 && len(matches[0]) > 1 {
-		return x.GetURLCache(matches[0][1])
+		o := matches[0][0]
+		n := x.GetURLCache(matches[0][1])
+		return strings.ReplaceAll(url, o, n)
 	}
 	return url
 }
