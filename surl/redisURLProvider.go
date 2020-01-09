@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v7"
 	log "github.com/kataras/golog"
 	"github.com/patrickmn/go-cache"
 	"github.com/syncfuture/go/sredis"

@@ -1,7 +1,7 @@
 package security
 
 import (
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v7"
 	log "github.com/kataras/golog"
 	"github.com/syncfuture/go/sjson"
 	"github.com/syncfuture/go/sproto"
