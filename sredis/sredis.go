@@ -11,7 +11,7 @@ type RedisConfig struct {
 	Password string
 }
 
-func NewClient(config *RedisConfig) redis.Cmdable {
+func NewClient(config *RedisConfig) redis.UniversalClient {
 	addrCount := len(config.Addrs)
 	if addrCount == 0 {
 		log.Fatal("addrs cannot be empty")
@@ -35,17 +35,18 @@ func NewClient(config *RedisConfig) redis.Cmdable {
 	}
 }
 
-func GetPagedKeys(client redis.Cmdable, match string, pageSize int64) (cursor uint64, r []string, err error) {
+func GetPagedKeys(client redis.Cmdable, match string, pageSize int64) (cursor uint64, r []string) {
+	var err error
 	r, cursor, err = client.Scan(cursor, match, pageSize).Result()
 	u.LogError(err)
 	return
 }
 
-func GetAllKeys(client redis.Cmdable, match string, pageSize int64) (r []string, err error) {
+func GetAllKeys(client redis.Cmdable, match string, pageSize int64) (r []string) {
 	var cursor uint64
 	for {
 		var ks []string
-		cursor, ks, err = GetPagedKeys(client, match, pageSize)
+		cursor, ks = GetPagedKeys(client, match, pageSize)
 		r = append(r, ks...)
 		if cursor == 0 {
 			break

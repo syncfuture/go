@@ -10,8 +10,7 @@
             "192.168.188.200:6379",
             "192.168.188.166:6379"
         ],
-        "Password": "Famous901",
-        "ClusterEnabled": true
+        "Password": "Famous901"
     },
     "OIDC": {
         "ClientID": "amsadmin",

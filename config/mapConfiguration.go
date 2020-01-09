@@ -113,7 +113,6 @@ func (x *mapConfiguration) GetRedisConfig() *sredis.RedisConfig {
 	r := new(sredis.RedisConfig)
 	r.Addrs = x.GetStringSlice("Redis.Addrs")
 	r.Password = x.GetString("Redis.Password")
-	r.ClusterEnabled = x.GetBool("Redis.ClusterEnabled")
 	return r
 }
 
