@@ -11,6 +11,7 @@ import (
 type RedisConfig struct {
 	Addrs          []string
 	Password       string
+	DB             int
 	ClusterEnabled bool
 }
 
@@ -22,6 +23,7 @@ func NewClient(config *RedisConfig) redis.UniversalClient {
 	} else if addrCount == 1 && !config.ClusterEnabled {
 		c := &redis.Options{
 			Addr: config.Addrs[0],
+			DB:   config.DB,
 		}
 		if config.Password != "" {
 			c.Password = config.Password
