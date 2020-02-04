@@ -26,6 +26,7 @@ func NewClient(config *RedisConfig) redis.UniversalClient {
 		if config.Password != "" {
 			c.Password = config.Password
 		}
+		return redis.NewClient(c)
 	} else {
 		c := &redis.ClusterOptions{
 			Addrs: config.Addrs,
