@@ -1,14 +1,17 @@
 package sredis
 
 import (
+	"sort"
+
 	"github.com/go-redis/redis/v7"
 	log "github.com/kataras/golog"
 	u "github.com/syncfuture/go/util"
 )
 
 type RedisConfig struct {
-	Addrs    []string
-	Password string
+	Addrs          []string
+	Password       string
+	ClusterEnabled bool
 }
 
 func NewClient(config *RedisConfig) redis.UniversalClient {
@@ -16,14 +19,13 @@ func NewClient(config *RedisConfig) redis.UniversalClient {
 	if addrCount == 0 {
 		log.Fatal("addrs cannot be empty")
 		return nil
-	} else if addrCount == 1 {
+	} else if addrCount == 1 && !config.ClusterEnabled {
 		c := &redis.Options{
 			Addr: config.Addrs[0],
 		}
 		if config.Password != "" {
 			c.Password = config.Password
 		}
-		return redis.NewClient(c)
 	} else {
 		c := &redis.ClusterOptions{
 			Addrs: config.Addrs,
@@ -52,6 +54,8 @@ func GetAllKeys(client redis.Cmdable, match string, pageSize int64) (r []string)
 			break
 		}
 	}
+
+	sort.Strings(r)
 
 	return
 }
