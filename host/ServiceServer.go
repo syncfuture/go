@@ -6,12 +6,16 @@ import (
 	log "github.com/kataras/golog"
 	panichandler "github.com/kazegusuri/grpc-panic-handler"
 	"github.com/syncfuture/go/config"
+	"github.com/syncfuture/go/security"
+	"github.com/syncfuture/go/sredis"
 	"google.golang.org/grpc"
 )
 
 type ServiceServer struct {
-	ConfigProvider config.IConfigProvider
-	GRPCServer     *grpc.Server
+	ConfigProvider    config.IConfigProvider
+	RedisConfig       *sredis.RedisConfig
+	PermissionAuditor security.IPermissionAuditor
+	GRPCServer        *grpc.Server
 }
 
 func NewServiceServer() (r *ServiceServer) {
@@ -23,6 +27,13 @@ func NewServiceServer() (r *ServiceServer) {
 
 	// Http客户端
 	ConfigHttpClient(r)
+
+	// Redis
+	r.RedisConfig = r.ConfigProvider.GetRedisConfig()
+
+	// 权限
+	routePermissionProvider := security.NewRedisRoutePermissionProvider("", r.RedisConfig)
+	r.PermissionAuditor = security.NewPermissionAuditor(routePermissionProvider)
 
 	// GRPC Server
 	uIntOpt := grpc.UnaryInterceptor(panichandler.UnaryPanicHandler)
