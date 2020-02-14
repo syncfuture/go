@@ -3,6 +3,8 @@ package host
 import (
 	"net"
 
+	"github.com/syncfuture/go/sgrpc"
+
 	log "github.com/kataras/golog"
 	panichandler "github.com/kazegusuri/grpc-panic-handler"
 	"github.com/syncfuture/go/config"
@@ -36,12 +38,13 @@ func NewServiceServer() (r *ServiceServer) {
 	r.PermissionAuditor = security.NewPermissionAuditor(routePermissionProvider)
 
 	// GRPC Server
-	uIntOpt := grpc.UnaryInterceptor(panichandler.UnaryPanicHandler)
-	sIntOpt := grpc.StreamInterceptor(panichandler.StreamPanicHandler)
+	unaryPanicHandler := grpc.UnaryInterceptor(panichandler.UnaryPanicHandler)
+	streamPanicHandler := grpc.StreamInterceptor(panichandler.StreamPanicHandler)
 	panichandler.InstallPanicHandler(func(r interface{}) {
 		log.Error(r)
 	})
-	r.GRPCServer = grpc.NewServer(uIntOpt, sIntOpt)
+	unaryJWTHandler := grpc.UnaryInterceptor(sgrpc.AttachJWTToken) // 负责附加jwt令牌到上下文
+	r.GRPCServer = grpc.NewServer(unaryPanicHandler, streamPanicHandler, unaryJWTHandler)
 
 	return r
 }
