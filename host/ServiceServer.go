@@ -34,8 +34,10 @@ func NewServiceServer() (r *ServiceServer) {
 	r.RedisConfig = r.ConfigProvider.GetRedisConfig()
 
 	// 权限
-	routePermissionProvider := security.NewRedisRoutePermissionProvider("", r.RedisConfig)
-	r.PermissionAuditor = security.NewPermissionAuditor(routePermissionProvider)
+	if len(r.RedisConfig.Addrs) > 0 {
+		routePermissionProvider := security.NewRedisRoutePermissionProvider("", r.RedisConfig)
+		r.PermissionAuditor = security.NewPermissionAuditor(routePermissionProvider)
+	}
 
 	// GRPC Server
 	unaryPanicHandler := grpc.UnaryInterceptor(panichandler.UnaryPanicHandler)
