@@ -63,7 +63,7 @@ func AttachJWTToken(ctx context.Context, req interface{}, info *grpc.UnaryServer
 
 func extractToken(ctx context.Context) string {
 	md, _ := metadata.FromIncomingContext(ctx)
-	if authStrs, ok := md["authorization"]; ok {
+	if authStrs, ok := md[_authHeader]; ok {
 		if len(authStrs) == 1 {
 			array := strings.Split(authStrs[0], " ")
 			if len(array) == 2 {

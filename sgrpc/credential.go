@@ -18,9 +18,13 @@ type tokenCredential struct {
 
 // GetRequestMetadata 获取请求Meta
 func (x tokenCredential) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) {
-	return map[string]string{
-		_authHeader: _tokenType + x.Token,
-	}, nil
+	if x.Token != "" {
+		return map[string]string{
+			_authHeader: _tokenType + x.Token,
+		}, nil
+	} else {
+		return map[string]string{}, nil
+	}
 }
 
 // RequireTransportSecurity 是否开启TLS
