@@ -6,8 +6,10 @@ import (
 )
 
 type IPermissionAuditor interface {
-	CheckPermission(permissionID string, userRoles int64, userLevel int32) bool
-	CheckRoute(area, controller, action string, userRoles int64, userLevel int32) bool
+	CheckPermission(permissionID string, userRoles int64) bool
+	CheckPermissionWithLevel(permissionID string, userRoles int64, userLevel int32) bool
+	CheckRoute(area, controller, action string, userRoles int64) bool
+	CheckRouteWithLevel(area, controller, action string, userRoles int64, userLevel int32) bool
 }
 
 type permissionAuditor struct {
@@ -38,7 +40,10 @@ func (x *permissionAuditor) ReloadRoutePermissions() error {
 	return nil
 }
 
-func (x *permissionAuditor) CheckPermission(permissionID string, userRoles int64, userLevel int32) bool {
+func (x *permissionAuditor) CheckPermission(permissionID string, userRoles int64) bool {
+	return x.CheckPermissionWithLevel(permissionID, userRoles, 0)
+}
+func (x *permissionAuditor) CheckPermissionWithLevel(permissionID string, userRoles int64, userLevel int32) bool {
 	if permission, exists := x.permissions[permissionID]; exists {
 		return checkPermission(permission, userRoles, userLevel)
 	}
@@ -57,7 +62,11 @@ func checkPermission(permission *sproto.PermissionDTO, userRoles int64, userLeve
 	}
 }
 
-func (x *permissionAuditor) CheckRoute(area, controller, action string, userRoles int64, userLevel int32) bool {
+func (x *permissionAuditor) CheckRoute(area, controller, action string, userRoles int64) bool {
+	return x.CheckRouteWithLevel(area, controller, action, userRoles, 0)
+}
+
+func (x *permissionAuditor) CheckRouteWithLevel(area, controller, action string, userRoles int64, userLevel int32) bool {
 	key := area + "_" + controller + "_" + action
 
 	route := new(sproto.RouteDTO)
