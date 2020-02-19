@@ -109,8 +109,9 @@ func (x *defaultOIDCClient) HandleAuthentication(ctx context.Context) {
 	userid := session.GetString(x.Options.Sess_ID)
 	if userid != "" {
 		roles := session.GetInt64Default(x.Options.Sess_Roles, 0)
+		level := int32(session.GetIntDefault(x.Options.Sess_Level, 0))
 		// 已登录
-		allow := x.Options.PermissionAuditor.CheckRoute(area, controller, action, roles)
+		allow := x.Options.PermissionAuditor.CheckRouteWithLevel(area, controller, action, roles, level)
 		if allow {
 			// 有权限
 			ctx.Next()
@@ -123,7 +124,7 @@ func (x *defaultOIDCClient) HandleAuthentication(ctx context.Context) {
 		}
 	} else {
 		// 未登录
-		allow := x.Options.PermissionAuditor.CheckRoute(area, controller, action, 0)
+		allow := x.Options.PermissionAuditor.CheckRouteWithLevel(area, controller, action, 0, 0)
 		if allow {
 			// 允许匿名
 			ctx.Next()
