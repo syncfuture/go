@@ -58,7 +58,7 @@ func checkPermission(permission *sproto.PermissionDTO, userRoles int64, userLeve
 	} else if permission.IsAllowAnyUser {
 		return userRoles > 0
 	} else {
-		return (permission.AllowedRoles&userRoles) > 0 && userLevel > permission.Level
+		return (permission.AllowedRoles&userRoles) > 0 && userLevel >= permission.Level
 	}
 }
 
