@@ -6,8 +6,8 @@ import (
 )
 
 type IPermissionAuditor interface {
-	CheckPermission(permissionID string, userRoles int64) bool
-	CheckRoute(area, controller, action string, userRoles int64) bool
+	CheckPermission(permissionID string, userRoles int64, userLevel int32) bool
+	CheckRoute(area, controller, action string, userRoles int64, userLevel int32) bool
 }
 
 type permissionAuditor struct {
@@ -38,26 +38,26 @@ func (x *permissionAuditor) ReloadRoutePermissions() error {
 	return nil
 }
 
-func (x *permissionAuditor) CheckPermission(permissionID string, userRoles int64) bool {
+func (x *permissionAuditor) CheckPermission(permissionID string, userRoles int64, userLevel int32) bool {
 	if permission, exists := x.permissions[permissionID]; exists {
-		return checkPermission(permission, userRoles)
+		return checkPermission(permission, userRoles, userLevel)
 	}
 
 	log.Warnf("permission: %s does not exist", permissionID)
 	return false
 }
 
-func checkPermission(permission *sproto.PermissionDTO, userRoles int64) bool {
+func checkPermission(permission *sproto.PermissionDTO, userRoles int64, userLevel int32) bool {
 	if permission.IsAllowGuest {
 		return true
 	} else if permission.IsAllowAnyUser {
 		return userRoles > 0
 	} else {
-		return (permission.AllowedRoles & userRoles) > 0
+		return (permission.AllowedRoles&userRoles) > 0 && userLevel > permission.Level
 	}
 }
 
-func (x *permissionAuditor) CheckRoute(area, controller, action string, userRoles int64) bool {
+func (x *permissionAuditor) CheckRoute(area, controller, action string, userRoles int64, userLevel int32) bool {
 	key := area + "_" + controller + "_" + action
 
 	route := new(sproto.RouteDTO)
@@ -74,7 +74,7 @@ func (x *permissionAuditor) CheckRoute(area, controller, action string, userRole
 	}
 
 	if permission, exists := x.permissions[route.Permission_ID]; exists {
-		return checkPermission(permission, userRoles)
+		return checkPermission(permission, userRoles, userLevel)
 	}
 
 	log.Warnf("permission: %s does not exist", route.Permission_ID)
