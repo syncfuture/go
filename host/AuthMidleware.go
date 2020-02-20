@@ -33,7 +33,12 @@ func (x *AuthMidleware) Serve(ctx context.Context) {
 			route := ctx.GetCurrentRoute().Name()
 			if action, ok := (*x.ActionMap)[route]; ok {
 				// foud action
-				if x.PermissionAuditor.CheckRoute(action.Area, action.Controller, action.Action, roles) {
+				level := int32(0)
+				if levelStr, ok := claims["level"].(string); ok && levelStr != "" {
+					l, _ := strconv.ParseInt(levelStr, 10, 64)
+					level = int32(l)
+				}
+				if x.PermissionAuditor.CheckRouteWithLevel(action.Area, action.Controller, action.Action, roles, level) {
 					// Has permission, allow
 					ctx.Next()
 					return
