@@ -14,7 +14,8 @@ type IConfigReader interface {
 }
 
 type IConfigProvider interface {
-	GetMap(key string) map[string]interface{}
+	GetMap(key string) MapConfiguration
+	GetMapSlice(key string) []MapConfiguration
 	GetString(key string) string
 	GetStringDefault(key string, defaultValue string) string
 	GetBool(key string) bool
@@ -28,12 +29,12 @@ type IConfigProvider interface {
 }
 
 type JsonConfigProvider struct {
-	mapConfiguration
+	MapConfiguration
 }
 
 func NewJsonConfigProvider(args ...string) IConfigProvider {
 	r := new(JsonConfigProvider)
-	r.mapConfiguration = make(mapConfiguration)
+	r.MapConfiguration = make(MapConfiguration)
 
 	var configFile string
 	if len(args) == 0 {
@@ -42,7 +43,7 @@ func NewJsonConfigProvider(args ...string) IConfigProvider {
 		configFile = args[0]
 	}
 
-	r.ReadConfig(configFile, &r.mapConfiguration)
+	r.ReadConfig(configFile, &r.MapConfiguration)
 
 	return r
 }

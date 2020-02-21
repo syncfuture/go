@@ -1,8 +1,9 @@
 package config
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var _config IConfigProvider = NewJsonConfigProvider()
@@ -40,4 +41,15 @@ func TestGetRedisConfig(t *testing.T) {
 func TestGetOIDCConfig(t *testing.T) {
 	r := _config.GetOIDCConfig()
 	assert.Equal(t, "Famous901", r.ClientSecret)
+}
+
+func TestGetMapSlice(t *testing.T) {
+	r := _config.GetMapSlice("Users")
+	assert.Len(t, r, 1)
+}
+
+func TestGetMap(t *testing.T) {
+	r := _config.GetMap("Redis")
+	p := r.GetString("Password")
+	assert.Equal(t, "xxxxxxxxxx", p)
 }

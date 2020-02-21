@@ -10,11 +10,15 @@
             "192.168.188.200:6379",
             "192.168.188.166:6379"
         ],
-        "Password": "Famous901"
+        "Password": "xxxxxxxxxx"
     },
+    "Users": [{
+        "Useranme": "sa",
+        "Password": "xxxxxxxxxx"
+    }],
     "OIDC": {
         "ClientID": "amsadmin",
-        "ClientSecret": "Famous901",
+        "ClientSecret": "xxxxxxxxxx",
         "PassportURL": "{{amspass}}",
         "SignInCallbackURL": "{{amsadmin}}/signin-oidc",
         "SignOutCallbackURL": "{{amsadmin}}/signout-callback-oidc",

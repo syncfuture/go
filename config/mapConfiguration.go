@@ -8,22 +8,44 @@ import (
 	"github.com/syncfuture/go/sredis"
 )
 
-type mapConfiguration map[string]interface{}
+type MapConfiguration map[string]interface{}
 
-func (x *mapConfiguration) GetMap(key string) map[string]interface{} {
+func (x *MapConfiguration) GetMap(key string) (r MapConfiguration) {
 	v := getValue(key, *x)
 	if v != nil {
-		r, ok := v.(map[string]interface{})
+		a, ok := v.(interface{})
 		if !ok {
-			log.Warnf("convert failed. %t -> map[string]interface{}", v)
+			log.Warnf("convert failed. %t -> interface{}", v)
 		} else {
+			b := a.(map[string]interface{})
+			r = MapConfiguration(b)
+
 			return r
 		}
 	}
 	return nil
 }
 
-func (x *mapConfiguration) GetString(key string) string {
+func (x *MapConfiguration) GetMapSlice(key string) (r []MapConfiguration) {
+	r = make([]MapConfiguration, 0)
+	v := getValue(key, *x)
+	if v != nil {
+		a, ok := v.([]interface{})
+		if !ok {
+			log.Warnf("convert failed. %t -> []interface{}", v)
+		} else {
+			for _, b := range a {
+				c := b.(map[string]interface{})
+				r = append(r, MapConfiguration(c))
+			}
+
+			return r
+		}
+	}
+	return nil
+}
+
+func (x *MapConfiguration) GetString(key string) string {
 	v := getValue(key, *x)
 	if v != nil {
 		r, ok := v.(string)
@@ -36,7 +58,7 @@ func (x *mapConfiguration) GetString(key string) string {
 	return ""
 }
 
-func (x *mapConfiguration) GetStringDefault(key, defaultValue string) string {
+func (x *MapConfiguration) GetStringDefault(key, defaultValue string) string {
 	r := x.GetString(key)
 	if r != "" {
 		return r
@@ -44,7 +66,7 @@ func (x *mapConfiguration) GetStringDefault(key, defaultValue string) string {
 	return defaultValue
 }
 
-func (x *mapConfiguration) GetBool(key string) bool {
+func (x *MapConfiguration) GetBool(key string) bool {
 	v := getValue(key, *x)
 	if v != nil {
 		r, ok := v.(bool)
@@ -57,7 +79,7 @@ func (x *mapConfiguration) GetBool(key string) bool {
 	return false
 }
 
-func (x *mapConfiguration) GetFloat64(key string) float64 {
+func (x *MapConfiguration) GetFloat64(key string) float64 {
 	v := getValue(key, *x)
 	if v != nil {
 		r, ok := v.(float64)
@@ -70,11 +92,11 @@ func (x *mapConfiguration) GetFloat64(key string) float64 {
 	return 0
 }
 
-func (x *mapConfiguration) GetInt(key string) int {
+func (x *MapConfiguration) GetInt(key string) int {
 	r := x.GetFloat64(key)
 	return int(r)
 }
-func (x *mapConfiguration) GetIntDefault(key string, defaultValue int) int {
+func (x *MapConfiguration) GetIntDefault(key string, defaultValue int) int {
 	r := x.GetInt(key)
 	if r != 0 {
 		return r
@@ -82,7 +104,7 @@ func (x *mapConfiguration) GetIntDefault(key string, defaultValue int) int {
 	return defaultValue
 }
 
-func (x *mapConfiguration) GetStringSlice(key string) []string {
+func (x *MapConfiguration) GetStringSlice(key string) []string {
 	v := getValue(key, *x)
 	if v != nil {
 		slice, ok := v.([]interface{})
@@ -102,7 +124,7 @@ func (x *mapConfiguration) GetStringSlice(key string) []string {
 	return make([]string, 0)
 }
 
-func (x *mapConfiguration) GetIntSlice(key string) []int {
+func (x *MapConfiguration) GetIntSlice(key string) []int {
 	v := getValue(key, *x)
 	if v != nil {
 		slice, ok := v.([]interface{})
@@ -122,7 +144,7 @@ func (x *mapConfiguration) GetIntSlice(key string) []int {
 	return make([]int, 0)
 }
 
-func (x *mapConfiguration) GetRedisConfig() *sredis.RedisConfig {
+func (x *MapConfiguration) GetRedisConfig() *sredis.RedisConfig {
 	r := new(sredis.RedisConfig)
 	r.Addrs = x.GetStringSlice("Redis.Addrs")
 	r.Password = x.GetString("Redis.Password")
@@ -130,7 +152,7 @@ func (x *mapConfiguration) GetRedisConfig() *sredis.RedisConfig {
 	return r
 }
 
-func (x *mapConfiguration) GetOIDCConfig() *soidc.OIDCConfig {
+func (x *MapConfiguration) GetOIDCConfig() *soidc.OIDCConfig {
 	r := new(soidc.OIDCConfig)
 	r.ClientID = x.GetString("OIDC.ClientID")
 	r.ClientSecret = x.GetString("OIDC.ClientSecret")
@@ -143,7 +165,7 @@ func (x *mapConfiguration) GetOIDCConfig() *soidc.OIDCConfig {
 	return r
 }
 
-func getValue(key string, c mapConfiguration) interface{} {
+func getValue(key string, c MapConfiguration) interface{} {
 	keys := strings.Split(key, ".")
 	keyCount := len(keys)
 
