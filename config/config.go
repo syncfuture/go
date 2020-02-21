@@ -1,9 +1,10 @@
 package config
 
 import (
+	"reflect"
+
 	"github.com/syncfuture/go/soidc"
 	"github.com/syncfuture/go/sredis"
-	"reflect"
 
 	"github.com/syncfuture/go/sjson"
 )
@@ -13,6 +14,7 @@ type IConfigReader interface {
 }
 
 type IConfigProvider interface {
+	GetMap(key string) map[string]interface{}
 	GetString(key string) string
 	GetStringDefault(key string, defaultValue string) string
 	GetBool(key string) bool

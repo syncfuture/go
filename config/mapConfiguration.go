@@ -10,6 +10,19 @@ import (
 
 type mapConfiguration map[string]interface{}
 
+func (x *mapConfiguration) GetMap(key string) map[string]interface{} {
+	v := getValue(key, *x)
+	if v != nil {
+		r, ok := v.(map[string]interface{})
+		if !ok {
+			log.Warnf("convert failed. %t -> map[string]interface{}", v)
+		} else {
+			return r
+		}
+	}
+	return nil
+}
+
 func (x *mapConfiguration) GetString(key string) string {
 	v := getValue(key, *x)
 	if v != nil {
