@@ -46,7 +46,8 @@ func NewServiceServer() (r *ServiceServer) {
 	panichandler.InstallPanicHandler(func(r interface{}) {
 		log.Error(r)
 	})
-	r.GRPCServer = grpc.NewServer(unaryHandler, streamHandler)
+	maxSize := r.ConfigProvider.GetIntDefault("GRPC.MaxRecvMsgSize", 10*1024*1024)
+	r.GRPCServer = grpc.NewServer(grpc.MaxRecvMsgSize(maxSize), unaryHandler, streamHandler)
 
 	return r
 }
