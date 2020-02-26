@@ -1,14 +1,14 @@
 module github.com/syncfuture/go
 
-go 1.13
+go 1.14
 
 require (
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/coreos/go-oidc v2.2.1+incompatible
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fasthttp-contrib/websocket v0.0.0-20160511215533-1f3b11f56072 // indirect
-	github.com/go-redis/redis/v7 v7.1.0
-	github.com/golang/protobuf v1.3.3
+	github.com/go-redis/redis/v7 v7.2.0
+	github.com/golang/protobuf v1.3.4
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/gorilla/securecookie v1.1.1
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
@@ -33,7 +33,7 @@ require (
 	github.com/yudai/gojsondiff v1.0.0 // indirect
 	github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 // indirect
 	github.com/yudai/pp v2.0.1+incompatible // indirect
-	golang.org/x/crypto v0.0.0-20200214034016-1d94cc7ab1c6
+	golang.org/x/crypto v0.0.0-20200221231518-2aa609cf4a9d
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	google.golang.org/grpc v1.27.1
 	gopkg.in/square/go-jose.v2 v2.4.1
