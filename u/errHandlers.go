@@ -3,10 +3,9 @@ package u
 import (
 	"errors"
 	"reflect"
-	"runtime"
 	"strings"
 
-	log "github.com/kataras/golog"
+	"github.com/syncfuture/go/slog"
 )
 
 // JointErrors joint errors to a single error
@@ -34,24 +33,14 @@ func JointErrors(errs ...error) error {
 
 func LogFaltal(err error) {
 	if err != nil {
-		_, file, line, ok := runtime.Caller(1)
-		if ok {
-			log.Fatalf("<%s:%d> %v", file, line, err)
-		} else {
-			log.Fatal(err)
-		}
+		slog.Fatal(err)
 	}
 }
 
 // LogError 记录有错误
 func LogError(err error) bool {
 	if err != nil {
-		_, file, line, ok := runtime.Caller(1)
-		if ok {
-			log.Errorf("<%s:%d> %v", file, line, err)
-		} else {
-			log.Error(err)
-		}
+		slog.Error(err)
 		return true
 	}
 
@@ -62,13 +51,7 @@ func LogError(err error) bool {
 func LogErrorMsg(err error, mrPtr interface{}) bool {
 
 	if err != nil {
-		_, file, line, ok := runtime.Caller(1)
-
-		if ok {
-			log.Errorf("<%s:%d> %v", file, line, err)
-		} else {
-			log.Error(err)
-		}
+		slog.Error(err)
 
 		if reflect.TypeOf(mrPtr).Kind() != reflect.Ptr {
 			panic("mrPtr must be a pointer")
