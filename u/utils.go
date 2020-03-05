@@ -10,8 +10,17 @@ func IsMissing(x interface{}) bool {
 		return true
 	}
 
-	v := reflect.ValueOf(x).Elem()
+	v := reflect.ValueOf(x)
 	k := v.Kind()
+
+	for {
+		if k == reflect.Ptr || k == reflect.Interface {
+			v = v.Elem()
+			k = v.Kind()
+		} else {
+			break
+		}
+	}
 
 	if k == reflect.Invalid { // nil
 		return true
