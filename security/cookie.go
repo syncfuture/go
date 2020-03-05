@@ -5,7 +5,7 @@ import (
 
 	"github.com/gorilla/securecookie"
 	"github.com/kataras/iris/v12/context"
-	u "github.com/syncfuture/go/util"
+	"github.com/syncfuture/go/u"
 )
 
 type ISecureCookie interface {

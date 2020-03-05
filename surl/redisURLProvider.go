@@ -9,7 +9,7 @@ import (
 	log "github.com/kataras/golog"
 	"github.com/patrickmn/go-cache"
 	"github.com/syncfuture/go/sredis"
-	u "github.com/syncfuture/go/util"
+	"github.com/syncfuture/go/u"
 )
 
 const (

@@ -6,7 +6,7 @@ import (
 	"github.com/syncfuture/go/sjson"
 	"github.com/syncfuture/go/sproto"
 	"github.com/syncfuture/go/sredis"
-	u "github.com/syncfuture/go/util"
+	"github.com/syncfuture/go/u"
 )
 
 const (

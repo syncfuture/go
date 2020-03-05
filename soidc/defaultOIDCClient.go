@@ -12,7 +12,7 @@ import (
 	"golang.org/x/oauth2/clientcredentials"
 
 	"github.com/syncfuture/go/sjson"
-	u "github.com/syncfuture/go/util"
+	"github.com/syncfuture/go/u"
 
 	"github.com/syncfuture/go/srand"
 

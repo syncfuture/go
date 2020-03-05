@@ -6,7 +6,7 @@ import (
 
 	"github.com/syncfuture/go/security"
 
-	u "github.com/syncfuture/go/util"
+	"github.com/syncfuture/go/u"
 
 	log "github.com/kataras/golog"
 

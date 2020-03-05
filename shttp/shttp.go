@@ -9,7 +9,7 @@ import (
 
 	"github.com/syncfuture/go/surl"
 
-	u "github.com/syncfuture/go/util"
+	"github.com/syncfuture/go/u"
 )
 
 const (

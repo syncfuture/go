@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 
 	"github.com/syncfuture/go/rsautil"
-	u "github.com/syncfuture/go/util"
+	"github.com/syncfuture/go/u"
 )
 
 // RSAEncryptor RSA encryptor

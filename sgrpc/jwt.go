@@ -7,7 +7,7 @@ import (
 	"google.golang.org/grpc/metadata"
 
 	"github.com/dgrijalva/jwt-go"
-	u "github.com/syncfuture/go/util"
+	"github.com/syncfuture/go/u"
 	"google.golang.org/grpc"
 )
 

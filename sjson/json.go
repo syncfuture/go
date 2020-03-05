@@ -4,7 +4,7 @@ import (
 	j "encoding/json"
 	"io/ioutil"
 
-	u "github.com/syncfuture/go/util"
+	"github.com/syncfuture/go/u"
 )
 
 // Deserialize deserialize json to object pointer

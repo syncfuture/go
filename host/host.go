@@ -11,7 +11,7 @@ import (
 	"github.com/syncfuture/go/config"
 
 	"github.com/kataras/iris/v12/context"
-	u "github.com/syncfuture/go/util"
+	"github.com/syncfuture/go/u"
 )
 
 type IServer interface {

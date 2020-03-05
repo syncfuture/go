@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 
 	log "github.com/kataras/golog"
-	u "github.com/syncfuture/go/util"
+	"github.com/syncfuture/go/u"
 )
 
 // GenerateKey generates a new key

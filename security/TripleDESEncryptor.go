@@ -6,7 +6,7 @@ import (
 	"crypto/des"
 	"encoding/base64"
 
-	u "github.com/syncfuture/go/util"
+	"github.com/syncfuture/go/u"
 )
 
 // CreateTripleDESEncryptor create triple des encryptor
