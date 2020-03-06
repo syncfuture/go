@@ -26,69 +26,8 @@ func NewConsumer(node *NodeConfig) (r *Consumer, err error) {
 	if u.LogError(err) {
 		return
 	}
-
-	r.declare()
+	err = declare(r.conn, r.Node)
 	return
-}
-
-// Declare declare exchanges, queues and bindings
-func (x *Consumer) declare() error {
-	// Build channel
-	ch, err := x.conn.Channel()
-	if u.LogError(err) {
-		return err
-	}
-	defer ch.Close()
-
-	// Declare exchanges
-	if !u.IsMissing(x.Node.Exchanges) {
-		for _, exchange := range x.Node.Exchanges {
-			err = ch.ExchangeDeclare(
-				exchange.Name,
-				exchange.Type,
-				exchange.Durable,
-				exchange.AutoDelete,
-				exchange.Internal,
-				exchange.NoWait,
-				exchange.Args,
-			)
-			if u.LogError(err) {
-				return err
-			}
-		}
-	}
-
-	// Declare queues
-	if !u.IsMissing(x.Node.Queues) {
-		for _, queue := range x.Node.Queues {
-			_, err = ch.QueueDeclare(
-				queue.Name,
-				queue.Durable,
-				queue.AutoDelete,
-				queue.Exclusive,
-				queue.NoWait,
-				queue.Args,
-			)
-			if u.LogError(err) {
-				return err
-			}
-
-			// QueueConfig binding
-			if !u.IsMissing(queue.Bindings) {
-				for _, binding := range queue.Bindings {
-					ch.QueueBind(
-						queue.Name,
-						binding.RoutingKey,
-						binding.Exchange,
-						binding.NoWait,
-						binding.Args,
-					)
-				}
-			}
-		}
-	}
-
-	return nil
 }
 
 func (x *Consumer) Consume(receiver func(amqp.Delivery)) {
