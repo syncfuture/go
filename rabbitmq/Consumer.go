@@ -2,33 +2,39 @@ package rabbitmq
 
 import (
 	"context"
-	"errors"
 
 	"github.com/streadway/amqp"
 	"github.com/syncfuture/go/u"
 )
 
-type ConsumerNode struct {
-	Node *NodeConfig
+type Consumer struct {
+	Node   *NodeConfig
+	conn   *amqp.Connection
+	ctx    context.Context
+	cancel context.CancelFunc
 }
 
-func NewConsumerNode(node *NodeConfig) *ConsumerNode {
-	return &ConsumerNode{
+func NewConsumer(node *NodeConfig) (r *Consumer, err error) {
+	r = &Consumer{
 		Node: node,
 	}
+
+	r.ctx, r.cancel = context.WithCancel(context.Background())
+
+	// Build connection
+	r.conn, err = amqp.Dial(r.Node.URL)
+	if u.LogError(err) {
+		return
+	}
+
+	r.declare()
+	return
 }
 
 // Declare declare exchanges, queues and bindings
-func (x *ConsumerNode) Declare() error {
-	// Build connection
-	conn, err := amqp.Dial(x.Node.URL)
-	if u.LogError(err) {
-		return err
-	}
-	defer conn.Close()
-
+func (x *Consumer) declare() error {
 	// Build channel
-	ch, err := conn.Channel()
+	ch, err := x.conn.Channel()
 	if u.LogError(err) {
 		return err
 	}
@@ -73,7 +79,7 @@ func (x *ConsumerNode) Declare() error {
 					ch.QueueBind(
 						queue.Name,
 						binding.RoutingKey,
-						binding.ExchangeConfig,
+						binding.Exchange,
 						binding.NoWait,
 						binding.Args,
 					)
@@ -85,32 +91,23 @@ func (x *ConsumerNode) Declare() error {
 	return nil
 }
 
-func (x *ConsumerNode) Consume(ctx context.Context, receiver func(amqp.Delivery)) (err error) {
+func (x *Consumer) Consume(receiver func(amqp.Delivery)) {
 	if u.IsMissing(x.Node.Consumers) {
-		err = errors.New("consumers is missing in configuration")
-		u.LogError(err)
-		return err
+		panic("consumers is missing in configuration")
 	}
-
-	// Build connection
-	conn, err := amqp.Dial(x.Node.URL)
-	if u.LogError(err) {
-		return err
-	}
-	defer conn.Close()
 
 	// Declare consumers
 	for _, consumerCfg := range x.Node.Consumers {
 		go func(consumer *ConsumerConfig) {
 			// Build channel
-			ch, err := conn.Channel()
+			ch, err := x.conn.Channel()
 			if u.LogError(err) {
 				return
 			}
 			defer ch.Close()
 
 			msgs, err := ch.Consume(
-				consumer.QueueConfig,
+				consumer.Queue,
 				consumer.Name,
 				consumer.AutoAck,
 				consumer.Exclusive,
@@ -123,23 +120,25 @@ func (x *ConsumerNode) Consume(ctx context.Context, receiver func(amqp.Delivery)
 			}
 
 			for msg := range msgs {
-				if isCanceled(ctx) {
+				if x.isCanceled() {
 					break
 				}
 				go receiver(msg) // DO NOT use pointer like &msg, https://www.jb51.net/article/138126.htm
 			}
 		}(consumerCfg)
-
 	}
-
-	return nil
 }
 
-func isCanceled(ctx context.Context) bool {
+func (x *Consumer) isCanceled() bool {
 	select {
-	case <-ctx.Done():
+	case <-x.ctx.Done():
 		return true
 	default:
 		return false
 	}
+}
+
+func (x *Consumer) Close() error {
+	x.cancel()
+	return x.conn.Close()
 }

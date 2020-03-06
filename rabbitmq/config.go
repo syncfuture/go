@@ -31,18 +31,18 @@ type (
 		Bindings   []*QueueBindingConfig
 	}
 	QueueBindingConfig struct {
-		RoutingKey     string
-		ExchangeConfig string
-		NoWait         bool
-		Args           amqp.Table
+		RoutingKey string
+		Exchange   string
+		NoWait     bool
+		Args       amqp.Table
 	}
 	ConsumerConfig struct {
-		QueueConfig string
-		Name        string
-		AutoAck     bool
-		Exclusive   bool
-		NoLocal     bool
-		NoWait      bool
-		Args        amqp.Table
+		Queue     string
+		Name      string
+		AutoAck   bool
+		Exclusive bool
+		NoLocal   bool
+		NoWait    bool
+		Args      amqp.Table
 	}
 )
