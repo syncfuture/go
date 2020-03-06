@@ -1,6 +1,7 @@
 package soidc
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -11,7 +12,6 @@ import (
 
 	"golang.org/x/oauth2/clientcredentials"
 
-	"github.com/syncfuture/go/sjson"
 	"github.com/syncfuture/go/u"
 
 	"github.com/syncfuture/go/srand"
@@ -249,14 +249,14 @@ func (x *defaultOIDCClient) HandleSignOutCallback(ctx context.Context) {
 }
 
 func (x *defaultOIDCClient) SaveToken(ctx context.Context, token *oauth2.Token) error {
-	j, err := sjson.Serialize(token)
+	j, err := json.Marshal(token)
 	if u.LogError(err) {
 		return err
 	}
 
 	// 保存常规令牌
 	session := x.Options.SessionManager.Start(ctx)
-	session.Set(COKI_TOKEN, j)
+	session.Set(COKI_TOKEN, string(j))
 
 	// 保存ID令牌
 	idToken, ok := token.Extra("id_token").(string)
@@ -286,7 +286,7 @@ func (x *defaultOIDCClient) GetToken(ctx context.Context) (*oauth2.Token, string
 	// }
 
 	t := new(oauth2.Token)
-	err := sjson.Deserialize(j, t)
+	err := json.Unmarshal([]byte(j), t)
 	if u.LogError(err) {
 		return nil, "", err
 	}

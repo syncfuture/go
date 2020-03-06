@@ -1,9 +1,10 @@
 package security
 
 import (
+	"encoding/json"
+
 	"github.com/go-redis/redis/v7"
 	log "github.com/kataras/golog"
-	"github.com/syncfuture/go/sjson"
 	"github.com/syncfuture/go/sproto"
 	"github.com/syncfuture/go/sredis"
 	"github.com/syncfuture/go/u"
@@ -34,7 +35,7 @@ func NewRedisRoutePermissionProvider(projectName string, config *sredis.RedisCon
 // *******************************************************************************************************************************
 // Route
 func (x *RedisRoutePermissionProvider) CreateRoute(in *sproto.RouteDTO) error {
-	j, err := sjson.Serialize(in)
+	j, err := json.Marshal(in)
 	if u.LogError(err) {
 		return err
 	}
@@ -55,12 +56,12 @@ func (x *RedisRoutePermissionProvider) GetRoute(id string) (*sproto.RouteDTO, er
 		return nil, err
 	}
 
-	err = sjson.Deserialize(j, r)
+	err = json.Unmarshal([]byte(j), r)
 	u.LogError(err)
 	return r, err
 }
 func (x *RedisRoutePermissionProvider) UpdateRoute(in *sproto.RouteDTO) error {
-	j, err := sjson.Serialize(in)
+	j, err := json.Marshal(in)
 	if u.LogError(err) {
 		return err
 	}
@@ -82,7 +83,7 @@ func (x *RedisRoutePermissionProvider) GetRoutes() (map[string]*sproto.RouteDTO,
 	m := make(map[string]*sproto.RouteDTO, len(r))
 	for key, value := range r {
 		dto := new(sproto.RouteDTO)
-		err = sjson.Deserialize(value, dto)
+		err = json.Unmarshal([]byte(value), dto)
 		if !u.LogError(err) {
 			m[key] = dto
 		}
@@ -93,7 +94,7 @@ func (x *RedisRoutePermissionProvider) GetRoutes() (map[string]*sproto.RouteDTO,
 // *******************************************************************************************************************************
 // Permission
 func (x *RedisRoutePermissionProvider) CreatePermission(in *sproto.PermissionDTO) error {
-	j, err := sjson.Serialize(in)
+	j, err := json.Marshal(in)
 	if u.LogError(err) {
 		return err
 	}
@@ -114,12 +115,12 @@ func (x *RedisRoutePermissionProvider) GetPermission(id string) (*sproto.Permiss
 		return nil, err
 	}
 
-	err = sjson.Deserialize(j, r)
+	err = json.Unmarshal([]byte(j), r)
 	u.LogError(err)
 	return r, err
 }
 func (x *RedisRoutePermissionProvider) UpdatePermission(in *sproto.PermissionDTO) error {
-	j, err := sjson.Serialize(in)
+	j, err := json.Marshal(in)
 	if u.LogError(err) {
 		return err
 	}
@@ -141,7 +142,7 @@ func (x *RedisRoutePermissionProvider) GetPermissions() (map[string]*sproto.Perm
 	m := make(map[string]*sproto.PermissionDTO, len(r))
 	for key, value := range r {
 		dto := new(sproto.PermissionDTO)
-		err = sjson.Deserialize(value, dto)
+		err = json.Unmarshal([]byte(value), dto)
 		if err == nil {
 			m[key] = dto
 		} else {

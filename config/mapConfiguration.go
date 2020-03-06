@@ -4,8 +4,6 @@ import (
 	"strings"
 
 	log "github.com/kataras/golog"
-	"github.com/syncfuture/go/soidc"
-	"github.com/syncfuture/go/sredis"
 )
 
 type MapConfiguration map[string]interface{}
@@ -142,27 +140,6 @@ func (x *MapConfiguration) GetIntSlice(key string) []int {
 		}
 	}
 	return make([]int, 0)
-}
-
-func (x *MapConfiguration) GetRedisConfig() *sredis.RedisConfig {
-	r := new(sredis.RedisConfig)
-	r.Addrs = x.GetStringSlice("Redis.Addrs")
-	r.Password = x.GetString("Redis.Password")
-	r.ClusterEnabled = x.GetBool("Redis.ClusterEnabled")
-	return r
-}
-
-func (x *MapConfiguration) GetOIDCConfig() *soidc.OIDCConfig {
-	r := new(soidc.OIDCConfig)
-	r.ClientID = x.GetString("OIDC.ClientID")
-	r.ClientSecret = x.GetString("OIDC.ClientSecret")
-	r.PassportURL = x.GetString("OIDC.PassportURL")
-	r.JWKSURL = x.GetStringDefault("OIDC.JWKSURL", "/.well-known/openid-configuration/jwk")
-	r.SignInCallbackURL = x.GetString("OIDC.SignInCallbackURL")
-	r.SignOutCallbackURL = x.GetString("OIDC.SignOutCallbackURL")
-	r.AccessDeniedURL = x.GetString("OIDC.AccessDeniedURL")
-	r.Scopes = x.GetStringSlice("OIDC.Scopes")
-	return r
 }
 
 func getValue(key string, c MapConfiguration) interface{} {

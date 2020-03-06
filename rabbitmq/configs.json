@@ -1,15 +1,4 @@
 {
-    "Count": 11,
-    "Path": "/data/es",
-    "Services": [{
-            "Enabled": true,
-            "Name": "AAA"
-        },
-        {
-            "Enabled": false,
-            "Name": "BBB"
-        }
-    ],
     "RabbitMQ": {
         "Nodes": [{
             "URL": "amqp://xxxx:xxxx@192.168.xxx.xxx:5672/test",
@@ -31,7 +20,7 @@
                 "Args": null
             }],
             "Consumers": [{
-                "QueueConfig": "test",
+                "Queue": "test",
                 "Name": "TestConsumer1",
                 "AutoAck": true,
                 "Exclusive": false,

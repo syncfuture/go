@@ -31,5 +31,36 @@
     "ProjectName": "amsadmin",
     "ListenAddr": ":8002",
     "TestInt": 79,
-    "TestIntSlice": [5, 64, 36, 29, 78]
+    "TestIntSlice": [5, 64, 36, 29, 78],
+    "RabbitMQ": {
+        "Nodes": [{
+            "URL": "amqp://xxxx:xxxx@192.168.xxx.xxx:5672/test",
+            "Exchanges": [{
+                "Name": "TestExchange",
+                "Type": "fanout",
+                "Durable": true,
+                "AutoDelete": false,
+                "Internal": false,
+                "NoWait": false,
+                "Args": null
+            }],
+            "Queues": [{
+                "Name": "test",
+                "Durable": true,
+                "AutoDelete": false,
+                "Exclusive": false,
+                "NoWait": false,
+                "Args": null
+            }],
+            "Consumers": [{
+                "Queue": "test",
+                "Name": "TestConsumer1",
+                "AutoAck": true,
+                "Exclusive": false,
+                "NoLocal": false,
+                "NoWait": false,
+                "Args": null
+            }]
+        }]
+    }
 }
