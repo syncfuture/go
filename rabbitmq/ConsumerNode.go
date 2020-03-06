@@ -12,6 +12,12 @@ type ConsumerNode struct {
 	Node *NodeConfig
 }
 
+func NewConsumerNode(node *NodeConfig) *ConsumerNode {
+	return &ConsumerNode{
+		Node: node,
+	}
+}
+
 // Declare declare exchanges, queues and bindings
 func (x *ConsumerNode) Declare() error {
 	// Build connection

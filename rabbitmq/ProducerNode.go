@@ -9,6 +9,12 @@ type ProducerNode struct {
 	Node *NodeConfig
 }
 
+func NewProducerNode(node *NodeConfig) *ProducerNode {
+	return &ProducerNode{
+		Node: node,
+	}
+}
+
 func (x *ProducerNode) Publish(exchange, routingKey string) error {
 	conn, err := amqp.Dial(x.Node.URL)
 	if u.LogError(err) {
