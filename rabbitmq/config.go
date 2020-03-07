@@ -44,5 +44,6 @@ type (
 		NoLocal   bool
 		NoWait    bool
 		Args      amqp.Table
+		Handler   string
 	}
 )

@@ -41,12 +41,13 @@ func NewAPIServer() (r *APIServer) {
 	ConfigHttpClient(r)
 
 	// Redis
-	r.RedisConfig = r.ConfigProvider.GetRedisConfig()
+	r.ConfigProvider.GetStruct("Redis", &r.RedisConfig)
 
 	// URLProvider
 	r.URLProvider = surl.NewRedisURLProvider(r.RedisConfig)
 
-	oidcConfig := r.ConfigProvider.GetOIDCConfig()
+	var oidcConfig *soidc.OIDCConfig
+	r.ConfigProvider.GetStruct("OIDC", &oidcConfig)
 
 	// 权限
 	projectName := r.ConfigProvider.GetString("ProjectName")

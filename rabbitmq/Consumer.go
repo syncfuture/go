@@ -3,6 +3,8 @@ package rabbitmq
 import (
 	"context"
 
+	"github.com/syncfuture/go/slog"
+
 	"github.com/streadway/amqp"
 	"github.com/syncfuture/go/u"
 )
@@ -30,7 +32,7 @@ func NewConsumer(node *NodeConfig) (r *Consumer, err error) {
 	return
 }
 
-func (x *Consumer) Consume(receiver func(amqp.Delivery)) {
+func (x *Consumer) Consume(handlers map[string]func(amqp.Delivery)) {
 	if u.IsMissing(x.Node.Consumers) {
 		panic("consumers is missing in configuration")
 	}
@@ -38,6 +40,18 @@ func (x *Consumer) Consume(receiver func(amqp.Delivery)) {
 	// Declare consumers
 	for _, consumerCfg := range x.Node.Consumers {
 		go func(consumer *ConsumerConfig) {
+			if consumer.Name == "" {
+				slog.Error("consumer name cannot be empty.")
+				return
+			}
+			if consumer.Queue == "" {
+				slog.Errorf("queue for consumer %s cannot be empty.", consumer.Name)
+				return
+			}
+			if consumer.Handler == "" {
+				slog.Errorf("handler for consumer %s cannot be empty.", consumer.Name)
+				return
+			}
 			// Build channel
 			ch, err := x.conn.Channel()
 			if u.LogError(err) {
@@ -62,7 +76,11 @@ func (x *Consumer) Consume(receiver func(amqp.Delivery)) {
 				if x.isCanceled() {
 					break
 				}
-				go receiver(msg) // DO NOT use pointer like &msg, https://www.jb51.net/article/138126.htm
+				if handler, ok := handlers[consumer.Handler]; ok {
+					go handler(msg) // DO NOT use pointer in for loop, like &msg, https://www.jb51.net/article/138126.htm
+				} else {
+					slog.Warnf("cannnot find handler '%s'", consumer.Handler)
+				}
 			}
 		}(consumerCfg)
 	}

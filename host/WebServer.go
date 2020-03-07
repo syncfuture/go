@@ -42,7 +42,7 @@ func NewWebServer() (r *WebServer) {
 	ConfigHttpClient(r)
 
 	// Redis
-	r.RedisConfig = r.ConfigProvider.GetRedisConfig()
+	r.ConfigProvider.GetStruct("Redis", &r.RedisConfig)
 
 	// URLProvider
 	r.URLProvider = surl.NewRedisURLProvider(r.RedisConfig)
@@ -56,7 +56,8 @@ func NewWebServer() (r *WebServer) {
 	r.PermissionAuditor = security.NewPermissionAuditor(r.RoutePermissionProvider)
 
 	// 渲染URL
-	oidcConfig := r.ConfigProvider.GetOIDCConfig()
+	var oidcConfig *soidc.OIDCConfig
+	r.ConfigProvider.GetStruct("OIDC", &oidcConfig)
 	oidcConfig.PassportURL = r.URLProvider.RenderURLCache(oidcConfig.PassportURL)
 	oidcConfig.SignInCallbackURL = r.URLProvider.RenderURLCache(oidcConfig.SignInCallbackURL)
 	oidcConfig.SignOutCallbackURL = r.URLProvider.RenderURLCache(oidcConfig.SignOutCallbackURL)

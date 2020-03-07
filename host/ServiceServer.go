@@ -32,7 +32,7 @@ func NewServiceServer() (r *ServiceServer) {
 	ConfigHttpClient(r)
 
 	// Redis
-	r.RedisConfig = r.ConfigProvider.GetRedisConfig()
+	r.ConfigProvider.GetStruct("Redis", &r.RedisConfig)
 
 	// 权限
 	if len(r.RedisConfig.Addrs) > 0 {

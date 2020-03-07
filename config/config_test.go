@@ -32,29 +32,3 @@ func TestGetIntSlice(t *testing.T) {
 	r := _config.GetIntSlice("TestIntSlice")
 	assert.Len(t, r, 5)
 }
-
-func TestGetRedisConfig(t *testing.T) {
-	r := _config.GetRedisConfig()
-	assert.Equal(t, "xxxxxxxxxx", r.Password)
-}
-
-func TestGetOIDCConfig(t *testing.T) {
-	r := _config.GetOIDCConfig()
-	assert.Equal(t, "xxxxxxxxxx", r.ClientSecret)
-}
-
-func TestGetRabbitCConfig(t *testing.T) {
-	r := _config.GetRabbitMQConfig()
-	assert.Equal(t, "TestConsumer1", r.Nodes[0].Consumers[0].Name)
-}
-
-// func TestGetMapSlice(t *testing.T) {
-// 	r := _config.GetMapSlice("Users")
-// 	assert.Len(t, r, 1)
-// }
-
-// func TestGetMap(t *testing.T) {
-// 	r := _config.GetMap("Redis")
-// 	p := r.GetString("Password")
-// 	assert.Equal(t, "xxxxxxxxxx", p)
-// }
