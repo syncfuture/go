@@ -1,6 +1,7 @@
 package slog
 
 import (
+	"fmt"
 	"os"
 	"runtime"
 
@@ -46,7 +47,7 @@ func Debugf(format string, args ...interface{}) {
 	if _detailLevel >= 0 {
 		_, file, line, ok := runtime.Caller(1)
 		if ok {
-			log.Debugf("<%s:%d> %v", file, line, args)
+			log.Debugf("<%s:%d> %v", file, line, fmt.Sprintf(format, args...))
 			return
 		}
 	}
@@ -69,7 +70,7 @@ func Infof(format string, args ...interface{}) {
 	if _detailLevel >= 1 {
 		_, file, line, ok := runtime.Caller(1)
 		if ok {
-			log.Infof("<%s:%d> %v", file, line, args)
+			log.Infof("<%s:%d> %v", file, line, fmt.Sprintf(format, args...))
 			return
 		}
 	}
@@ -92,7 +93,7 @@ func Warnf(format string, args ...interface{}) {
 	if _detailLevel >= 2 {
 		_, file, line, ok := runtime.Caller(1)
 		if ok {
-			log.Warnf("<%s:%d> %v", file, line, args)
+			log.Warnf("<%s:%d> %v", file, line, fmt.Sprintf(format, args...))
 			return
 		}
 	}
@@ -115,7 +116,7 @@ func Errorf(format string, args ...interface{}) {
 	if _detailLevel >= 3 {
 		_, file, line, ok := runtime.Caller(1)
 		if ok {
-			log.Errorf("<%s:%d> %v", file, line, args)
+			log.Errorf("<%s:%d> %v", file, line, fmt.Sprintf(format, args...))
 			return
 		}
 	}
@@ -138,7 +139,7 @@ func Fatalf(format string, args ...interface{}) {
 	if _detailLevel >= 4 {
 		_, file, line, ok := runtime.Caller(1)
 		if ok {
-			log.Fatalf("<%s:%d> %v", file, line, args)
+			log.Fatalf("<%s:%d> %v", file, line, fmt.Sprintf(format, args...))
 			return
 		}
 	}
