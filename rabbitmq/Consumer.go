@@ -17,13 +17,13 @@ type Consumer struct {
 	cancel   context.CancelFunc
 }
 
-func NewConsumer(node *NodeConfig, handlers map[string]func(amqp.Delivery)) (r *Consumer, err error) {
+func NewConsumer(node *NodeConfig) (r *Consumer, err error) {
 	r = &Consumer{
 		Node: node,
 	}
 
-	r.Handlers = handlers
 	r.ctx, r.cancel = context.WithCancel(context.Background())
+	r.Handlers = make(map[string]func(amqp.Delivery), 0)
 
 	// Build connection
 	r.conn, err = amqp.Dial(r.Node.URL)
@@ -32,6 +32,10 @@ func NewConsumer(node *NodeConfig, handlers map[string]func(amqp.Delivery)) (r *
 	}
 	err = declare(r.conn, r.Node)
 	return
+}
+
+func (x *Consumer) RegisterHandler(name string, handler func(amqp.Delivery)) {
+	x.Handlers[name] = handler
 }
 
 func (x *Consumer) Consume( /*handlers map[string]func(amqp.Delivery)*/ ) {
@@ -50,10 +54,6 @@ func (x *Consumer) Consume( /*handlers map[string]func(amqp.Delivery)*/ ) {
 				slog.Errorf("queue for consumer %s cannot be empty.", consumer.Name)
 				return
 			}
-			// if consumer.Handler == "" {
-			// 	slog.Errorf("handler for consumer %s cannot be empty.", consumer.Name)
-			// 	return
-			// }
 			// Build channel
 			ch, err := x.conn.Channel()
 			if u.LogError(err) {
@@ -79,12 +79,6 @@ func (x *Consumer) Consume( /*handlers map[string]func(amqp.Delivery)*/ ) {
 					break
 				}
 				go x.handle(msg) // DO NOT use pointer in for loop, like &msg, https://www.jb51.net/article/138126.htm
-
-				// if handler, ok := handlers[consumer.Handler]; ok {
-				// 	go handler(msg) // DO NOT use pointer in for loop, like &msg, https://www.jb51.net/article/138126.htm
-				// } else {
-				// 	slog.Warnf("cannnot find handler '%s'", consumer.Handler)
-				// }
 			}
 		}(consumerCfg)
 	}
