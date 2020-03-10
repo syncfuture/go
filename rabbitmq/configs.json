@@ -17,7 +17,10 @@
                 "AutoDelete": false,
                 "Exclusive": false,
                 "NoWait": false,
-                "Args": null
+                "Args": null,
+                "Bindings": [{
+                    "Exchange": "TestExchange"
+                }]
             }],
             "Consumers": [{
                 "Queue": "test",
