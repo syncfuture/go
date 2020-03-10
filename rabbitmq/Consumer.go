@@ -38,6 +38,10 @@ func (x *Consumer) RegisterHandler(name string, handler func(amqp.Delivery)) {
 	x.Handlers[name] = handler
 }
 
+func (x *Consumer) RegisterHandlers(handlers map[string]func(amqp.Delivery)) {
+	x.Handlers = handlers
+}
+
 func (x *Consumer) Consume( /*handlers map[string]func(amqp.Delivery)*/ ) {
 	if u.IsMissing(x.Node.Consumers) {
 		panic("consumers is missing in configuration")
