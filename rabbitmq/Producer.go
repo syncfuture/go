@@ -24,9 +24,10 @@ func NewProducer(node *NodeConfig) (r *Producer, err error) {
 	return
 }
 
-func (x *Producer) Publish(exchange, routingKey string, payload []byte, headers amqp.Table) error {
+func (x *Producer) Publish(exchange, routingKey, msgType string, payload []byte, headers amqp.Table) error {
 	return x.PublishRaw(exchange, routingKey, false, false, &amqp.Publishing{
 		Headers: headers,
+		Type:    msgType,
 		Body:    payload,
 	})
 }
