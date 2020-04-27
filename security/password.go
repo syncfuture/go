@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"io"
 
-	log "github.com/kataras/golog"
+	log "github.com/syncfuture/go/slog"
 	"golang.org/x/crypto/scrypt"
 )
 

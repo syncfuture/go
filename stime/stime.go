@@ -5,7 +5,7 @@ import (
 
 	"github.com/syncfuture/go/sproto/timestamp"
 
-	log "github.com/kataras/golog"
+	log "github.com/syncfuture/go/slog"
 )
 
 func TimestampUTCNow() *timestamp.Timestamp {

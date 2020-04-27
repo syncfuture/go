@@ -3,7 +3,6 @@ package host
 import (
 	"time"
 
-	log "github.com/kataras/golog"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/middleware/logger"
 	"github.com/kataras/iris/v12/middleware/recover"
@@ -11,6 +10,7 @@ import (
 	"github.com/kataras/iris/v12/view"
 	"github.com/syncfuture/go/config"
 	"github.com/syncfuture/go/security"
+	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/go/soidc"
 	"github.com/syncfuture/go/sredis"
 	"github.com/syncfuture/go/surl"
@@ -35,8 +35,7 @@ func NewWebServer() (r *WebServer) {
 	r = new(WebServer)
 	r.ConfigProvider = config.NewJsonConfigProvider()
 	// 日志和配置
-	logLevel := r.ConfigProvider.GetStringDefault("Log.Level", "warn")
-	log.SetLevel(logLevel)
+	log.Init()
 
 	// Http客户端
 	ConfigHttpClient(r)
@@ -97,7 +96,7 @@ func NewWebServer() (r *WebServer) {
 
 	// IRIS App
 	r.App = iris.New()
-	r.App.Logger().SetLevel(logLevel)
+	r.App.Logger().SetLevel(log.Level)
 	r.App.Use(recover.New())
 	r.App.Use(logger.New())
 

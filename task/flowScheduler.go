@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"sync"
 
-	log "github.com/kataras/golog"
+	log "github.com/syncfuture/go/slog"
 )
 
 type flowScheduler struct {

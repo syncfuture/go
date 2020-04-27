@@ -1,8 +1,8 @@
 package sgrpc
 
 import (
-	log "github.com/kataras/golog"
 	panichandler "github.com/kazegusuri/grpc-panic-handler"
+	log "github.com/syncfuture/go/slog"
 	"google.golang.org/grpc"
 )
 

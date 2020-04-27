@@ -8,7 +8,7 @@ import (
 	"encoding/pem"
 	"io/ioutil"
 
-	log "github.com/kataras/golog"
+	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/go/u"
 )
 

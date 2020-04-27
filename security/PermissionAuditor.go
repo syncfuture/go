@@ -1,7 +1,7 @@
 package security
 
 import (
-	log "github.com/kataras/golog"
+	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/go/sproto"
 )
 
