@@ -34,7 +34,7 @@ func NewServiceServer() (r *ServiceServer) {
 	r.ConfigProvider.GetStruct("Redis", &r.RedisConfig)
 
 	// 权限
-	if len(r.RedisConfig.Addrs) > 0 {
+	if r.RedisConfig != nil && len(r.RedisConfig.Addrs) > 0 {
 		routePermissionProvider := security.NewRedisRoutePermissionProvider("", r.RedisConfig)
 		r.PermissionAuditor = security.NewPermissionAuditor(routePermissionProvider)
 	}
