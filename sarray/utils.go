@@ -1,54 +1,120 @@
 package sarray
 
-func StrInArray(val string, array []string) bool {
+func HasStr(array []int, in int) bool {
 	for _, item := range array {
-		if item == val {
+		if item == in {
 			return true
 		}
 	}
 	return false
 }
 
-func IntInArray(val int, array []int) bool {
+func HasAnyStr(array []int, in []int) bool {
 	for _, item := range array {
-		if item == val {
+		for _, v := range in {
+			if item == v {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func HasInt(array []int, in int) bool {
+	for _, item := range array {
+		if item == in {
 			return true
 		}
 	}
 	return false
 }
 
-func Int32InArray(val int32, array []int32) bool {
+func HasAnyInt(array []int, in []int) bool {
 	for _, item := range array {
-		if item == val {
+		for _, v := range in {
+			if item == v {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func HasInt32(array []int32, in int32) bool {
+	for _, item := range array {
+		if item == in {
 			return true
 		}
 	}
 	return false
 }
 
-func Int64InArray(val int64, array []int64) bool {
+func HasAnyInt32(array []int32, in []int32) bool {
 	for _, item := range array {
-		if item == val {
+		for _, v := range in {
+			if item == v {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func HasInt64(array []int64, in int64) bool {
+	for _, item := range array {
+		if item == in {
 			return true
 		}
 	}
 	return false
 }
 
-func Float32InArray(val float32, array []float32) bool {
+func HasAnyInt64(array []int64, in []int64) bool {
 	for _, item := range array {
-		if item == val {
+		for _, v := range in {
+			if item == v {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func HasFloat32(array []float32, in float32) bool {
+	for _, item := range array {
+		if item == in {
 			return true
 		}
 	}
 	return false
 }
 
-func Float64InArray(val float64, array []float64) bool {
+func HasAnyFloat32(array []float32, in []float32) bool {
 	for _, item := range array {
-		if item == val {
+		for _, v := range in {
+			if item == v {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func HasFloat64(array []float64, in float64) bool {
+	for _, item := range array {
+		if item == in {
 			return true
+		}
+	}
+	return false
+}
+
+func HasAnyFloat64(array []float64, in []float64) bool {
+	for _, item := range array {
+		for _, v := range in {
+			if item == v {
+				return true
+			}
 		}
 	}
 	return false
