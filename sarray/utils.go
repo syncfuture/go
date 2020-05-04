@@ -1,6 +1,6 @@
 package sarray
 
-func HasStr(array []int, in int) bool {
+func HasStr(array []string, in string) bool {
 	for _, item := range array {
 		if item == in {
 			return true
@@ -9,7 +9,7 @@ func HasStr(array []int, in int) bool {
 	return false
 }
 
-func HasAnyStr(array []int, in []int) bool {
+func HasAnyStr(array []string, in []string) bool {
 	for _, item := range array {
 		for _, v := range in {
 			if item == v {
