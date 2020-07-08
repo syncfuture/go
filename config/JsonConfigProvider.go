@@ -4,9 +4,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	"github.com/syncfuture/go/u"
-
 	"github.com/syncfuture/go/sjson"
+	"github.com/syncfuture/go/u"
 )
 
 type JsonConfigProvider struct {

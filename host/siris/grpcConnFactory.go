@@ -7,7 +7,7 @@ import (
 
 	"github.com/kataras/iris/v12/context"
 
-	log "github.com/kataras/golog"
+	log "github.com/syncfuture/go/slog"
 )
 
 func CreateGRPCConnPool(ctx context.Context, addr string) (r *grpc.ClientConn) {

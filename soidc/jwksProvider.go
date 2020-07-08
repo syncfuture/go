@@ -9,7 +9,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	lru "github.com/hashicorp/golang-lru"
-	log "github.com/kataras/golog"
+	log "github.com/syncfuture/go/slog"
 	"gopkg.in/square/go-jose.v2"
 )
 

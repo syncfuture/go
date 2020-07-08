@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	log "github.com/kataras/golog"
+	log "github.com/syncfuture/go/slog"
 )
 
 type batchScheduler struct {

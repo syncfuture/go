@@ -6,10 +6,10 @@ import (
 	"github.com/syncfuture/go/sgrpc"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	log "github.com/kataras/golog"
 	panichandler "github.com/kazegusuri/grpc-panic-handler"
 	"github.com/syncfuture/go/config"
 	"github.com/syncfuture/go/security"
+	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/go/sredis"
 	"google.golang.org/grpc"
 )
@@ -25,8 +25,7 @@ func NewServiceServer() (r *ServiceServer) {
 	r = new(ServiceServer)
 	r.ConfigProvider = config.NewJsonConfigProvider()
 	// 日志和配置
-	logLevel := r.ConfigProvider.GetStringDefault("Log.Level", "warn")
-	log.SetLevel(logLevel)
+	log.Init()
 
 	// Http客户端
 	ConfigHttpClient(r)

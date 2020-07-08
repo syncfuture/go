@@ -5,10 +5,10 @@ import (
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
-	log "github.com/kataras/golog"
 	"github.com/kataras/iris/v12/context"
 	"github.com/kataras/iris/v12/sessions"
 	"github.com/syncfuture/go/security"
+	log "github.com/syncfuture/go/slog"
 	"golang.org/x/oauth2"
 )
 

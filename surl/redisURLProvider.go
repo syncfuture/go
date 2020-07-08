@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v7"
-	log "github.com/kataras/golog"
 	"github.com/patrickmn/go-cache"
+	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/go/sredis"
 	"github.com/syncfuture/go/u"
 )
