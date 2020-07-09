@@ -1,8 +1,8 @@
-Tokenpackage soauth2
+package soauth2
 
 import "golang.org/x/oauth2"
 
 type ITokenStore interface {
 	GetToken(args ...interface{}) (*oauth2.Token, error)
-	SaveToken(*oauth2.Token token, args ...interface{}) error
+	SaveToken(token *oauth2.Token, args ...interface{}) error
 }
