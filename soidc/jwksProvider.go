@@ -58,16 +58,17 @@ func (x *jwksProvider) GetKey(token *jwt.Token) (interface{}, error) {
 
 	// Get audience from JWT and validate against desired audience
 	var isAudienceValid bool
-	auds, ok := claims["aud"].([]string)
-	if !ok {
-		return nil, fmt.Errorf("invalid audience claim format")
-	}
-	for _, aud := range auds {
-		if x.audience == aud {
-			isAudienceValid = true
-			break
+	if aud, _ := claims["aud"].(string); aud == x.audience {
+		isAudienceValid = true
+	} else if auds, ok := claims["aud"].([]string); !ok {
+		for _, aud := range auds {
+			if x.audience == aud {
+				isAudienceValid = true
+				break
+			}
 		}
 	}
+
 	if !isAudienceValid {
 		return nil, fmt.Errorf("cannot validate audience claim")
 	}
