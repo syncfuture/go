@@ -23,19 +23,18 @@ var (
 	_detailLevel = _detailMap["warn"]
 )
 
-func Init(args ...string) {
-	var configFile string
-	if len(args) > 0 {
-		configFile = args[0]
-	} else {
-		configFile = "configs.json"
+func Init(configProvider config.IConfigProvider) {
+	if configProvider == nil {
+		configJsonPath := "./configs.json"
+		_, err := os.Stat(configJsonPath)
+		if err == nil {
+			configProvider = config.NewJsonConfigProvider(configJsonPath)
+		}
 	}
 
-	_, err := os.Stat(configFile)
-	if err == nil {
-		cp := config.NewJsonConfigProvider(configFile)
-		Level = cp.GetStringDefault("Log.Level", "warn")
-		detailLevel := cp.GetString("Log.DetailLevel") // 显示文件行数与否的级别
+	if configProvider != nil {
+		Level = configProvider.GetStringDefault("Log.Level", "warn")
+		detailLevel := configProvider.GetString("Log.DetailLevel") // 显示文件行数与否的级别
 		if detailLevel == "" {
 			detailLevel = Level
 		}

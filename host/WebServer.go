@@ -35,7 +35,7 @@ func NewWebServer() (r *WebServer) {
 	r = new(WebServer)
 	r.ConfigProvider = config.NewJsonConfigProvider()
 	// 日志和配置
-	log.Init()
+	log.Init(r.ConfigProvider)
 
 	// Http客户端
 	ConfigHttpClient(r)
