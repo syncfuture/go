@@ -1,11 +1,11 @@
 package sslice
 
-func AppendString(slice []string, elems ...string) []string {
+func AppendStr(slice []string, elems ...string) []string {
 	slice = append(slice, elems...)
 	return slice
 }
 
-func RemoveString(slice []string, elems ...string) []string {
+func RemoveStr(slice []string, elems ...string) []string {
 	if len(slice) == 0 || len(elems) == 0 {
 		return slice
 	}
@@ -25,17 +25,17 @@ func RemoveString(slice []string, elems ...string) []string {
 	return slice
 }
 
-func AppendStringToNew(slice []string, elems ...string) []string {
-	// 制作拷贝，防止复用
+// AppendStrToNew create a new slice, then append string
+func AppendStrToNew(slice []string, elems ...string) []string {
 	r := make([]string, len(slice))
 	copy(r, slice)
 
-	return AppendString(r, elems...)
+	return AppendStr(r, elems...)
 }
 
-func RemoveStringToNew(slice []string, elems ...string) []string {
-	// 制作拷贝，防止复用
+// RemoveStrToNew create a new slice, then remove string
+func RemoveStrToNew(slice []string, elems ...string) []string {
 	r := make([]string, len(slice))
 	copy(r, slice)
-	return RemoveString(r, elems...)
+	return RemoveStr(r, elems...)
 }

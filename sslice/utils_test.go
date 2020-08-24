@@ -1,4 +1,4 @@
-package sarray
+package sslice
 
 import (
 	"testing"

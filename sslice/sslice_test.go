@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func Test1(t *testing.T) {
+func TestAppendAndRemoveStr(t *testing.T) {
 	x := make([]string, 5)
 	x[0] = "a"
 	x[1] = "b"
@@ -12,8 +12,8 @@ func Test1(t *testing.T) {
 	x[3] = "d"
 	x[4] = "e"
 
-	AppendString(x, "f", "g")
+	AppendStr(x, "f", "g")
 
-	RemoveString(x, "d")
+	RemoveStr(x, "d")
 
 }

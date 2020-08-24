@@ -1,4 +1,4 @@
-package sarray
+package sslice
 
 func HasStr(source []string, in string) bool {
 	for _, item := range source {

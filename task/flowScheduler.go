@@ -9,12 +9,15 @@ import (
 
 type flowScheduler struct {
 	maxConcurrent int
+	cancel        bool
+	rwMutex       *sync.RWMutex
 }
 
 // NewFlowScheduler create a flow scheduler
 func NewFlowScheduler(maxConcurrent int) *flowScheduler {
 	r := new(flowScheduler)
 	r.maxConcurrent = maxConcurrent
+	r.rwMutex = new(sync.RWMutex)
 	return r
 }
 
@@ -36,11 +39,27 @@ func (x *flowScheduler) SliceRun(slicePtr interface{}, action func(i int, v inte
 
 	for i := 0; i < s.Len(); i++ {
 		ch <- 0
+
+		x.rwMutex.RLock()
+		if x.cancel {
+			x.rwMutex.RUnlock()
+			return
+		}
+		x.rwMutex.RUnlock()
+
 		go func(a int) {
 			defer func() {
 				<-ch
 				wg.Done()
 			}()
+
+			x.rwMutex.RLock()
+			if x.cancel {
+				x.rwMutex.RUnlock()
+				return
+			}
+			x.rwMutex.RUnlock()
+
 			action(a, s.Index(a).Interface())
 		}(i)
 	}
@@ -66,4 +85,10 @@ func (x *flowScheduler) Run(repeatTime int, action func(i int)) {
 	}
 
 	wg.Wait()
+}
+
+func (x *flowScheduler) Cancel() {
+	x.rwMutex.Lock()
+	x.cancel = true
+	x.rwMutex.Unlock()
 }

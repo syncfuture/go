@@ -13,6 +13,7 @@ type batchScheduler struct {
 	batchSize int
 	// Intervel intervel milliseconds per batch
 	intervalMS  int
+	cancel      bool
 	onBatchDone func(int, int)
 }
 
@@ -74,6 +75,9 @@ func (x *batchScheduler) SliceRun(slicePtr interface{}, action func(i int, v int
 		}
 
 		wg.Wait()
+		if x.cancel {
+			break
+		}
 
 		if x.onBatchDone != nil {
 			// 触发批次执行完毕事件
@@ -83,4 +87,8 @@ func (x *batchScheduler) SliceRun(slicePtr interface{}, action func(i int, v int
 			time.Sleep(time.Duration(x.intervalMS) * time.Millisecond)
 		}
 	}
+}
+
+func (x *batchScheduler) Cancel() {
+	x.cancel = true
 }
