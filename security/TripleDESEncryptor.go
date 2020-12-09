@@ -5,8 +5,6 @@ import (
 	"crypto/cipher"
 	"crypto/des"
 	"encoding/base64"
-
-	"github.com/syncfuture/go/u"
 )
 
 // CreateTripleDESEncryptor create triple des encryptor
@@ -30,12 +28,12 @@ func (x *TripleDESEncryptor) EncryptString(in string) (string, error) {
 // DecryptString decrypt a string
 func (x *TripleDESEncryptor) DecryptString(in string) (string, error) {
 	data, err := base64.StdEncoding.DecodeString(in)
-	if u.LogError(err) {
+	if err != nil {
 		return in, err
 	}
 
 	data, err = x.Decrypt(data)
-	if u.LogError(err) {
+	if err != nil {
 		return in, err
 	}
 
