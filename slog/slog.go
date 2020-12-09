@@ -2,12 +2,15 @@ package slog
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"runtime"
+	"time"
 
 	"github.com/syncfuture/go/config"
 
 	"github.com/kataras/golog"
+	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 )
 
 var (
@@ -21,6 +24,7 @@ var (
 		"fatal": 5,
 	}
 	_detailLevel = _detailMap["warn"]
+	_logFile     string
 )
 
 func Init(configProvider config.IConfigProvider) {
@@ -35,13 +39,33 @@ func Init(configProvider config.IConfigProvider) {
 	if configProvider != nil {
 		Level = configProvider.GetStringDefault("Log.Level", "warn")
 		detailLevel := configProvider.GetString("Log.DetailLevel") // 显示文件行数与否的级别
+		_logFile = configProvider.GetString("Log.File")
 		if detailLevel == "" {
 			detailLevel = Level
 		}
 		_detailLevel = _detailMap[detailLevel]
 	}
 
-	golog.SetLevel(Level)
+	if Level == "all" { // golog 的debug就会显示所有
+		golog.SetLevel("debug")
+	} else {
+		golog.SetLevel(Level)
+	}
+
+	if _logFile != "" {
+		rotationSeconds := configProvider.GetIntDefault("Log.RotationSeconds", 86400) // 默认24小时一个新日志文件
+		rotationCount := configProvider.GetIntDefault("Log.RotationCount", 7)         // 默认最多保存7个日志文件
+		writer, err := rotatelogs.New(
+			_logFile+".%Y%m%d%H%M%S",
+			rotatelogs.WithRotationTime(time.Duration(rotationSeconds)*time.Second), //
+			rotatelogs.WithRotationCount(uint(rotationCount)),
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		golog.SetOutput(writer)
+	}
 }
 
 func Debug(v ...interface{}) {

@@ -1,0 +1,9 @@
+{
+    "Log": {
+        "Level": "all",
+        "DetailLevel": "warn",
+        "File": "logs/test.log",
+        "RotationSeconds": 1,
+        "RotationCount": 7
+    }
+}
