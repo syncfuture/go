@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 
 	"github.com/syncfuture/go/rsautil"
-	"github.com/syncfuture/go/u"
 )
 
 // RSAEncryptor RSA encryptor
@@ -18,7 +17,7 @@ type RSAEncryptor struct {
 // CreateRSAEncryptorFromFile create encryptor by specifying cert path
 func CreateRSAEncryptorFromFile(certPath string) (*RSAEncryptor, error) {
 	data, err := ioutil.ReadFile(certPath)
-	if u.LogError(err) {
+	if err != nil {
 		return nil, err
 	}
 	return CreateRSAEncryptor(&data)
@@ -35,7 +34,7 @@ func CreateRSAEncryptor(keyData *[]byte) (*RSAEncryptor, error) {
 // Encrypt encrypt
 func (x *RSAEncryptor) Encrypt(in []byte) ([]byte, error) {
 	data, err := rsa.EncryptPKCS1v15(rand.Reader, &x.Key.PublicKey, []byte(in))
-	if u.LogError(err) {
+	if err != nil {
 		return in, err
 	}
 
@@ -45,7 +44,7 @@ func (x *RSAEncryptor) Encrypt(in []byte) ([]byte, error) {
 // Decrypt decrypt
 func (x *RSAEncryptor) Decrypt(in []byte) ([]byte, error) {
 	data, err := rsa.DecryptPKCS1v15(rand.Reader, x.Key, []byte(in))
-	if u.LogError(err) {
+	if err != nil {
 		return in, err
 	}
 	return data, err
@@ -54,7 +53,7 @@ func (x *RSAEncryptor) Decrypt(in []byte) ([]byte, error) {
 // EncryptString encrypt string
 func (x *RSAEncryptor) EncryptString(in string) (string, error) {
 	data, err := x.Encrypt([]byte(in))
-	if u.LogError(err) {
+	if err != nil {
 		return in, err
 	}
 
@@ -66,11 +65,11 @@ func (x *RSAEncryptor) EncryptString(in string) (string, error) {
 // DecryptString decrypt string
 func (x *RSAEncryptor) DecryptString(in string) (string, error) {
 	inData, err := base64.StdEncoding.DecodeString(in)
-	if u.LogError(err) {
+	if err != nil {
 		return in, err
 	}
 	data, err := x.Decrypt(inData)
-	if u.LogError(err) {
+	if err != nil {
 		return in, err
 	}
 	// str := fmt.Sprintf("%x", data)

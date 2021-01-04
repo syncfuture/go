@@ -36,7 +36,7 @@ func NewRedisRoutePermissionProvider(projectName string, config *sredis.RedisCon
 // Route
 func (x *RedisRoutePermissionProvider) CreateRoute(in *sproto.RouteDTO) error {
 	j, err := json.Marshal(in)
-	if u.LogError(err) {
+	if err != nil {
 		return err
 	}
 
@@ -46,13 +46,13 @@ func (x *RedisRoutePermissionProvider) CreateRoute(in *sproto.RouteDTO) error {
 func (x *RedisRoutePermissionProvider) GetRoute(id string) (*sproto.RouteDTO, error) {
 	cmd := x.redis.HGet(x.RouteKey, id)
 	err := cmd.Err()
-	if u.LogError(err) {
+	if err != nil {
 		return nil, err
 	}
 
 	r := new(sproto.RouteDTO)
 	j, err := cmd.Result()
-	if u.LogError(err) {
+	if err != nil {
 		return nil, err
 	}
 
@@ -62,7 +62,7 @@ func (x *RedisRoutePermissionProvider) GetRoute(id string) (*sproto.RouteDTO, er
 }
 func (x *RedisRoutePermissionProvider) UpdateRoute(in *sproto.RouteDTO) error {
 	j, err := json.Marshal(in)
-	if u.LogError(err) {
+	if err != nil {
 		return err
 	}
 
@@ -76,7 +76,7 @@ func (x *RedisRoutePermissionProvider) RemoveRoute(id string) error {
 func (x *RedisRoutePermissionProvider) GetRoutes() (map[string]*sproto.RouteDTO, error) {
 	cmd := x.redis.HGetAll(x.RouteKey)
 	r, err := cmd.Result()
-	if u.LogError(err) {
+	if err != nil {
 		return nil, err
 	}
 
@@ -95,7 +95,7 @@ func (x *RedisRoutePermissionProvider) GetRoutes() (map[string]*sproto.RouteDTO,
 // Permission
 func (x *RedisRoutePermissionProvider) CreatePermission(in *sproto.PermissionDTO) error {
 	j, err := json.Marshal(in)
-	if u.LogError(err) {
+	if err != nil {
 		return err
 	}
 
@@ -105,13 +105,13 @@ func (x *RedisRoutePermissionProvider) CreatePermission(in *sproto.PermissionDTO
 func (x *RedisRoutePermissionProvider) GetPermission(id string) (*sproto.PermissionDTO, error) {
 	cmd := x.redis.HGet(x.PermissionKey, id)
 	err := cmd.Err()
-	if u.LogError(err) {
+	if err != nil {
 		return nil, err
 	}
 
 	r := new(sproto.PermissionDTO)
 	j, err := cmd.Result()
-	if u.LogError(err) {
+	if err != nil {
 		return nil, err
 	}
 
@@ -121,7 +121,7 @@ func (x *RedisRoutePermissionProvider) GetPermission(id string) (*sproto.Permiss
 }
 func (x *RedisRoutePermissionProvider) UpdatePermission(in *sproto.PermissionDTO) error {
 	j, err := json.Marshal(in)
-	if u.LogError(err) {
+	if err != nil {
 		return err
 	}
 
@@ -135,7 +135,7 @@ func (x *RedisRoutePermissionProvider) RemovePermission(id string) error {
 func (x *RedisRoutePermissionProvider) GetPermissions() (map[string]*sproto.PermissionDTO, error) {
 	cmd := x.redis.HGetAll(x.PermissionKey)
 	r, err := cmd.Result()
-	if u.LogError(err) {
+	if err != nil {
 		return nil, err
 	}
 

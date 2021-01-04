@@ -2,7 +2,16 @@ package u
 
 import (
 	"reflect"
+	"regexp"
 	"strings"
+)
+
+const (
+	_regStr = `^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$`
+)
+
+var (
+	_regex = regexp.MustCompile(_regStr)
 )
 
 func IsMissing(x interface{}) bool {
@@ -31,4 +40,8 @@ func IsMissing(x interface{}) bool {
 	}
 
 	return false
+}
+
+func IsBase64String(str string) bool {
+	return _regex.MatchString(str)
 }
