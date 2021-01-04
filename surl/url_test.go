@@ -9,7 +9,7 @@ import (
 )
 
 func TestRenderURL(t *testing.T) {
-	a := NewRedisURLProvider(&sredis.RedisConfig{
+	a := NewRedisURLProvider("test:URIS", &sredis.RedisConfig{
 		Addrs:    []string{"localhost:6379"},
 		Password: "Famous901",
 	})
