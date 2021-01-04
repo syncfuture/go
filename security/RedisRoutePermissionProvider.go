@@ -10,24 +10,27 @@ import (
 	"github.com/syncfuture/go/u"
 )
 
-const (
-	route_key      = "ecp:ROUTES:"
-	permission_key = "ecp:PERMISSIONS"
-)
-
 type RedisRoutePermissionProvider struct {
 	redis         redis.Cmdable
 	RouteKey      string
 	PermissionKey string
 }
 
-func NewRedisRoutePermissionProvider(projectName string, config *sredis.RedisConfig) IRoutePermissionProvider {
+func NewRedisRoutePermissionProvider(routeKey, permissionKey string, config *sredis.RedisConfig) IRoutePermissionProvider {
+	if routeKey == "" {
+		log.Fatal("routeKey cannot be empty")
+	}
+
+	if permissionKey == "" {
+		log.Fatal("permissionKey key cannot be empty")
+	}
+
 	r := new(RedisRoutePermissionProvider)
 
 	r.redis = sredis.NewClient(config)
 
-	r.RouteKey = route_key + projectName
-	r.PermissionKey = permission_key
+	r.RouteKey = routeKey
+	r.PermissionKey = permissionKey
 
 	return r
 }
