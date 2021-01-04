@@ -8,17 +8,13 @@ require (
 	github.com/golang/protobuf v1.4.3
 	github.com/jehiah/go-strftime v0.0.0-20171201141054-1d33003b3869 // indirect
 	github.com/jonboulle/clockwork v0.2.2 // indirect
-	github.com/kataras/golog v0.1.5
+	github.com/kataras/golog v0.1.6
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/lestrrat-go/strftime v1.0.3 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible
-<<<<<<< HEAD
-	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
-=======
 	github.com/pkg/errors v0.9.1 // indirect
->>>>>>> cc0c39cb367e216493fbbadcf6278617d5f1c92a
 	github.com/stretchr/testify v1.6.1
 	github.com/tebeka/strftime v0.1.5 // indirect
-	github.com/tidwall/gjson v1.6.3
-	golang.org/x/crypto v0.0.0-20201117144127-c1f2f97bffc9
+	github.com/tidwall/gjson v1.6.7
+	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
 )
