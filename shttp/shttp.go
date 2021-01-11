@@ -3,13 +3,10 @@ package shttp
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
-	"sync"
 
+	"github.com/syncfuture/go/spool"
 	"github.com/syncfuture/go/surl"
-
-	"github.com/syncfuture/go/u"
 )
 
 const (
@@ -18,28 +15,35 @@ const (
 )
 
 var (
-	_bytesPool = &sync.Pool{
-		New: func() interface{} {
-			b := make([]byte, 1024)
-			return b
-		},
-	}
+	_bufferPool = spool.NewSyncBufferPool(1024)
 )
 
 type APIClient struct {
 	URLProvider surl.IURLProvider
 }
 
-// CallAPI call api
-// bodyObj is optional
-func (x *APIClient) CallAPI(client *http.Client, method, url string, bodyObj interface{}) *[]byte {
-	return x.SendRequest(client, method, url, nil, bodyObj)
+func (x *APIClient) DoBuffer(client *http.Client, method, url string, configRequest func(*http.Request), bodyObj interface{}) (buffer *bytes.Buffer, err error) {
+	buffer = _bufferPool.GetBuffer()
+
+	var resp *http.Response
+	resp, err = x.Do(client, method, url, configRequest, bodyObj)
+	if err != nil {
+		return nil, err
+	}
+	// 读取Response Body
+	_, err = buffer.ReadFrom(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return buffer, err
+}
+func (x *APIClient) RecycleBuffer(buffer *bytes.Buffer) {
+	_bufferPool.PutBuffer(buffer)
 }
 
-func (x *APIClient) SendRequest(client *http.Client, method, url string, configRequest func(*http.Request), bodyObj interface{}) *[]byte {
-	buffer := _bytesPool.Get().([]byte)
+func (x *APIClient) Do(client *http.Client, method, url string, configRequest func(*http.Request), bodyObj interface{}) (resp *http.Response, err error) {
 
-	var err error
 	var request *http.Request
 
 	if x.URLProvider != nil {
@@ -48,31 +52,32 @@ func (x *APIClient) SendRequest(client *http.Client, method, url string, configR
 	}
 
 	// 创建Request
+	bodyBuffer := _bufferPool.GetBuffer()
 	if bodyObj != nil {
-		var body []byte
-
 		switch v := bodyObj.(type) {
 		case []byte:
-			body = v
+			bodyBuffer.Write(v)
 			break
 		case string:
-			body = []byte(v)
+			bodyBuffer.WriteString(v)
 			break
 		default:
+			var body []byte
 			body, err = json.Marshal(v)
-			if u.LogError(err) {
-				buffer = []byte(err.Error())
-				return &buffer
+			if err != nil {
+				return nil, err
 			}
+			bodyBuffer.Write(body)
 		}
 
-		request, err = http.NewRequest(method, url, bytes.NewBuffer(body))
+		request, err = http.NewRequest(method, url, bodyBuffer)
 	} else {
 		request, err = http.NewRequest(method, url, nil)
 	}
-	if u.LogError(err) {
-		buffer = []byte(err.Error())
-		return &buffer
+	defer _bufferPool.PutBuffer(bodyBuffer)
+
+	if err != nil {
+		return nil, err
 	}
 
 	// 配置Request
@@ -82,25 +87,10 @@ func (x *APIClient) SendRequest(client *http.Client, method, url string, configR
 	}
 
 	// 发送请求
-	resp, err := client.Do(request)
-	if u.LogError(err) {
-		buffer = []byte(err.Error())
-		return &buffer
-	}
-	defer resp.Body.Close()
-
-	// 读取Response Body
-	buffer, err = ioutil.ReadAll(resp.Body)
-	if u.LogError(err) {
-		buffer = []byte(err.Error())
-		return &buffer
+	resp, err = client.Do(request)
+	if err != nil {
+		return nil, err
 	}
 
-	return &buffer
-}
-
-// RecycleBuffer put back buffer to pool
-func (x *APIClient) RecycleBuffer(buffer *[]byte) {
-	*buffer = (*buffer)[:0]
-	_bytesPool.Put(*buffer)
+	return resp, err
 }
