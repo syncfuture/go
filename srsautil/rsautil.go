@@ -1,4 +1,4 @@
-package rsautil
+package srsautil
 
 import (
 	"crypto/rand"

@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/syncfuture/go/config"
+	"github.com/syncfuture/go/sconfig"
 
 	"github.com/kataras/golog"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
@@ -27,12 +27,12 @@ var (
 	_logFile     string
 )
 
-func Init(configProvider config.IConfigProvider) {
+func Init(configProvider sconfig.IConfigProvider) {
 	if configProvider == nil {
 		configJsonPath := "./configs.json"
 		_, err := os.Stat(configJsonPath)
 		if err == nil {
-			configProvider = config.NewJsonConfigProvider(configJsonPath)
+			configProvider = sconfig.NewJsonConfigProvider(configJsonPath)
 		}
 	}
 

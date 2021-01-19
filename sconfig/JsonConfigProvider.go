@@ -1,4 +1,4 @@
-package config
+package sconfig
 
 import (
 	"encoding/json"

@@ -1,4 +1,4 @@
-package security
+package ssecurity
 
 import (
 	"github.com/syncfuture/go/sproto"

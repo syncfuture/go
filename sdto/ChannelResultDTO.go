@@ -1,4 +1,4 @@
-package dto
+package sdto
 
 type ChannelResultDTO struct {
 	Result interface{}

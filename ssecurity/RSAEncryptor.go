@@ -1,4 +1,4 @@
-package security
+package ssecurity
 
 import (
 	"crypto/rand"
@@ -6,7 +6,7 @@ import (
 	"encoding/base64"
 	"io/ioutil"
 
-	"github.com/syncfuture/go/rsautil"
+	"github.com/syncfuture/go/srsautil"
 )
 
 // RSAEncryptor RSA encryptor
@@ -27,7 +27,7 @@ func CreateRSAEncryptorFromFile(certPath string) (*RSAEncryptor, error) {
 func CreateRSAEncryptor(keyData *[]byte) (*RSAEncryptor, error) {
 	r := RSAEncryptor{}
 	var err error
-	r.Key, err = rsautil.PKCS8BytesToPrivateKey(*keyData)
+	r.Key, err = srsautil.PKCS8BytesToPrivateKey(*keyData)
 	return &r, err
 }
 
