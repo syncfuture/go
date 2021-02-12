@@ -9,10 +9,10 @@ import (
 )
 
 type RedisConfig struct {
-	Addrs          []string
-	Password       string
-	DB             int
-	ClusterEnabled bool
+	Addrs    []string
+	Password string
+	DB       int
+	// ClusterEnabled bool
 }
 
 func NewClient(config *RedisConfig) redis.UniversalClient {
@@ -20,7 +20,8 @@ func NewClient(config *RedisConfig) redis.UniversalClient {
 	if addrCount == 0 {
 		log.Fatal("addrs cannot be empty")
 		return nil
-	} else if addrCount == 1 && !config.ClusterEnabled {
+		// } else if addrCount == 1 && !config.ClusterEnabled {
+	} else if addrCount == 1 {
 		c := &redis.Options{
 			Addr: config.Addrs[0],
 			DB:   config.DB,
