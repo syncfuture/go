@@ -1,7 +1,7 @@
 package shttp
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 
@@ -12,7 +12,7 @@ func TestAPIClient_Do(t *testing.T) {
 	apiClient := new(APIClient)
 	resp, err := apiClient.Do(http.DefaultClient, "GET", "https://www.google.com", nil, nil)
 	assert.NoError(t, err)
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	assert.NoError(t, err)
 	t.Log(string(body))

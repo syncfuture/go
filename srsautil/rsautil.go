@@ -6,7 +6,7 @@ import (
 	"crypto/sha512"
 	"crypto/x509"
 	"encoding/pem"
-	"io/ioutil"
+	"os"
 
 	log "github.com/syncfuture/go/slog"
 )
@@ -165,7 +165,7 @@ func DecryptWithPrivateKey(ciphertext []byte, priv *rsa.PrivateKey) ([]byte, err
 }
 
 func ReadCertFromFile(file string) (*x509.Certificate, error) {
-	caFile, err := ioutil.ReadFile(file)
+	caFile, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +179,7 @@ func ReadCertFromFile(file string) (*x509.Certificate, error) {
 }
 
 func ReadPrivateKeyFromFile(file string) (*rsa.PrivateKey, error) {
-	keyFile, err := ioutil.ReadFile(file)
+	keyFile, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}

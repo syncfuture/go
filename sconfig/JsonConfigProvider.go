@@ -2,7 +2,7 @@ package sconfig
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 
 	"github.com/syncfuture/go/sjson"
 	"github.com/syncfuture/go/u"
@@ -24,7 +24,7 @@ func NewJsonConfigProvider(args ...string) IConfigProvider {
 		configFile = args[0]
 	}
 
-	configData, err := ioutil.ReadFile(configFile)
+	configData, err := os.ReadFile(configFile)
 	u.LogFaltal(err)
 	r.RawJson = configData
 	err = json.Unmarshal(configData, &r.MapConfiguration)

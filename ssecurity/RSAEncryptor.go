@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"encoding/base64"
-	"io/ioutil"
+	"os"
 
 	"github.com/syncfuture/go/srsautil"
 )
@@ -16,7 +16,7 @@ type RSAEncryptor struct {
 
 // CreateRSAEncryptorFromFile create encryptor by specifying cert path
 func CreateRSAEncryptorFromFile(certPath string) (*RSAEncryptor, error) {
-	data, err := ioutil.ReadFile(certPath)
+	data, err := os.ReadFile(certPath)
 	if err != nil {
 		return nil, err
 	}
