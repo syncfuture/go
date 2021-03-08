@@ -3,18 +3,16 @@ package slog
 import (
 	"fmt"
 	"log"
-	"os"
 	"runtime"
 	"time"
 
-	"github.com/syncfuture/go/config"
+	"github.com/syncfuture/go/sconfig"
 
 	"github.com/kataras/golog"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 )
 
 var (
-	Level      = "warn"
 	_detailMap = map[string]int{
 		"all":   0,
 		"debug": 1,
@@ -24,39 +22,47 @@ var (
 		"fatal": 5,
 	}
 	_detailLevel = _detailMap["warn"]
-	_logFile     string
+	Config       = &LogConfig{
+		Level:       "debug",
+		DetailLevel: "warn",
+	}
 )
 
-func Init(configProvider config.IConfigProvider) {
+type LogConfig struct {
+	Level       string
+	DetailLevel string
+	File        string
+}
+
+func Init(configProvider sconfig.IConfigProvider) {
 	if configProvider == nil {
-		configJsonPath := "./configs.json"
-		_, err := os.Stat(configJsonPath)
-		if err == nil {
-			configProvider = config.NewJsonConfigProvider(configJsonPath)
-		}
+		log.Fatal("configProvider cannot be nil")
 	}
 
-	if configProvider != nil {
-		Level = configProvider.GetStringDefault("Log.Level", "warn")
-		detailLevel := configProvider.GetString("Log.DetailLevel") // 显示文件行数与否的级别
-		_logFile = configProvider.GetString("Log.File")
-		if detailLevel == "" {
-			detailLevel = Level
-		}
-		_detailLevel = _detailMap[detailLevel]
+	configProvider.GetStruct("Log", &Config)
+	if Config == nil {
+		log.Fatal("Cannot find 'Log' section in configuration")
 	}
 
-	if Level == "all" { // golog 的debug就会显示所有
+	if Config.Level == "" {
+		Config.Level = "debug"
+	}
+	if Config.DetailLevel == "" {
+		Config.DetailLevel = "warn"
+	}
+	_detailLevel = _detailMap[Config.DetailLevel]
+
+	if Config.Level == "all" { // golog 的debug就会显示所有
 		golog.SetLevel("debug")
 	} else {
-		golog.SetLevel(Level)
+		golog.SetLevel(Config.Level)
 	}
 
-	if _logFile != "" {
+	if Config.File != "" {
 		rotationSeconds := configProvider.GetIntDefault("Log.RotationSeconds", 86400) // 默认24小时一个新日志文件
 		rotationCount := configProvider.GetIntDefault("Log.RotationCount", 7)         // 默认最多保存7个日志文件
 		writer, err := rotatelogs.New(
-			_logFile+".%Y%m%d%H%M%S",
+			Config.File+".%Y%m%d%H%M%S",
 			rotatelogs.WithRotationTime(time.Duration(rotationSeconds)*time.Second), //
 			rotatelogs.WithRotationCount(uint(rotationCount)),
 		)

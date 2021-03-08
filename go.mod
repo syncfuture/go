@@ -11,7 +11,14 @@ require (
 	github.com/lestrrat-go/strftime v1.0.4 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/errors v0.9.1 // indirect
+<<<<<<< HEAD
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/gjson v1.6.8
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83
+=======
+	github.com/sony/sonyflake v1.0.0
+	github.com/stretchr/testify v1.7.0
+	github.com/tidwall/gjson v1.6.8
+	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
+>>>>>>> v1
 )

@@ -12,10 +12,6 @@ import (
 	"github.com/syncfuture/go/u"
 )
 
-const (
-	key = "ecp:URIS"
-)
-
 var (
 	_cache = cache.New(1*time.Hour, 1*time.Hour)
 	_regex = regexp.MustCompile("{{URI '([^']+)'}}")
@@ -23,15 +19,21 @@ var (
 
 type redisURLProvider struct {
 	client redis.Cmdable
+	key    string
 }
 
 // NewRedisURLProvider create new url provider
-func NewRedisURLProvider(redisConfig *sredis.RedisConfig) IURLProvider {
+func NewRedisURLProvider(key string, redisConfig *sredis.RedisConfig) IURLProvider {
+	if key == "" {
+		log.Fatal("key cannot be empty.")
+	}
+
 	if len(redisConfig.Addrs) == 0 || redisConfig.Addrs[0] == "" {
 		log.Fatal("cannot find 'Redis.Addrs' config")
 	}
 	return &redisURLProvider{
 		client: sredis.NewClient(redisConfig),
+		key:    key,
 	}
 }
 
@@ -41,7 +43,7 @@ func (x *redisURLProvider) GetURL(urlKey string) string {
 		return urlKey
 	}
 
-	cmd := x.client.HGet(key, urlKey)
+	cmd := x.client.HGet(x.key, urlKey)
 	r, err := cmd.Result()
 	u.LogError(err)
 	return r

@@ -1,10 +1,10 @@
-package task
+package stask
 
 import (
 	"reflect"
 
 	log "github.com/kataras/golog"
-	"github.com/syncfuture/go/dto"
+	"github.com/syncfuture/go/sdto"
 )
 
 type parallel struct{}
@@ -13,18 +13,18 @@ func NewParallel() *parallel {
 	return new(parallel)
 }
 
-func (x *parallel) Invoke(actions []func(chan *dto.ChannelResultDTO)) (r []*dto.ChannelResultDTO) {
+func (x *parallel) Invoke(actions []func(chan *sdto.ChannelResultDTO)) (r []*sdto.ChannelResultDTO) {
 	actionCount := len(actions)
-	chs := make([]chan *dto.ChannelResultDTO, actionCount)
+	chs := make([]chan *sdto.ChannelResultDTO, actionCount)
 	for i := 0; i < actionCount; i++ {
-		chs[i] = make(chan *dto.ChannelResultDTO)
+		chs[i] = make(chan *sdto.ChannelResultDTO)
 	}
 
 	for i, action := range actions {
 		go action(chs[i])
 	}
 
-	r = make([]*dto.ChannelResultDTO, actionCount)
+	r = make([]*sdto.ChannelResultDTO, actionCount)
 	for i, ch := range chs {
 		r[i] = <-ch
 	}
@@ -32,7 +32,7 @@ func (x *parallel) Invoke(actions []func(chan *dto.ChannelResultDTO)) (r []*dto.
 	return
 }
 
-func (x *parallel) ForEach(slicePtr interface{}, action func(chan *dto.ChannelResultDTO, int, interface{})) (r []*dto.ChannelResultDTO) {
+func (x *parallel) ForEach(slicePtr interface{}, action func(chan *sdto.ChannelResultDTO, int, interface{})) (r []*sdto.ChannelResultDTO) {
 	v := reflect.ValueOf(slicePtr)
 	if v.Kind() != reflect.Ptr {
 		log.Fatal("slicePtr must be a slice pointer")
@@ -44,16 +44,16 @@ func (x *parallel) ForEach(slicePtr interface{}, action func(chan *dto.ChannelRe
 	}
 
 	actionCount := s.Len()
-	chs := make([]chan *dto.ChannelResultDTO, actionCount)
+	chs := make([]chan *sdto.ChannelResultDTO, actionCount)
 	for i := 0; i < actionCount; i++ {
-		chs[i] = make(chan *dto.ChannelResultDTO)
+		chs[i] = make(chan *sdto.ChannelResultDTO)
 	}
 
 	for i := 0; i < s.Len(); i++ {
 		go action(chs[i], i, s.Index(i).Interface())
 	}
 
-	r = make([]*dto.ChannelResultDTO, actionCount)
+	r = make([]*sdto.ChannelResultDTO, actionCount)
 	for i, ch := range chs {
 		r[i] = <-ch
 	}

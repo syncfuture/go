@@ -1,4 +1,4 @@
-package config
+package sconfig
 
 type IConfigProvider interface {
 	// GetMap(key string) MapConfiguration

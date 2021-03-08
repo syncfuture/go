@@ -1,4 +1,4 @@
-package security
+package ssecurity
 
 import (
 	"crypto/rand"
