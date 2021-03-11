@@ -13,14 +13,16 @@ type IPermissionAuditor interface {
 }
 
 type permissionAuditor struct {
-	routePermissionProvider IRoutePermissionProvider
-	routes                  map[string]*sproto.RouteDTO
-	permissions             map[string]*sproto.PermissionDTO
+	routeProvider      IRouteProvider
+	permissionProvider IPermissionProvider
+	routes             map[string]*sproto.RouteDTO
+	permissions        map[string]*sproto.PermissionDTO
 }
 
-func NewPermissionAuditor(routePermissionProvider IRoutePermissionProvider) IPermissionAuditor {
+func NewPermissionAuditor(permissionProvider IPermissionProvider, routeProvider IRouteProvider) IPermissionAuditor {
 	r := new(permissionAuditor)
-	r.routePermissionProvider = routePermissionProvider
+	r.permissionProvider = permissionProvider
+	r.routeProvider = routeProvider
 	r.ReloadRoutePermissions()
 	return r
 }
@@ -28,13 +30,18 @@ func NewPermissionAuditor(routePermissionProvider IRoutePermissionProvider) IPer
 func (x *permissionAuditor) ReloadRoutePermissions() error {
 	var err error
 
-	x.routes, err = x.routePermissionProvider.GetRoutes()
-	if err != nil {
-		return err
+	if x.routeProvider != nil {
+		x.routes, err = x.routeProvider.GetRoutes()
+		if err != nil {
+			return err
+		}
 	}
-	x.permissions, err = x.routePermissionProvider.GetPermissions()
-	if err != nil {
-		return err
+
+	if x.permissionProvider != nil {
+		x.permissions, err = x.permissionProvider.GetPermissions()
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -67,6 +74,15 @@ func (x *permissionAuditor) CheckRoute(area, controller, action string, userRole
 }
 
 func (x *permissionAuditor) CheckRouteWithLevel(area, controller, action string, userRoles int64, userLevel int32) bool {
+	if x.routeProvider == nil {
+		log.Warn("route provider is nil")
+		return false
+	}
+	if x.permissionProvider == nil {
+		log.Warn("permission provider is nil")
+		return false
+	}
+
 	key := area + "_" + controller + "_" + action
 
 	route := new(sproto.RouteDTO)
