@@ -15,7 +15,7 @@ type RedisPermissionProvider struct {
 	PermissionKey string
 }
 
-func NewRedisPermissionProvider(routeKey, permissionKey string, config *sredis.RedisConfig) IPermissionProvider {
+func NewRedisPermissionProvider(permissionKey string, config *sredis.RedisConfig) IPermissionProvider {
 	if permissionKey == "" {
 		log.Fatal("permissionKey key cannot be empty")
 	}
