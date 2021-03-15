@@ -10,6 +10,7 @@ type IPermissionAuditor interface {
 	CheckPermissionWithLevel(permissionID string, userRoles int64, userLevel int32) bool
 	CheckRoute(area, controller, action string, userRoles int64) bool
 	CheckRouteWithLevel(area, controller, action string, userRoles int64, userLevel int32) bool
+	CheckRouteKeyWithLevel(routeKey string, userRoles int64, userLevel int32) bool
 }
 
 type permissionAuditor struct {
@@ -96,6 +97,31 @@ func (x *permissionAuditor) CheckRouteWithLevel(area, controller, action string,
 				return false
 			}
 		}
+	}
+
+	if permission, exists := x.permissions[route.Permission_ID]; exists {
+		return checkPermission(permission, userRoles, userLevel)
+	}
+
+	log.Warnf("permission: %s does not exist", route.Permission_ID)
+	return false
+}
+
+func (x *permissionAuditor) CheckRouteKeyWithLevel(key string, userRoles int64, userLevel int32) bool {
+	if x.routeProvider == nil {
+		log.Warn("route provider is nil")
+		return false
+	}
+	if x.permissionProvider == nil {
+		log.Warn("permission provider is nil")
+		return false
+	}
+
+	var route *sproto.RouteDTO
+	var exists bool
+	if route, exists = x.routes[key]; !exists {
+		log.Warnf("route: [%s] does not exist", key)
+		return false
 	}
 
 	if permission, exists := x.permissions[route.Permission_ID]; exists {
