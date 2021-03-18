@@ -23,6 +23,22 @@ func ToString(obj interface{}) string {
 	}
 }
 
+func ToInt(obj interface{}) int {
+	switch v := obj.(type) {
+	case int:
+		return v
+	case int64:
+		return int(v)
+	case int32:
+		return int(v)
+	case string:
+		r, _ := strconv.ParseInt(v, 10, 32)
+		return int(r)
+	default:
+		return 0
+	}
+}
+
 func ToInt32(obj interface{}) int32 {
 	switch v := obj.(type) {
 	case int32:
