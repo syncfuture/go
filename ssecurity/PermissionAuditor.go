@@ -100,14 +100,18 @@ func (x *permissionAuditor) CheckRouteWithLevel(area, controller, action string,
 	}
 
 	if permission, exists := x.permissions[route.Permission_ID]; exists {
-		return checkPermission(permission, userRoles, userLevel)
+		r := checkPermission(permission, userRoles, userLevel)
+		if !r {
+			log.Debugf("routeKey: %s_%s_%s, roles: %d, level: %d, permission: %v", area, controller, action, userRoles, userLevel, permission)
+		}
+		return r
 	}
 
 	log.Warnf("permission: %s does not exist", route.Permission_ID)
 	return false
 }
 
-func (x *permissionAuditor) CheckRouteKeyWithLevel(key string, userRoles int64, userLevel int32) bool {
+func (x *permissionAuditor) CheckRouteKeyWithLevel(routeKey string, userRoles int64, userLevel int32) bool {
 	if x.routeProvider == nil {
 		log.Warn("route provider is nil")
 		return false
@@ -119,13 +123,17 @@ func (x *permissionAuditor) CheckRouteKeyWithLevel(key string, userRoles int64, 
 
 	var route *sproto.RouteDTO
 	var exists bool
-	if route, exists = x.routes[key]; !exists {
-		log.Warnf("route: [%s] does not exist", key)
+	if route, exists = x.routes[routeKey]; !exists {
+		log.Warnf("route: [%s] does not exist", routeKey)
 		return false
 	}
 
 	if permission, exists := x.permissions[route.Permission_ID]; exists {
-		return checkPermission(permission, userRoles, userLevel)
+		r := checkPermission(permission, userRoles, userLevel)
+		if !r {
+			log.Debugf("routeKey: %s, roles: %d, level: %d, permission: %v", routeKey, userRoles, userLevel, permission)
+		}
+		return r
 	}
 
 	log.Warnf("permission: %s does not exist", route.Permission_ID)
