@@ -5,17 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/syncfuture/go/spool"
 	"github.com/syncfuture/go/surl"
-)
-
-const (
-	CNT_TYPE      = "Content-Type"
-	CNT_TYPE_JSON = "application/json; charset=utf-8"
-)
-
-var (
-	_bufferPool = spool.NewSyncBufferPool(1024)
 )
 
 type APIClient struct {
@@ -30,6 +20,12 @@ func (x *APIClient) DoBuffer(client *http.Client, method, url string, configRequ
 	if err != nil {
 		return nil, err
 	}
+	defer func() {
+		if resp.Body != nil {
+			resp.Body.Close()
+		}
+	}()
+
 	// 读取Response Body
 	_, err = buffer.ReadFrom(resp.Body)
 	if err != nil {
@@ -38,12 +34,8 @@ func (x *APIClient) DoBuffer(client *http.Client, method, url string, configRequ
 
 	return buffer, err
 }
-func (x *APIClient) RecycleBuffer(buffer *bytes.Buffer) {
-	_bufferPool.PutBuffer(buffer)
-}
 
 func (x *APIClient) Do(client *http.Client, method, url string, configRequest func(*http.Request), bodyObj interface{}) (resp *http.Response, err error) {
-
 	var request *http.Request
 
 	if x.URLProvider != nil {
@@ -74,14 +66,14 @@ func (x *APIClient) Do(client *http.Client, method, url string, configRequest fu
 	} else {
 		request, err = http.NewRequest(method, url, nil)
 	}
-	defer _bufferPool.PutBuffer(bodyBuffer)
+	defer func() { _bufferPool.PutBuffer(bodyBuffer) }()
 
 	if err != nil {
 		return nil, err
 	}
 
 	// 配置Request
-	request.Header.Set(CNT_TYPE, CNT_TYPE_JSON)
+	request.Header.Set(HEADER_CTYPE, CTYPE_JSON)
 	if configRequest != nil {
 		configRequest(request)
 	}

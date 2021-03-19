@@ -23,5 +23,5 @@ func TestAPIClient_Do1(t *testing.T) {
 	buffer, err := apiClient.DoBuffer(http.DefaultClient, "GET", "https://www.google.com", nil, nil)
 	assert.NoError(t, err)
 	t.Log(buffer.String())
-	apiClient.RecycleBuffer(buffer)
+	RecycleBuffer(buffer)
 }
