@@ -36,9 +36,9 @@ func LogFaltal(err error) {
 	if err != nil {
 		_, file, line, ok := runtime.Caller(1)
 		if ok {
-			log.Fatalf("<%s:%d> %v", file, line, err)
+			log.Fatalf("<%s:%d> %+v", file, line, err)
 		} else {
-			log.Fatal(err)
+			log.Fatalf("%+v", err)
 		}
 	}
 }
@@ -48,9 +48,9 @@ func LogError(err error) bool {
 	if err != nil {
 		_, file, line, ok := runtime.Caller(1)
 		if ok {
-			log.Errorf("<%s:%d> %v", file, line, err)
+			log.Errorf("<%s:%d> %+v", file, line, err)
 		} else {
-			log.Error(err)
+			log.Errorf("%+v", err)
 		}
 		return true
 	}
@@ -64,9 +64,9 @@ func LogErrorMsg(err error, mrPtr interface{}) bool {
 	if err != nil {
 		_, file, line, ok := runtime.Caller(1)
 		if ok {
-			log.Errorf("<%s:%d> %v", file, line, err)
+			log.Errorf("<%s:%d> %+v", file, line, err)
 		} else {
-			log.Error(err)
+			log.Errorf("%+v", err)
 		}
 
 		if reflect.TypeOf(mrPtr).Kind() != reflect.Ptr {

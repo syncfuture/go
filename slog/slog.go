@@ -78,7 +78,7 @@ func Debug(v ...interface{}) {
 	if _detailLevel <= 1 {
 		_, file, line, ok := runtime.Caller(1)
 		if ok {
-			golog.Debugf("<%s:%d> %v", file, line, v)
+			golog.Debugf("<%s:%d> %+v", file, line, v)
 			return
 		}
 	}
@@ -89,7 +89,7 @@ func Debugf(format string, args ...interface{}) {
 	if _detailLevel <= 1 {
 		_, file, line, ok := runtime.Caller(1)
 		if ok {
-			golog.Debugf("<%s:%d> %v", file, line, fmt.Sprintf(format, args...))
+			golog.Debugf("<%s:%d> %+v", file, line, fmt.Sprintf(format, args...))
 			return
 		}
 	}
@@ -101,7 +101,7 @@ func Info(v ...interface{}) {
 	if _detailLevel <= 2 {
 		_, file, line, ok := runtime.Caller(1)
 		if ok {
-			golog.Infof("<%s:%d> %v", file, line, v)
+			golog.Infof("<%s:%d> %+v", file, line, v)
 			return
 		}
 	}
@@ -112,7 +112,7 @@ func Infof(format string, args ...interface{}) {
 	if _detailLevel <= 2 {
 		_, file, line, ok := runtime.Caller(1)
 		if ok {
-			golog.Infof("<%s:%d> %v", file, line, fmt.Sprintf(format, args...))
+			golog.Infof("<%s:%d> %+v", file, line, fmt.Sprintf(format, args...))
 			return
 		}
 	}
@@ -124,7 +124,7 @@ func Warn(v ...interface{}) {
 	if _detailLevel <= 3 {
 		_, file, line, ok := runtime.Caller(1)
 		if ok {
-			golog.Warnf("<%s:%d> %v", file, line, v)
+			golog.Warnf("<%s:%d> %+v", file, line, v)
 			return
 		}
 	}
@@ -135,7 +135,7 @@ func Warnf(format string, args ...interface{}) {
 	if _detailLevel <= 3 {
 		_, file, line, ok := runtime.Caller(1)
 		if ok {
-			golog.Warnf("<%s:%d> %v", file, line, fmt.Sprintf(format, args...))
+			golog.Warnf("<%s:%d> %+v", file, line, fmt.Sprintf(format, args...))
 			return
 		}
 	}
@@ -147,7 +147,7 @@ func Error(v ...interface{}) {
 	if _detailLevel <= 4 {
 		_, file, line, ok := runtime.Caller(1)
 		if ok {
-			golog.Errorf("<%s:%d> %v", file, line, v)
+			golog.Errorf("<%s:%d> %+v", file, line, v)
 			return
 		}
 	}
@@ -158,7 +158,7 @@ func Errorf(format string, args ...interface{}) {
 	if _detailLevel <= 4 {
 		_, file, line, ok := runtime.Caller(1)
 		if ok {
-			golog.Errorf("<%s:%d> %v", file, line, fmt.Sprintf(format, args...))
+			golog.Errorf("<%s:%d> %+v", file, line, fmt.Sprintf(format, args...))
 			return
 		}
 	}
@@ -170,7 +170,7 @@ func Fatal(v ...interface{}) {
 	if _detailLevel <= 5 {
 		_, file, line, ok := runtime.Caller(1)
 		if ok {
-			golog.Fatalf("<%s:%d> %v", file, line, v)
+			golog.Fatalf("<%s:%d> %+v", file, line, v)
 			return
 		}
 	}
@@ -181,7 +181,7 @@ func Fatalf(format string, args ...interface{}) {
 	if _detailLevel <= 5 {
 		_, file, line, ok := runtime.Caller(1)
 		if ok {
-			golog.Fatalf("<%s:%d> %v", file, line, fmt.Sprintf(format, args...))
+			golog.Fatalf("<%s:%d> %+v", file, line, fmt.Sprintf(format, args...))
 			return
 		}
 	}
