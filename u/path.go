@@ -1,9 +1,10 @@
 package u
 
 import (
-	"fmt"
 	"net/url"
 	"path"
+
+	"github.com/pkg/errors"
 )
 
 // JointURL join urls
@@ -11,7 +12,7 @@ func JointURL(basePath string, paths ...string) (*url.URL, error) {
 	r, err := url.Parse(basePath)
 
 	if err != nil {
-		return nil, fmt.Errorf("invalid url")
+		return nil, errors.Errorf("invalid url")
 	}
 
 	p2 := append([]string{r.Path}, paths...)

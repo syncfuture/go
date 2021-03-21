@@ -36,7 +36,7 @@ import (
 	"time"
 
 	google_tspb "github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/syncfuture/go/serr"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -60,16 +60,16 @@ const (
 // Every valid Timestamp can be represented by a time.Time, but the converse is not true.
 func (m *Timestamp) ValidateTimestamp() error {
 	if m == nil {
-		return serr.New("timestamp: nil Timestamp")
+		return errors.New("timestamp: nil Timestamp")
 	}
 	if m.Seconds < minValidSeconds {
-		return fmt.Errorf("timestamp: %v before 0001-01-01", m)
+		return errors.Errorf("timestamp: %v before 0001-01-01", m)
 	}
 	if m.Seconds >= maxValidSeconds {
-		return fmt.Errorf("timestamp: %v after 10000-01-01", m)
+		return errors.Errorf("timestamp: %v after 10000-01-01", m)
 	}
 	if m.Nanos < 0 || m.Nanos >= 1e9 {
-		return fmt.Errorf("timestamp: %v: nanos not in range [0, 1e9)", m)
+		return errors.Errorf("timestamp: %v: nanos not in range [0, 1e9)", m)
 	}
 	return nil
 }
