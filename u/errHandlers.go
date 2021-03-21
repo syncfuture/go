@@ -1,12 +1,12 @@
 package u
 
 import (
-	"errors"
 	"reflect"
 	"runtime"
 	"strings"
 
 	log "github.com/kataras/golog"
+	"github.com/syncfuture/go/serr"
 )
 
 // JointErrors joint errors to a single error
@@ -25,7 +25,7 @@ func JointErrors(errs ...error) error {
 	}
 
 	if sb.Len() > 0 {
-		err := errors.New(sb.String())
+		err := serr.New(sb.String())
 		return err
 	}
 

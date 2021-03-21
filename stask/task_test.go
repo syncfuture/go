@@ -1,10 +1,10 @@
 package stask
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/syncfuture/go/sdto"
+	"github.com/syncfuture/go/serr"
 	"github.com/syncfuture/go/slog"
 )
 
@@ -27,7 +27,7 @@ func test1(ch chan *sdto.ChannelResultDTO, arg int) {
 	defer func() {
 		ch <- &sdto.ChannelResultDTO{
 			Result: arg,
-			Error:  errors.New("test1 error"),
+			Error:  serr.New("test1 error"),
 		}
 	}()
 }
@@ -38,7 +38,7 @@ func test2(ch chan *sdto.ChannelResultDTO, arg string) {
 	defer func() {
 		ch <- &sdto.ChannelResultDTO{
 			Result: arg,
-			Error:  errors.New("test2 error"),
+			Error:  serr.New("test2 error"),
 		}
 	}()
 }
@@ -49,7 +49,7 @@ func test3(ch chan *sdto.ChannelResultDTO, arg bool) {
 	defer func() {
 		ch <- &sdto.ChannelResultDTO{
 			Result: arg,
-			Error:  errors.New("test3 error"),
+			Error:  serr.New("test3 error"),
 		}
 	}()
 }

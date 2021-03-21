@@ -32,11 +32,11 @@
 package timestamp
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
 	google_tspb "github.com/golang/protobuf/ptypes/timestamp"
+	"github.com/syncfuture/go/serr"
 )
 
 const (
@@ -60,7 +60,7 @@ const (
 // Every valid Timestamp can be represented by a time.Time, but the converse is not true.
 func (m *Timestamp) ValidateTimestamp() error {
 	if m == nil {
-		return errors.New("timestamp: nil Timestamp")
+		return serr.New("timestamp: nil Timestamp")
 	}
 	if m.Seconds < minValidSeconds {
 		return fmt.Errorf("timestamp: %v before 0001-01-01", m)
