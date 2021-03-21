@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/go-redis/redis/v7"
+	"github.com/syncfuture/go/serr"
 	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/go/sproto"
 	"github.com/syncfuture/go/sredis"
@@ -34,7 +35,7 @@ func NewRedisRouteProvider(routeKey string, config *sredis.RedisConfig) IRoutePr
 func (x *RedisRouteProvider) CreateRoute(in *sproto.RouteDTO) error {
 	j, err := json.Marshal(in)
 	if err != nil {
-		return err
+		return serr.Wrap(err)
 	}
 
 	cmd := x.redis.HSet(x.RouteKey, in.ID, j)
@@ -60,7 +61,7 @@ func (x *RedisRouteProvider) GetRoute(id string) (*sproto.RouteDTO, error) {
 func (x *RedisRouteProvider) UpdateRoute(in *sproto.RouteDTO) error {
 	j, err := json.Marshal(in)
 	if err != nil {
-		return err
+		return serr.Wrap(err)
 	}
 
 	cmd := x.redis.HSet(x.RouteKey, in.ID, j)

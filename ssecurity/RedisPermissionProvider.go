@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/go-redis/redis/v7"
+	"github.com/syncfuture/go/serr"
 	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/go/sproto"
 	"github.com/syncfuture/go/sredis"
@@ -34,7 +35,7 @@ func NewRedisPermissionProvider(permissionKey string, config *sredis.RedisConfig
 func (x *RedisPermissionProvider) CreatePermission(in *sproto.PermissionDTO) error {
 	j, err := json.Marshal(in)
 	if err != nil {
-		return err
+		return serr.Wrap(err)
 	}
 
 	cmd := x.redis.HSet(x.PermissionKey, in.ID, j)
@@ -60,7 +61,7 @@ func (x *RedisPermissionProvider) GetPermission(id string) (*sproto.PermissionDT
 func (x *RedisPermissionProvider) UpdatePermission(in *sproto.PermissionDTO) error {
 	j, err := json.Marshal(in)
 	if err != nil {
-		return err
+		return serr.Wrap(err)
 	}
 
 	cmd := x.redis.HSet(x.PermissionKey, in.ID, j)
