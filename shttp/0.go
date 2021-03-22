@@ -4,7 +4,10 @@ import (
 	"bytes"
 	"net/http"
 
+	"github.com/syncfuture/go/serr"
+	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/go/spool"
+	"github.com/syncfuture/go/u"
 )
 
 const (
@@ -31,15 +34,18 @@ func GetRespBuffer(resp *http.Response, err error) (*bytes.Buffer, error) {
 	}
 
 	bf := _bufferPool.GetBuffer()
+	_, err = bf.ReadFrom(resp.Body)
 	defer func() {
-		_bufferPool.PutBuffer(bf)
 		if resp.Body != nil {
 			resp.Body.Close()
 		}
 	}()
-	_, err = bf.ReadFrom(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, serr.Wrap(err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		log.Warnf("%s %s [%d] -> %s", resp.Request.Method, resp.Request.URL.String(), resp.StatusCode, u.BytesToStr(bf.Bytes()))
 	}
 
 	return bf, nil

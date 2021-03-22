@@ -11,36 +11,44 @@ type BufferPool interface {
 }
 
 type syncBufferPool struct {
-	pool       *sync.Pool
-	makeBuffer func() interface{}
+	pool *sync.Pool
+	// makeBuffer func() interface{}
 }
 
 func NewSyncBufferPool(buf_size int) BufferPool {
 	var newPool syncBufferPool
 
-	newPool.makeBuffer = func() interface{} {
-		var b bytes.Buffer
-		b.Grow(buf_size)
-		return &b
+	// newPool.makeBuffer = func() interface{} {
+	// 	var b bytes.Buffer
+	// 	b.Grow(buf_size)
+	// 	return &b
+	// }
+	newPool.pool = &sync.Pool{
+		New: func() interface{} {
+			var b bytes.Buffer
+			b.Grow(buf_size)
+			return &b
+		},
 	}
-	newPool.pool = &sync.Pool{}
-	newPool.pool.New = newPool.makeBuffer
+	// newPool.pool.New = newPool.makeBuffer
 
 	return &newPool
 }
 
-func (bp *syncBufferPool) GetBuffer() (b *bytes.Buffer) {
-	pool_object := bp.pool.Get()
+func (x *syncBufferPool) GetBuffer() (b *bytes.Buffer) {
+	// pool_object := bp.pool.Get()
+	// b, ok := pool_object.(*bytes.Buffer)
+	// if !ok { // explicitly make buffer if sync.Pool returns nil:
+	// 	b = bp.makeBuffer().(*bytes.Buffer)
+	// }
+	// } else {
+	// 	b.Reset()
+	// }
 
-	b, ok := pool_object.(*bytes.Buffer)
-	if !ok { // explicitly make buffer if sync.Pool returns nil:
-		b = bp.makeBuffer().(*bytes.Buffer)
-	} else {
-		b.Reset()
-	}
-	return
+	return x.pool.Get().(*bytes.Buffer)
 }
 
 func (bp *syncBufferPool) PutBuffer(b *bytes.Buffer) {
+	b.Reset()
 	bp.pool.Put(b)
 }
