@@ -49,6 +49,8 @@ func (x *syncBufferPool) GetBuffer() (b *bytes.Buffer) {
 }
 
 func (bp *syncBufferPool) PutBuffer(b *bytes.Buffer) {
-	b.Reset()
+	if b != nil {
+		b.Reset()
+	}
 	bp.pool.Put(b)
 }
