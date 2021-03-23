@@ -34,5 +34,5 @@ func test2() error {
 
 func test3() error {
 	_, err := os.Open("test.aaa")
-	return serr.Wrap(err)
+	return serr.WithStack(err)
 }

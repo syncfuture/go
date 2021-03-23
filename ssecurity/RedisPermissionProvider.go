@@ -35,7 +35,7 @@ func NewRedisPermissionProvider(permissionKey string, config *sredis.RedisConfig
 func (x *RedisPermissionProvider) CreatePermission(in *sproto.PermissionDTO) error {
 	j, err := json.Marshal(in)
 	if err != nil {
-		return serr.Wrap(err)
+		return serr.WithStack(err)
 	}
 
 	cmd := x.redis.HSet(x.PermissionKey, in.ID, j)
@@ -61,7 +61,7 @@ func (x *RedisPermissionProvider) GetPermission(id string) (*sproto.PermissionDT
 func (x *RedisPermissionProvider) UpdatePermission(in *sproto.PermissionDTO) error {
 	j, err := json.Marshal(in)
 	if err != nil {
-		return serr.Wrap(err)
+		return serr.WithStack(err)
 	}
 
 	cmd := x.redis.HSet(x.PermissionKey, in.ID, j)

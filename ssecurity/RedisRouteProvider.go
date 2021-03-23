@@ -35,7 +35,7 @@ func NewRedisRouteProvider(routeKey string, config *sredis.RedisConfig) IRoutePr
 func (x *RedisRouteProvider) CreateRoute(in *sproto.RouteDTO) error {
 	j, err := json.Marshal(in)
 	if err != nil {
-		return serr.Wrap(err)
+		return serr.WithStack(err)
 	}
 
 	cmd := x.redis.HSet(x.RouteKey, in.ID, j)
@@ -61,7 +61,7 @@ func (x *RedisRouteProvider) GetRoute(id string) (*sproto.RouteDTO, error) {
 func (x *RedisRouteProvider) UpdateRoute(in *sproto.RouteDTO) error {
 	j, err := json.Marshal(in)
 	if err != nil {
-		return serr.Wrap(err)
+		return serr.WithStack(err)
 	}
 
 	cmd := x.redis.HSet(x.RouteKey, in.ID, j)

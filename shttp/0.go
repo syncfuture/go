@@ -41,7 +41,7 @@ func GetRespBuffer(resp *http.Response, err error) (*bytes.Buffer, error) {
 		}
 	}()
 	if err != nil {
-		return nil, serr.Wrap(err)
+		return nil, serr.WithStack(err)
 	}
 
 	if resp.StatusCode != http.StatusOK {

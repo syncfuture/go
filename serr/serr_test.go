@@ -15,12 +15,12 @@ func Test(t *testing.T) {
 
 func test1() error {
 	err := test2()
-	return Wrap(err)
+	return WithStack(err)
 }
 
 func test2() error {
 	err := test3()
-	return Wrap(err)
+	return WithStack(err)
 }
 
 func test3() error {
