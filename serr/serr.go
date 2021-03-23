@@ -4,13 +4,17 @@ import (
 	"github.com/pkg/errors"
 )
 
+type stackTracer interface {
+	StackTrace() errors.StackTrace
+}
+
 func New(msg string) error {
 	return errors.New(msg)
 }
 
-// func Errorf(format string, args ...interface{}) error {
-// 	return errors.Errorf(format, args...)
-// }
+func Errorf(format string, args ...interface{}) error {
+	return errors.Errorf(format, args...)
+}
 
 // func Wrap(err error, msg string) error {
 // 	return errors.Wrap(err, msg)
@@ -29,5 +33,10 @@ func New(msg string) error {
 // }
 
 func Wrap(err error) error {
+	_, ok := err.(stackTracer)
+	if ok {
+		return err
+	}
+
 	return errors.WithStack(err)
 }
