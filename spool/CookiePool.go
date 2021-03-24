@@ -28,23 +28,22 @@ func NewSyncCookiePool() ICookiePool {
 }
 
 func (x *syncCookiePool) GetCookie() *http.Cookie {
-	return x.pool.Get().(*http.Cookie)
+	r := x.pool.Get().(*http.Cookie)
+	r.Domain = ""
+	r.Expires = time.Time{}
+	r.HttpOnly = false
+	r.MaxAge = 0
+	r.Name = ""
+	r.Path = ""
+	r.Raw = ""
+	r.RawExpires = ""
+	r.SameSite = 0
+	r.Secure = false
+	r.Value = ""
+	r.Unparsed = nil
+	return r
 }
 
 func (x *syncCookiePool) PutCookie(c *http.Cookie) {
-	if c != nil {
-		c.Domain = ""
-		c.Expires = time.Time{}
-		c.HttpOnly = false
-		c.MaxAge = 0
-		c.Name = ""
-		c.Path = ""
-		c.Raw = ""
-		c.RawExpires = ""
-		c.SameSite = 0
-		c.Secure = false
-		c.Value = ""
-		c.Unparsed = nil
-	}
 	x.pool.Put(c)
 }

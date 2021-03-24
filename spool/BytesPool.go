@@ -10,31 +10,26 @@ type IBytesPool interface {
 }
 
 type syncBytesPool struct {
-	pool      *sync.Pool
-	makeBytes func() interface{}
+	pool *sync.Pool
 }
 
 func NewSyncBytesPool(buf_size int) IBytesPool {
-	var newPool syncBytesPool
-
-	newPool.makeBytes = func() interface{} {
-		b := make([]byte, buf_size)
-		return &b
+	return &syncBytesPool{
+		pool: &sync.Pool{
+			New: func() interface{} {
+				b := make([]byte, buf_size)
+				return &b
+			},
+		},
 	}
-	newPool.pool = &sync.Pool{}
-	newPool.pool.New = newPool.makeBytes
-
-	return &newPool
 }
 
-func (bp *syncBytesPool) GetBytes() (b *[]byte) {
-	pool_object := bp.pool.Get()
-
-	b, ok := pool_object.(*[]byte)
-	if !ok { // explicitly make buffer if sync.Pool returns nil:
-		b = bp.makeBytes().(*[]byte)
+func (bp *syncBytesPool) GetBytes() *[]byte {
+	r := bp.pool.Get().(*[]byte)
+	for i := range *r {
+		(*r)[i] = 0
 	}
-	return
+	return r
 }
 
 func (bp *syncBytesPool) PutBytes(b *[]byte) {

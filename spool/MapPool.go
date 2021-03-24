@@ -27,14 +27,13 @@ func NewSyncMapPool() IMapPool {
 }
 
 func (x *syncMapPool) GetMap() *map[string]interface{} {
-	return x.pool.Get().(*map[string]interface{})
+	r := x.pool.Get().(*map[string]interface{})
+	for k := range *r {
+		delete(*r, k)
+	}
+	return r
 }
 
 func (x *syncMapPool) PutMap(m *map[string]interface{}) {
-	if m != nil {
-		for k := range *m {
-			delete(*m, k)
-		}
-	}
 	x.pool.Put(m)
 }
