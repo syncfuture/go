@@ -18,7 +18,7 @@ func NewSyncBytesPool(buf_size int) BytesPool {
 	var newPool syncBytesPool
 
 	newPool.makeBytes = func() interface{} {
-		b := make([]byte, 1024)
+		b := make([]byte, buf_size)
 		return &b
 	}
 	newPool.pool = &sync.Pool{}
