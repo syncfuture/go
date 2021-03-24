@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-type BufferPool interface {
+type IBufferPool interface {
 	GetBuffer() *bytes.Buffer
 	PutBuffer(*bytes.Buffer)
 }
@@ -15,7 +15,7 @@ type syncBufferPool struct {
 	// makeBuffer func() interface{}
 }
 
-func NewSyncBufferPool(buf_size int) BufferPool {
+func NewSyncBufferPool(buf_size int) IBufferPool {
 	var newPool syncBufferPool
 
 	// newPool.makeBuffer = func() interface{} {

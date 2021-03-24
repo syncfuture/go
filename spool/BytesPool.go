@@ -4,7 +4,7 @@ import (
 	"sync"
 )
 
-type BytesPool interface {
+type IBytesPool interface {
 	GetBytes() *[]byte
 	PutBytes(*[]byte)
 }
@@ -14,7 +14,7 @@ type syncBytesPool struct {
 	makeBytes func() interface{}
 }
 
-func NewSyncBytesPool(buf_size int) BytesPool {
+func NewSyncBytesPool(buf_size int) IBytesPool {
 	var newPool syncBytesPool
 
 	newPool.makeBytes = func() interface{} {
