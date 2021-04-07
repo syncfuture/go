@@ -3,8 +3,8 @@ module github.com/syncfuture/go
 go 1.16
 
 require (
-	github.com/go-redis/redis/v7 v7.4.0
-	github.com/golang/protobuf v1.4.3
+	github.com/go-redis/redis/v8 v8.8.0
+	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/securecookie v1.1.1
 	github.com/jonboulle/clockwork v0.2.2 // indirect
 	github.com/kataras/golog v0.1.7
@@ -14,6 +14,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/sony/sonyflake v1.0.0
 	github.com/stretchr/testify v1.7.0
-	github.com/tidwall/gjson v1.6.8
-	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83
+	github.com/tidwall/gjson v1.7.4
+	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
 )

@@ -1,11 +1,12 @@
 package surl
 
 import (
+	"context"
 	"regexp"
 	"strings"
 	"time"
 
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 	"github.com/patrickmn/go-cache"
 	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/go/sredis"
@@ -43,7 +44,7 @@ func (x *redisURLProvider) GetURL(urlKey string) string {
 		return urlKey
 	}
 
-	cmd := x.client.HGet(x.key, urlKey)
+	cmd := x.client.HGet(context.Background(), x.key, urlKey)
 	r, err := cmd.Result()
 	u.LogError(err)
 	return r

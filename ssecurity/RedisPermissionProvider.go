@@ -1,9 +1,10 @@
 package ssecurity
 
 import (
+	"context"
 	"encoding/json"
 
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/serr"
 	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/go/sproto"
@@ -38,11 +39,11 @@ func (x *RedisPermissionProvider) CreatePermission(in *sproto.PermissionDTO) err
 		return serr.WithStack(err)
 	}
 
-	cmd := x.redis.HSet(x.PermissionKey, in.ID, j)
+	cmd := x.redis.HSet(context.Background(), x.PermissionKey, in.ID, j)
 	return cmd.Err()
 }
 func (x *RedisPermissionProvider) GetPermission(id string) (*sproto.PermissionDTO, error) {
-	cmd := x.redis.HGet(x.PermissionKey, id)
+	cmd := x.redis.HGet(context.Background(), x.PermissionKey, id)
 	err := cmd.Err()
 	if err != nil {
 		return nil, err
@@ -64,15 +65,15 @@ func (x *RedisPermissionProvider) UpdatePermission(in *sproto.PermissionDTO) err
 		return serr.WithStack(err)
 	}
 
-	cmd := x.redis.HSet(x.PermissionKey, in.ID, j)
+	cmd := x.redis.HSet(context.Background(), x.PermissionKey, in.ID, j)
 	return cmd.Err()
 }
 func (x *RedisPermissionProvider) RemovePermission(id string) error {
-	cmd := x.redis.HDel(x.PermissionKey, id)
+	cmd := x.redis.HDel(context.Background(), x.PermissionKey, id)
 	return cmd.Err()
 }
 func (x *RedisPermissionProvider) GetPermissions() (map[string]*sproto.PermissionDTO, error) {
-	cmd := x.redis.HGetAll(x.PermissionKey)
+	cmd := x.redis.HGetAll(context.Background(), x.PermissionKey)
 	r, err := cmd.Result()
 	if err != nil {
 		return nil, err

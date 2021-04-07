@@ -1,9 +1,10 @@
 package sredis
 
 import (
+	"context"
 	"sort"
 
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/go/u"
 )
@@ -42,7 +43,7 @@ func NewClient(config *RedisConfig) redis.UniversalClient {
 }
 
 func GetPagedKeys(client redis.Cmdable, cursor uint64, match string, pageSize int64) (uint64, []string) {
-	r, newCursor, err := client.Scan(cursor, match, pageSize).Result()
+	r, newCursor, err := client.Scan(context.Background(), cursor, match, pageSize).Result()
 	u.LogError(err)
 	return newCursor, r
 }

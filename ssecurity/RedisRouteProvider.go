@@ -1,9 +1,10 @@
 package ssecurity
 
 import (
+	"context"
 	"encoding/json"
 
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 	"github.com/syncfuture/go/serr"
 	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/go/sproto"
@@ -38,11 +39,11 @@ func (x *RedisRouteProvider) CreateRoute(in *sproto.RouteDTO) error {
 		return serr.WithStack(err)
 	}
 
-	cmd := x.redis.HSet(x.RouteKey, in.ID, j)
+	cmd := x.redis.HSet(context.Background(), x.RouteKey, in.ID, j)
 	return cmd.Err()
 }
 func (x *RedisRouteProvider) GetRoute(id string) (*sproto.RouteDTO, error) {
-	cmd := x.redis.HGet(x.RouteKey, id)
+	cmd := x.redis.HGet(context.Background(), x.RouteKey, id)
 	err := cmd.Err()
 	if err != nil {
 		return nil, err
@@ -64,15 +65,15 @@ func (x *RedisRouteProvider) UpdateRoute(in *sproto.RouteDTO) error {
 		return serr.WithStack(err)
 	}
 
-	cmd := x.redis.HSet(x.RouteKey, in.ID, j)
+	cmd := x.redis.HSet(context.Background(), x.RouteKey, in.ID, j)
 	return cmd.Err()
 }
 func (x *RedisRouteProvider) RemoveRoute(id string) error {
-	cmd := x.redis.HDel(x.RouteKey, id)
+	cmd := x.redis.HDel(context.Background(), x.RouteKey, id)
 	return cmd.Err()
 }
 func (x *RedisRouteProvider) GetRoutes() (map[string]*sproto.RouteDTO, error) {
-	cmd := x.redis.HGetAll(x.RouteKey)
+	cmd := x.redis.HGetAll(context.Background(), x.RouteKey)
 	r, err := cmd.Result()
 	if err != nil {
 		return nil, err
