@@ -13,9 +13,9 @@ func ToString(obj interface{}) string {
 	case int64:
 		return strconv.FormatInt(v, 10)
 	case float32:
-		return strconv.FormatFloat(float64(v), 'f', 2, 10)
+		return strconv.FormatFloat(float64(v), 'f', 2, 64)
 	case float64:
-		return strconv.FormatFloat(v, 'f', 2, 10)
+		return strconv.FormatFloat(v, 'f', 2, 64)
 	case bool:
 		return strconv.FormatBool(v)
 	default:
@@ -78,7 +78,7 @@ func ToFloat32(obj interface{}) float32 {
 	case float64:
 		return float32(v)
 	case string:
-		r, _ := strconv.ParseFloat(v, 10)
+		r, _ := strconv.ParseFloat(v, 32)
 		return float32(r)
 	default:
 		return 0
@@ -92,7 +92,7 @@ func ToFloat64(obj interface{}) float64 {
 	case float32:
 		return float64(v)
 	case string:
-		r, _ := strconv.ParseFloat(v, 10)
+		r, _ := strconv.ParseFloat(v, 64)
 		return r
 	default:
 		return 0
