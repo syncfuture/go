@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/syncfuture/go/u"
 )
 
 func TestAPIClient_Do(t *testing.T) {
@@ -15,7 +16,7 @@ func TestAPIClient_Do(t *testing.T) {
 	body, err := io.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	assert.NoError(t, err)
-	t.Log(string(body))
+	t.Log(u.BytesToStr(body))
 }
 
 func TestAPIClient_Do1(t *testing.T) {

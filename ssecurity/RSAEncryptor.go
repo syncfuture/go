@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/syncfuture/go/srsautil"
+	"github.com/syncfuture/go/u"
 )
 
 // RSAEncryptor RSA encryptor
@@ -33,7 +34,7 @@ func CreateRSAEncryptor(keyData *[]byte) (*RSAEncryptor, error) {
 
 // Encrypt encrypt
 func (x *RSAEncryptor) Encrypt(in []byte) ([]byte, error) {
-	data, err := rsa.EncryptPKCS1v15(rand.Reader, &x.Key.PublicKey, []byte(in))
+	data, err := rsa.EncryptPKCS1v15(rand.Reader, &x.Key.PublicKey, in)
 	if err != nil {
 		return in, err
 	}
@@ -43,7 +44,7 @@ func (x *RSAEncryptor) Encrypt(in []byte) ([]byte, error) {
 
 // Decrypt decrypt
 func (x *RSAEncryptor) Decrypt(in []byte) ([]byte, error) {
-	data, err := rsa.DecryptPKCS1v15(rand.Reader, x.Key, []byte(in))
+	data, err := rsa.DecryptPKCS1v15(rand.Reader, x.Key, in)
 	if err != nil {
 		return in, err
 	}
@@ -52,7 +53,7 @@ func (x *RSAEncryptor) Decrypt(in []byte) ([]byte, error) {
 
 // EncryptString encrypt string
 func (x *RSAEncryptor) EncryptString(in string) (string, error) {
-	data, err := x.Encrypt([]byte(in))
+	data, err := x.Encrypt(u.StrToBytes(in))
 	if err != nil {
 		return in, err
 	}
@@ -73,5 +74,5 @@ func (x *RSAEncryptor) DecryptString(in string) (string, error) {
 		return in, err
 	}
 	// str := fmt.Sprintf("%x", data)
-	return string(data), err
+	return u.BytesToStr(data), err
 }

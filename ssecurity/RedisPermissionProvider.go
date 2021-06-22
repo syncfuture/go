@@ -55,7 +55,7 @@ func (x *RedisPermissionProvider) GetPermission(id string) (*sproto.PermissionDT
 		return nil, err
 	}
 
-	err = json.Unmarshal([]byte(j), r)
+	err = json.Unmarshal(u.StrToBytes(j), r)
 	u.LogError(err)
 	return r, err
 }
@@ -82,7 +82,7 @@ func (x *RedisPermissionProvider) GetPermissions() (map[string]*sproto.Permissio
 	m := make(map[string]*sproto.PermissionDTO, len(r))
 	for key, value := range r {
 		dto := new(sproto.PermissionDTO)
-		err = json.Unmarshal([]byte(value), dto)
+		err = json.Unmarshal(u.StrToBytes(value), dto)
 		if err == nil {
 			m[key] = dto
 		} else {

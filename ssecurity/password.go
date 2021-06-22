@@ -6,6 +6,7 @@ import (
 	"io"
 
 	log "github.com/syncfuture/go/slog"
+	"github.com/syncfuture/go/u"
 	"golang.org/x/crypto/scrypt"
 )
 
@@ -16,7 +17,7 @@ func GeneratePasswordSalt(keyLen int) string {
 		log.Error(err)
 		return err.Error()
 	}
-	saltString := base64.StdEncoding.EncodeToString([]byte(salt))
+	saltString := base64.StdEncoding.EncodeToString(salt)
 	return saltString
 }
 
@@ -27,12 +28,12 @@ func HashPassword(salt, pass string, keyLen int) string {
 		return err.Error()
 	}
 
-	hash, err := scrypt.Key([]byte(pass), saltBytes, 1<<14, 8, 1, keyLen)
+	hash, err := scrypt.Key(u.StrToBytes(pass), saltBytes, 1<<14, 8, 1, keyLen)
 	if err != nil {
 		log.Error(err)
 		return err.Error()
 	}
 
-	hashString := base64.StdEncoding.EncodeToString([]byte(hash))
+	hashString := base64.StdEncoding.EncodeToString(hash)
 	return hashString
 }
