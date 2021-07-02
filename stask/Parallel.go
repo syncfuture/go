@@ -13,7 +13,7 @@ func NewParallel() *parallel {
 	return new(parallel)
 }
 
-func (x *parallel) Invoke(actions []func(chan *sdto.ChannelResultDTO)) (r []*sdto.ChannelResultDTO) {
+func (x *parallel) Invoke(actions ...func(chan *sdto.ChannelResultDTO)) (r []*sdto.ChannelResultDTO) {
 	actionCount := len(actions)
 	chs := make([]chan *sdto.ChannelResultDTO, actionCount)
 	for i := 0; i < actionCount; i++ {
