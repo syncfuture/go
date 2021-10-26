@@ -56,8 +56,7 @@ func (x *RedisRouteProvider) GetRoute(id string) (*sproto.RouteDTO, error) {
 	}
 
 	err = json.Unmarshal(u.StrToBytes(j), r)
-	u.LogError(err)
-	return r, err
+	return r, serr.WithStack(err)
 }
 func (x *RedisRouteProvider) UpdateRoute(in *sproto.RouteDTO) error {
 	j, err := json.Marshal(in)
@@ -83,9 +82,13 @@ func (x *RedisRouteProvider) GetRoutes() (map[string]*sproto.RouteDTO, error) {
 	for key, value := range r {
 		dto := new(sproto.RouteDTO)
 		err = json.Unmarshal(u.StrToBytes(value), dto)
-		if !u.LogError(err) {
-			m[key] = dto
+		if err != nil {
+			u.LogError(err)
+			log.Errorf("%v\n%s", err, value)
+			continue
 		}
+
+		m[key] = dto
 	}
 	return m, err
 }

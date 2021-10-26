@@ -56,8 +56,7 @@ func (x *RedisPermissionProvider) GetPermission(id string) (*sproto.PermissionDT
 	}
 
 	err = json.Unmarshal(u.StrToBytes(j), r)
-	u.LogError(err)
-	return r, err
+	return r, serr.WithStack(err)
 }
 func (x *RedisPermissionProvider) UpdatePermission(in *sproto.PermissionDTO) error {
 	j, err := json.Marshal(in)
