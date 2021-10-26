@@ -83,7 +83,6 @@ func (x *RedisRouteProvider) GetRoutes() (map[string]*sproto.RouteDTO, error) {
 		dto := new(sproto.RouteDTO)
 		err = json.Unmarshal(u.StrToBytes(value), dto)
 		if err != nil {
-			u.LogError(err)
 			log.Errorf("%v\n%s", err, value)
 			continue
 		}
