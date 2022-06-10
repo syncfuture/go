@@ -11,9 +11,9 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/errors v0.9.1
 	github.com/sony/sonyflake v1.0.0
-	github.com/stretchr/testify v1.7.1
+	github.com/stretchr/testify v1.7.2
 	github.com/tidwall/gjson v1.14.1
-	golang.org/x/crypto v0.0.0-20220517005047-85d78b3ac167
+	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e
 )
 
 require (
@@ -28,5 +28,5 @@ require (
 	github.com/tidwall/pretty v1.2.0 // indirect
 	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
