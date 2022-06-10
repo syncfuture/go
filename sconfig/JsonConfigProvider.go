@@ -25,10 +25,10 @@ func NewJsonConfigProvider(args ...string) IConfigProvider {
 	}
 
 	configData, err := os.ReadFile(configFile)
-	u.LogFaltal(err)
+	u.LogFatal(err)
 	r.RawJson = configData
 	err = json.Unmarshal(configData, &r.MapConfiguration)
-	u.LogFaltal(err)
+	u.LogFatal(err)
 
 	return r
 }
