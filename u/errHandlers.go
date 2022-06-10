@@ -32,7 +32,7 @@ func JointErrors(errs ...error) error {
 	return nil
 }
 
-func LogFaltal(err error) {
+func LogFatal(err error) {
 	if err != nil {
 		_, file, line, ok := runtime.Caller(1)
 		if ok {
