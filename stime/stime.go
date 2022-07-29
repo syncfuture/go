@@ -1,17 +1,13 @@
 package stime
 
-import (
-	t "time"
+import "time"
 
-	"github.com/syncfuture/go/sproto/timestamp"
+// Get current utc unix timestamp in milliseconds
+func UTCNowUnixMS() int64 {
+	return time.Now().UTC().UnixMilli()
+}
 
-	log "github.com/syncfuture/go/slog"
-)
-
-func TimestampUTCNow() *timestamp.Timestamp {
-	ts, err := TimestampProto(t.Now().UTC())
-	if err != nil {
-		log.Error("ptypes: time.Now().UTC() out of Timestamp range")
-	}
-	return ts
+// UTC unix milliseconds timestamp to time
+func MSToUTCTime(ms int64) time.Time {
+	return time.UnixMilli(ms).UTC()
 }
