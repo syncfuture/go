@@ -34,5 +34,5 @@ message PermissionDTO {
 
 message Result{
     string Message = 1;
-    bytes Data = 2;
+    bytes Bytes = 2;
 }

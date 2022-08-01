@@ -1,7 +1,6 @@
 package u
 
 import (
-	"reflect"
 	"runtime"
 	"strings"
 
@@ -58,32 +57,32 @@ func LogError(err error) bool {
 	return false
 }
 
-// LogErrorMsg 记录错误消息
-func LogErrorMsg(err error, mrPtr interface{}) bool {
+// // LogErrorMsg 记录错误消息
+// func LogErrorMsg(err error, mrPtr interface{}) bool {
 
-	if err != nil {
-		_, file, line, ok := runtime.Caller(1)
-		if ok {
-			log.Errorf("<%s:%d> %+v", file, line, err)
-		} else {
-			log.Errorf("%+v", err)
-		}
+// 	if err != nil {
+// 		_, file, line, ok := runtime.Caller(1)
+// 		if ok {
+// 			log.Errorf("<%s:%d> %+v", file, line, err)
+// 		} else {
+// 			log.Errorf("%+v", err)
+// 		}
 
-		if reflect.TypeOf(mrPtr).Kind() != reflect.Ptr {
-			panic("mrPtr must be a pointer")
-		}
+// 		if reflect.TypeOf(mrPtr).Kind() != reflect.Ptr {
+// 			panic("mrPtr must be a pointer")
+// 		}
 
-		msgCodeField := reflect.ValueOf(mrPtr).Elem().FieldByName("MsgCode")
-		if !msgCodeField.CanSet() {
-			panic("MsgCode field doesn't exist or cannot be set")
-		} else if msgCodeField.Kind() != reflect.String {
-			panic("MsgCode must be a string field")
-		}
+// 		msgCodeField := reflect.ValueOf(mrPtr).Elem().FieldByName("Message")
+// 		if !msgCodeField.CanSet() {
+// 			panic("MsgCode field doesn't exist or cannot be set")
+// 		} else if msgCodeField.Kind() != reflect.String {
+// 			panic("MsgCode must be a string field")
+// 		}
 
-		msgCodeField.SetString(err.Error())
+// 		msgCodeField.SetString(err.Error())
 
-		return true
-	}
+// 		return true
+// 	}
 
-	return false
-}
+// 	return false
+// }
