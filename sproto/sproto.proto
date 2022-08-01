@@ -1,13 +1,9 @@
 syntax = "proto3";
-import "google/protobuf/any.proto";
 package sproto;
 
 option csharp_namespace = "SyncSoft.Protobuf.WellKnownTypes";
 option cc_enable_arenas = true;
 option go_package = "github.com/syncfuture/go/sproto";
-
-// message DateTime {
-// }
 
 message Address {
     string Address1 = 1;
@@ -17,10 +13,6 @@ message Address {
     string Country = 5;
     string ZipCode = 6;
 }
-
-// message MsgCodeResult{
-//     string MsgCode = 1;
-// }
 
 message RouteDTO {
     string ID = 1;
@@ -42,5 +34,5 @@ message PermissionDTO {
 
 message Result{
     string Message = 1;
-    google.protobuf.Any Data = 2;
+    bytes Data = 2;
 }
