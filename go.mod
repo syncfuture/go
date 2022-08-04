@@ -1,10 +1,10 @@
 module github.com/syncfuture/go
 
-go 1.18
+go 1.19
 
 require (
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/golang/protobuf v1.5.0
+	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/securecookie v1.1.1
 	github.com/kataras/golog v0.1.7
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
