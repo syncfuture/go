@@ -8,6 +8,7 @@ import (
 	stdlog "log"
 
 	"github.com/syncfuture/go/sconfig"
+	"github.com/syncfuture/go/u"
 
 	"github.com/kataras/golog"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
@@ -35,12 +36,20 @@ type LogConfig struct {
 	File        string
 }
 
+type stdLogAdaptor struct{}
+
+func (self *stdLogAdaptor) Write(p []byte) (n int, err error) {
+	str := u.BytesToStr(p)
+	golog.Debug(str)
+	return len(p), nil
+}
+
 func Init(configProvider sconfig.IConfigProvider) {
 	if configProvider == nil {
 		golog.Fatal("configProvider cannot be nil")
 	}
 
-	stdlog.SetOutput(golog.Default.Printer)
+	stdlog.SetOutput(new(stdLogAdaptor))
 
 	configProvider.GetStruct("Log", &Config)
 	if Config == nil {
