@@ -5,10 +5,7 @@ import (
 	"runtime"
 	"time"
 
-	stdlog "log"
-
 	"github.com/syncfuture/go/sconfig"
-	"github.com/syncfuture/go/u"
 
 	"github.com/kataras/golog"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
@@ -28,6 +25,7 @@ var (
 		Level:       "debug",
 		DetailLevel: "warn",
 	}
+	DebugLogger ILogger = &debugLogger{}
 )
 
 type LogConfig struct {
@@ -36,20 +34,20 @@ type LogConfig struct {
 	File        string
 }
 
-type stdLogAdaptor struct{}
+type ILogger interface {
+	Printf(format string, args ...interface{})
+}
 
-func (self *stdLogAdaptor) Write(p []byte) (n int, err error) {
-	str := u.BytesToStr(p)
-	golog.Debug(str)
-	return len(p), nil
+type debugLogger struct{}
+
+func (self *debugLogger) Printf(format string, args ...interface{}) {
+	golog.Debugf(format, args...)
 }
 
 func Init(configProvider sconfig.IConfigProvider) {
 	if configProvider == nil {
 		golog.Fatal("configProvider cannot be nil")
 	}
-
-	stdlog.SetOutput(new(stdLogAdaptor))
 
 	configProvider.GetStruct("Log", &Config)
 	if Config == nil {
