@@ -25,7 +25,7 @@ var (
 		Level:       "debug",
 		DetailLevel: "warn",
 	}
-	DebugLogger ILogger = &debugLogger{}
+	DebugLogger ILogger = new(debugLogger)
 )
 
 type LogConfig struct {
