@@ -2,9 +2,10 @@ package slog
 
 import (
 	"fmt"
-	"log"
 	"runtime"
 	"time"
+
+	stdlog "log"
 
 	"github.com/syncfuture/go/sconfig"
 
@@ -36,12 +37,14 @@ type LogConfig struct {
 
 func Init(configProvider sconfig.IConfigProvider) {
 	if configProvider == nil {
-		log.Fatal("configProvider cannot be nil")
+		golog.Fatal("configProvider cannot be nil")
 	}
+
+	stdlog.SetOutput(golog.Default.Printer)
 
 	configProvider.GetStruct("Log", &Config)
 	if Config == nil {
-		log.Fatal("Cannot find 'Log' section in configuration")
+		golog.Fatal("Cannot find 'Log' section in configuration")
 	}
 
 	if Config.Level == "" {
@@ -67,7 +70,7 @@ func Init(configProvider sconfig.IConfigProvider) {
 			rotatelogs.WithRotationCount(uint(rotationCount)),
 		)
 		if err != nil {
-			log.Fatal(err)
+			golog.Fatal(err)
 		}
 
 		golog.SetOutput(writer)
