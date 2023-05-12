@@ -3,6 +3,7 @@ package ssecurity
 import (
 	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/go/sproto"
+	"github.com/syncfuture/go/u"
 )
 
 type IPermissionAuditor interface {
@@ -24,7 +25,8 @@ func NewPermissionAuditor(permissionProvider IPermissionProvider, routeProvider 
 	r := new(permissionAuditor)
 	r.permissionProvider = permissionProvider
 	r.routeProvider = routeProvider
-	r.ReloadRoutePermissions()
+	err := r.ReloadRoutePermissions()
+	u.LogFatal(err)
 	return r
 }
 
