@@ -39,3 +39,19 @@ func RemoveStrToNew(slice []string, elems ...string) []string {
 	copy(r, slice)
 	return RemoveStr(r, elems...)
 }
+
+// GetItem get an item by passsing a filter function, retrun item index and item
+func GetItem[T any](slice []T, fnFilter func(T) bool) (int, T) {
+	var r T
+	idx := -1
+
+	for i, v := range slice {
+		if fnFilter(v) {
+			r = v
+			idx = i
+			break
+		}
+	}
+
+	return idx, r
+}
