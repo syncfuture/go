@@ -31,6 +31,10 @@ func ToInt(obj interface{}) int {
 		return int(v)
 	case int32:
 		return int(v)
+	case float32:
+		return int(v)
+	case float64:
+		return int(v)
 	case string:
 		r, _ := strconv.ParseInt(v, 10, 32)
 		return int(r)
@@ -46,6 +50,10 @@ func ToInt32(obj interface{}) int32 {
 	case int64:
 		return int32(v)
 	case int:
+		return int32(v)
+	case float32:
+		return int32(v)
+	case float64:
 		return int32(v)
 	case string:
 		r, _ := strconv.ParseInt(v, 10, 32)
@@ -63,6 +71,10 @@ func ToInt64(obj interface{}) int64 {
 		return int64(v)
 	case int:
 		return int64(v)
+	case float32:
+		return int64(v)
+	case float64:
+		return int64(v)
 	case string:
 		r, _ := strconv.ParseInt(v, 10, 64)
 		return r
@@ -73,6 +85,12 @@ func ToInt64(obj interface{}) int64 {
 
 func ToFloat32(obj interface{}) float32 {
 	switch v := obj.(type) {
+	case int:
+		return float32(v)
+	case int32:
+		return float32(v)
+	case int64:
+		return float32(v)
 	case float32:
 		return v
 	case float64:
@@ -87,6 +105,12 @@ func ToFloat32(obj interface{}) float32 {
 
 func ToFloat64(obj interface{}) float64 {
 	switch v := obj.(type) {
+	case int:
+		return float64(v)
+	case int32:
+		return float64(v)
+	case int64:
+		return float64(v)
 	case float64:
 		return v
 	case float32:
