@@ -7,6 +7,14 @@ import (
 	log "github.com/syncfuture/go/slog"
 )
 
+var (
+	_defaultIDGenerator = NewSonyflakeIDGenerator()
+)
+
+func GenerateID() string {
+	return _defaultIDGenerator.GenerateString()
+}
+
 type IIDGenerator interface {
 	GenerateString() string
 }
