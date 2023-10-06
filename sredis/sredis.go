@@ -4,7 +4,7 @@ import (
 	"context"
 	"sort"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/go/u"
 )
