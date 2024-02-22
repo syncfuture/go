@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
+	"github.com/syncfuture/go/serr"
 )
 
 var (
@@ -35,7 +36,7 @@ func (lock *StrLock) Lock() (bool, error) {
 	// 使用 SET 命令的 NX 选项尝试获取锁，并设置超时时间以自动释放锁
 	result, err := lock.client.SetNX(context.Background(), lock.lockKey, lock.lockValue, lock.timeout).Result()
 	if err != nil {
-		return false, err
+		return false, serr.WithStack(err)
 	}
 	return result, nil
 }
@@ -52,7 +53,7 @@ func (lock *StrLock) Unlock() error {
 	`
 	result, err := lock.client.Eval(context.Background(), script, []string{lock.lockKey}, lock.lockValue).Result()
 	if err != nil {
-		return err
+		return serr.WithStack(err)
 	}
 
 	// 如果结果不是 1，说明锁已经被其他进程释放或过期
@@ -66,7 +67,7 @@ func (lock *StrLock) Unlock() error {
 func (lock *StrLock) Locked() (bool, error) {
 	result, err := lock.client.Exists(context.Background(), lock.lockKey).Result()
 	if err != nil {
-		return false, err
+		return false, serr.WithStack(err)
 	}
 	return result > 0, nil
 }
