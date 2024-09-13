@@ -2,24 +2,16 @@ package sio
 
 import (
 	"os"
-
-	"github.com/syncfuture/go/serr"
 )
 
+// Exists 判断路径是否存在
 func Exists(path string) (bool, error) {
-	info, err := os.Stat(path)
+	_, err := os.Stat(path)
 	if err == nil {
-		return true, nil
+		return true, nil // 路径存在
 	}
-
-	info.IsDir()
-
-	if os.IsExist(err) {
-		return true, nil
-	} else if os.IsNotExist(err) {
-		return false, nil
+	if os.IsNotExist(err) {
+		return false, nil // 路径不存在
 	}
-
-	// 其他错误
-	return false, serr.WithStack(err)
+	return false, err // 其他错误
 }
