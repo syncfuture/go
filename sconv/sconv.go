@@ -122,3 +122,15 @@ func ToFloat64(obj interface{}) float64 {
 		return 0
 	}
 }
+
+func ToBool(obj interface{}) bool {
+	switch v := obj.(type) {
+	case bool:
+		return v
+	case string:
+		r, _ := strconv.ParseBool(v)
+		return r
+	default:
+		return false
+	}
+}
