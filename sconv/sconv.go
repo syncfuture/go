@@ -1,6 +1,9 @@
 package sconv
 
-import "strconv"
+import (
+	"strconv"
+	"strings"
+)
 
 func ToString(obj interface{}) string {
 	switch v := obj.(type) {
@@ -36,6 +39,7 @@ func ToInt(obj interface{}) int {
 	case float64:
 		return int(v)
 	case string:
+		v = strings.ReplaceAll(v, ",", "") // 移除逗号
 		r, _ := strconv.ParseInt(v, 10, 32)
 		return int(r)
 	default:
@@ -56,6 +60,7 @@ func ToInt32(obj interface{}) int32 {
 	case float64:
 		return int32(v)
 	case string:
+		v = strings.ReplaceAll(v, ",", "") // 移除逗号
 		r, _ := strconv.ParseInt(v, 10, 32)
 		return int32(r)
 	default:
@@ -76,6 +81,7 @@ func ToInt64(obj interface{}) int64 {
 	case float64:
 		return int64(v)
 	case string:
+		v = strings.ReplaceAll(v, ",", "") // 移除逗号
 		r, _ := strconv.ParseInt(v, 10, 64)
 		return r
 	default:
@@ -96,6 +102,7 @@ func ToFloat32(obj interface{}) float32 {
 	case float64:
 		return float32(v)
 	case string:
+		v = strings.ReplaceAll(v, ",", "") // 移除逗号
 		r, _ := strconv.ParseFloat(v, 32)
 		return float32(r)
 	default:
@@ -116,6 +123,7 @@ func ToFloat64(obj interface{}) float64 {
 	case float32:
 		return float64(v)
 	case string:
+		v = strings.ReplaceAll(v, ",", "") // 移除逗号
 		r, _ := strconv.ParseFloat(v, 64)
 		return r
 	default:
