@@ -72,17 +72,17 @@ func (x *TripleDESEncryptor) Decrypt(in []byte) ([]byte, error) {
 	return origData, nil
 }
 
-func zeroPadding(ciphertext []byte, blockSize int) []byte {
-	padding := blockSize - len(ciphertext)%blockSize
-	padtext := bytes.Repeat([]byte{0}, padding)
-	return append(ciphertext, padtext...)
-}
+// func zeroPadding(ciphertext []byte, blockSize int) []byte {
+// 	padding := blockSize - len(ciphertext)%blockSize
+// 	padtext := bytes.Repeat([]byte{0}, padding)
+// 	return append(ciphertext, padtext...)
+// }
 
-func zeroUnPadding(origData []byte) []byte {
-	return bytes.TrimRightFunc(origData, func(r rune) bool {
-		return r == rune(0)
-	})
-}
+// func zeroUnPadding(origData []byte) []byte {
+// 	return bytes.TrimRightFunc(origData, func(r rune) bool {
+// 		return r == rune(0)
+// 	})
+// }
 
 func pkcs5Padding(ciphertext []byte, blockSize int) []byte {
 	padding := blockSize - len(ciphertext)%blockSize

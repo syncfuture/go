@@ -1,211 +1,101 @@
 package sslice
 
-func HasStr(source []string, in string) bool {
+import "math"
+
+// Generic type constraint
+type comparable interface {
+	string | int | int32 | int64
+}
+
+// Private generic function to check if an element exists in a slice
+func has[T comparable](source []T, in T) bool {
+	sourceMap := make(map[T]struct{}, len(source))
 	for _, item := range source {
-		if item == in {
+		sourceMap[item] = struct{}{}
+	}
+	_, found := sourceMap[in]
+	return found
+}
+
+// Private generic function to check if any element from a slice exists in another slice
+func hasAny[T comparable](source []T, in []T) bool {
+	sourceMap := make(map[T]struct{}, len(source))
+	for _, item := range source {
+		sourceMap[item] = struct{}{}
+	}
+	for _, v := range in {
+		if _, found := sourceMap[v]; found {
 			return true
 		}
 	}
 	return false
 }
-func HasAnyStr(source []string, in []string) bool {
-	for _, v := range in {
-		for _, item := range source {
-			if item == v {
-				return true
-			}
-		}
-	}
-	return false
-}
-func HasAllStr(source []string, in []string) bool {
-	for _, v := range in {
-		var found bool
-		for _, item := range source {
-			if item == v {
-				found = true
-				break
-			}
-		}
 
-		if !found {
+// Private generic function to check if all elements from a slice exist in another slice
+func hasAll[T comparable](source []T, in []T) bool {
+	sourceMap := make(map[T]struct{}, len(source))
+	for _, item := range source {
+		sourceMap[item] = struct{}{}
+	}
+	for _, v := range in {
+		if _, found := sourceMap[v]; !found {
 			return false
 		}
 	}
 	return true
 }
 
-func HasInt(source []int, in int) bool {
+// Function to handle floating-point number precision issues
+func hasFloat[T float64 | float32](source []T, in T, epsilon T) bool {
 	for _, item := range source {
-		if item == in {
+		if math.Abs(float64(item-in)) < float64(epsilon) {
 			return true
 		}
 	}
 	return false
 }
-func HasAnyInt(source []int, in []int) bool {
+
+// Function to handle hasAny for float types
+func hasAnyFloat[T float64 | float32](source []T, in []T, epsilon T) bool {
 	for _, v := range in {
-		for _, item := range source {
-			if item == v {
-				return true
-			}
+		if hasFloat(source, v, epsilon) {
+			return true
 		}
 	}
 	return false
 }
-func HasAllInt(source []int, in []int) bool {
-	for _, v := range in {
-		var found bool
-		for _, item := range source {
-			if item == v {
-				found = true
-				break
-			}
-		}
 
-		if !found {
+// Function to handle hasAll for float types
+func hasAllFloat[T float64 | float32](source []T, in []T, epsilon T) bool {
+	for _, v := range in {
+		if !hasFloat(source, v, epsilon) {
 			return false
 		}
 	}
 	return true
 }
 
-func HasInt32(source []int32, in int32) bool {
-	for _, item := range source {
-		if item == in {
-			return true
-		}
-	}
-	return false
-}
-func HasAnyInt32(source []int32, in []int32) bool {
-	for _, v := range in {
-		for _, item := range source {
-			if item == v {
-				return true
-			}
-		}
-	}
-	return false
-}
-func HasAllInt32(source []int32, in []int32) bool {
-	for _, v := range in {
-		var found bool
-		for _, item := range source {
-			if item == v {
-				found = true
-				break
-			}
-		}
+// Public functions
+func HasStr(source []string, in string) bool      { return has(source, in) }
+func HasAnyStr(source []string, in []string) bool { return hasAny(source, in) }
+func HasAllStr(source []string, in []string) bool { return hasAll(source, in) }
 
-		if !found {
-			return false
-		}
-	}
-	return true
-}
+func HasInt(source []int, in int) bool      { return has(source, in) }
+func HasAnyInt(source []int, in []int) bool { return hasAny(source, in) }
+func HasAllInt(source []int, in []int) bool { return hasAll(source, in) }
 
-func HasInt64(source []int64, in int64) bool {
-	for _, item := range source {
-		if item == in {
-			return true
-		}
-	}
-	return false
-}
-func HasAnyInt64(source []int64, in []int64) bool {
-	for _, v := range in {
-		for _, item := range source {
-			if item == v {
-				return true
-			}
-		}
-	}
-	return false
-}
-func HasAllInt64(source []int64, in []int64) bool {
-	for _, v := range in {
-		var found bool
-		for _, item := range source {
-			if item == v {
-				found = true
-				break
-			}
-		}
+func HasInt32(source []int32, in int32) bool      { return has(source, in) }
+func HasAnyInt32(source []int32, in []int32) bool { return hasAny(source, in) }
+func HasAllInt32(source []int32, in []int32) bool { return hasAll(source, in) }
 
-		if !found {
-			return false
-		}
-	}
-	return true
-}
+func HasInt64(source []int64, in int64) bool      { return has(source, in) }
+func HasAnyInt64(source []int64, in []int64) bool { return hasAny(source, in) }
+func HasAllInt64(source []int64, in []int64) bool { return hasAll(source, in) }
 
-func HasFloat32(source []float32, in float32) bool {
-	for _, item := range source {
-		if item == in {
-			return true
-		}
-	}
-	return false
-}
-func HasAnyFloat32(source []float32, in []float32) bool {
-	for _, v := range in {
-		for _, item := range source {
-			if item == v {
-				return true
-			}
-		}
-	}
-	return false
-}
-func HasAllFloat32(source []float32, in []float32) bool {
-	for _, v := range in {
-		var found bool
-		for _, item := range source {
-			if item == v {
-				found = true
-				break
-			}
-		}
+func HasFloat64(source []float64, in float64) bool      { return hasFloat(source, in, 1e-9) }
+func HasAnyFloat64(source []float64, in []float64) bool { return hasAnyFloat(source, in, 1e-9) }
+func HasAllFloat64(source []float64, in []float64) bool { return hasAllFloat(source, in, 1e-9) }
 
-		if !found {
-			return false
-		}
-	}
-	return true
-}
-
-func HasFloat64(source []float64, in float64) bool {
-	for _, item := range source {
-		if item == in {
-			return true
-		}
-	}
-	return false
-}
-func HasAnyFloat64(source []float64, in []float64) bool {
-	for _, v := range in {
-		for _, item := range source {
-			if item == v {
-				return true
-			}
-		}
-	}
-	return false
-}
-func HasAllFloat64(source []float64, in []float64) bool {
-	for _, v := range in {
-		var found bool
-		for _, item := range source {
-			if item == v {
-				found = true
-				break
-			}
-		}
-
-		if !found {
-			return false
-		}
-	}
-	return true
-}
+func HasFloat32(source []float32, in float32) bool      { return hasFloat(source, in, 1e-6) }
+func HasAnyFloat32(source []float32, in []float32) bool { return hasAnyFloat(source, in, 1e-6) }
+func HasAllFloat32(source []float32, in []float32) bool { return hasAllFloat(source, in, 1e-6) }

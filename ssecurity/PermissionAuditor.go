@@ -3,15 +3,16 @@ package ssecurity
 import (
 	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/go/sproto"
+	"github.com/syncfuture/go/sslice"
 	"github.com/syncfuture/go/u"
 )
 
 type IPermissionAuditor interface {
-	CheckPermission(permissionID string, userRoles int64) bool
-	CheckPermissionWithLevel(permissionID string, userRoles int64, userLevel int32) bool
-	CheckRoute(area, controller, action string, userRoles int64) bool
-	CheckRouteWithLevel(area, controller, action string, userRoles int64, userLevel int32) bool
-	CheckRouteKeyWithLevel(routeKey string, userRoles int64, userLevel int32) bool
+	CheckPermission(permissionID string, userRoles int64, userScopes []string) bool
+	CheckPermissionWithLevel(permissionID string, userRoles int64, userLevel int32, userScopes []string) bool
+	CheckRoute(area, controller, action string, userRoles int64, userScopes []string) bool
+	CheckRouteWithLevel(area, controller, action string, userRoles int64, userLevel int32, userScopes []string) bool
+	CheckRouteKeyWithLevel(routeKey string, userRoles int64, userLevel int32, userScopes []string) bool
 }
 
 type permissionAuditor struct {
@@ -50,19 +51,24 @@ func (x *permissionAuditor) ReloadRoutePermissions() error {
 	return nil
 }
 
-func (x *permissionAuditor) CheckPermission(permissionID string, userRoles int64) bool {
-	return x.CheckPermissionWithLevel(permissionID, userRoles, 0)
+func (x *permissionAuditor) CheckPermission(permissionID string, userRoles int64, userScopes []string) bool {
+	return x.CheckPermissionWithLevel(permissionID, userRoles, 0, userScopes)
 }
-func (x *permissionAuditor) CheckPermissionWithLevel(permissionID string, userRoles int64, userLevel int32) bool {
+func (x *permissionAuditor) CheckPermissionWithLevel(permissionID string, userRoles int64, userLevel int32, userScopes []string) bool {
 	if permission, exists := x.permissions[permissionID]; exists {
-		return checkPermission(permission, userRoles, userLevel)
+		return checkPermission(permission, userRoles, userLevel, userScopes)
 	}
 
 	log.Warnf("permission: %s does not exist", permissionID)
 	return false
 }
 
-func checkPermission(permission *sproto.PermissionDTO, userRoles int64, userLevel int32) bool {
+func checkPermission(permission *sproto.PermissionDTO, userRoles int64, userLevel int32, userScopes []string) bool {
+	// If permission.AllowedScopes is limited, and (userScopes is empty or userScopes is not a subset of AllowedScopes), then return false
+	if len(permission.AllowedScopes) > 0 && (len(userScopes) == 0 || !sslice.HasAllStr(permission.AllowedScopes, userScopes)) {
+		return false
+	}
+
 	if permission.IsAllowGuest {
 		return true
 	} else if permission.IsAllowAnyUser {
@@ -72,11 +78,11 @@ func checkPermission(permission *sproto.PermissionDTO, userRoles int64, userLeve
 	}
 }
 
-func (x *permissionAuditor) CheckRoute(area, controller, action string, userRoles int64) bool {
-	return x.CheckRouteWithLevel(area, controller, action, userRoles, 0)
+func (x *permissionAuditor) CheckRoute(area, controller, action string, userRoles int64, userScopes []string) bool {
+	return x.CheckRouteWithLevel(area, controller, action, userRoles, 0, userScopes)
 }
 
-func (x *permissionAuditor) CheckRouteWithLevel(area, controller, action string, userRoles int64, userLevel int32) bool {
+func (x *permissionAuditor) CheckRouteWithLevel(area, controller, action string, userRoles int64, userLevel int32, userScopes []string) bool {
 	if x.routeProvider == nil {
 		log.Warn("route provider is nil")
 		return false
@@ -102,7 +108,7 @@ func (x *permissionAuditor) CheckRouteWithLevel(area, controller, action string,
 	}
 
 	if permission, exists := x.permissions[route.Permission_ID]; exists {
-		r := checkPermission(permission, userRoles, userLevel)
+		r := checkPermission(permission, userRoles, userLevel, userScopes)
 		if !r {
 			log.Debugf("routeKey: %s_%s_%s, roles: %d, level: %d, permission: %v", area, controller, action, userRoles, userLevel, permission)
 		}
@@ -113,7 +119,7 @@ func (x *permissionAuditor) CheckRouteWithLevel(area, controller, action string,
 	return false
 }
 
-func (x *permissionAuditor) CheckRouteKeyWithLevel(routeKey string, userRoles int64, userLevel int32) bool {
+func (x *permissionAuditor) CheckRouteKeyWithLevel(routeKey string, userRoles int64, userLevel int32, userScopes []string) bool {
 	if x.routeProvider == nil {
 		log.Warn("route provider is nil")
 		return false
@@ -131,7 +137,7 @@ func (x *permissionAuditor) CheckRouteKeyWithLevel(routeKey string, userRoles in
 	}
 
 	if permission, exists := x.permissions[route.Permission_ID]; exists {
-		r := checkPermission(permission, userRoles, userLevel)
+		r := checkPermission(permission, userRoles, userLevel, userScopes)
 		if !r {
 			log.Debugf("routeKey: %s, roles: %d, level: %d, permission: %v", routeKey, userRoles, userLevel, permission)
 		}
