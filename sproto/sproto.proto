@@ -30,6 +30,7 @@ message PermissionDTO {
     bool IsAllowAnyUser = 4;
     int64 AllowedRoles = 5;
     int32 Level = 6;
+    repeated string AllowedScopes = 7;
 }
 
 message Result{
