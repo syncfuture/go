@@ -1,8 +1,6 @@
 module github.com/syncfuture/go
 
-go 1.22
-
-toolchain go1.22.2
+go 1.23.4
 
 require (
 	github.com/golang/protobuf v1.5.4
@@ -16,7 +14,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/tidwall/gjson v1.18.0
 	golang.org/x/crypto v0.32.0
-	google.golang.org/protobuf v1.36.4
+	google.golang.org/protobuf v1.36.5
 )
 
 require (

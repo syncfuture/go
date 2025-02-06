@@ -201,7 +201,7 @@ type PermissionDTO struct {
 	IsAllowAnyUser bool     `protobuf:"varint,4,opt,name=IsAllowAnyUser,proto3" json:"IsAllowAnyUser,omitempty"`
 	AllowedRoles   int64    `protobuf:"varint,5,opt,name=AllowedRoles,proto3" json:"AllowedRoles,omitempty"`
 	Level          int32    `protobuf:"varint,6,opt,name=Level,proto3" json:"Level,omitempty"`
-	AllowedScopes  []string `protobuf:"bytes,7,rep,name=AllowedScopes,proto3" json:"AllowedScopes,omitempty"`
+	Scopes  []string `protobuf:"bytes,7,rep,name=Scopes,proto3" json:"Scopes,omitempty"`
 }
 
 func (x *PermissionDTO) Reset() {
@@ -278,7 +278,7 @@ func (x *PermissionDTO) GetLevel() int32 {
 
 func (x *PermissionDTO) GetAllowedScopes() []string {
 	if x != nil {
-		return x.AllowedScopes
+		return x.Scopes
 	}
 	return nil
 }

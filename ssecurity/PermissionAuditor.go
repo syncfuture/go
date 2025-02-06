@@ -66,8 +66,7 @@ func (x *permissionAuditor) CheckPermissionWithLevel(permissionID string, userRo
 }
 
 func checkPermission(permission *sproto.PermissionDTO, userRoles int64, userLevel int32, userScopes []string) bool {
-	// If permission.AllowedScopes is limited, and (userScopes is empty or userScopes is not a subset of AllowedScopes), then return false
-	if len(permission.AllowedScopes) > 0 && (len(userScopes) == 0 || !sslice.HasAllStr(permission.AllowedScopes, userScopes)) {
+	if len(permission.Scopes) == 0 || len(userScopes) == 0 || !sslice.HasAllStr(permission.Scopes, userScopes) {
 		return false
 	}
 
