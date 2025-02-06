@@ -1,6 +1,8 @@
 package ssecurity
 
 import (
+	"strings"
+
 	log "github.com/syncfuture/go/slog"
 	"github.com/syncfuture/go/sproto"
 	"github.com/syncfuture/go/sslice"
@@ -110,7 +112,7 @@ func (x *permissionAuditor) CheckRouteWithLevel(area, controller, action string,
 	if permission, exists := x.permissions[route.Permission_ID]; exists {
 		r := checkPermission(permission, userRoles, userLevel, userScopes)
 		if !r {
-			log.Debugf("routeKey: %s_%s_%s, roles: %d, level: %d, permission: %v", area, controller, action, userRoles, userLevel, permission)
+			log.Debugf("routeKey: %s_%s_%s userRoles: %d, userLevel: %d, permission: %v, userScopes: %s", area, controller, action, userRoles, userLevel, permission, strings.Join(userScopes, ","))
 		}
 		return r
 	}
