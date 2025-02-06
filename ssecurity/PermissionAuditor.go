@@ -66,7 +66,8 @@ func (x *permissionAuditor) CheckPermissionWithLevel(permissionID string, userRo
 }
 
 func checkPermission(permission *sproto.PermissionDTO, userRoles int64, userLevel int32, userScopes []string) bool {
-	if len(permission.Scopes) == 0 || len(userScopes) == 0 || !sslice.HasAllStr(permission.Scopes, userScopes) {
+	// 没有scope的权限，直接通过，或者用户没有scope，或者权限的scope不是用户的scope的子集
+	if len(permission.Scopes) == 0 || len(userScopes) == 0 || !sslice.HasAllStr(userScopes, permission.Scopes) {
 		return false
 	}
 
