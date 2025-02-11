@@ -48,9 +48,15 @@ func IsBase64String(str string) bool {
 }
 
 func StrToBytes(s string) []byte {
-	x := (*[2]uintptr)(unsafe.Pointer(&s))
-	h := [3]uintptr{x[0], x[1], x[1]}
-	return *(*[]byte)(unsafe.Pointer(&h))
+	// x := (*[2]uintptr)(unsafe.Pointer(&s))
+	// h := [3]uintptr{x[0], x[1], x[1]}
+	// return *(*[]byte)(unsafe.Pointer(&h))
+
+	if len(s) == 0 {
+		return nil
+	}
+	// Go 1.20+ 推荐使用 unsafe.StringData 获取 string 数据地址
+	return unsafe.Slice(unsafe.StringData(s), len(s))
 }
 
 func BytesToStr(b []byte) string {
