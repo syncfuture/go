@@ -40,6 +40,7 @@ func ToInt(obj interface{}) int {
 		return int(v)
 	case string:
 		v = strings.ReplaceAll(v, ",", "") // 移除逗号
+		// TODO: 字符串有小数点时无法转换
 		r, _ := strconv.ParseInt(v, 10, 32)
 		return int(r)
 	default:
@@ -61,6 +62,7 @@ func ToInt32(obj interface{}) int32 {
 		return int32(v)
 	case string:
 		v = strings.ReplaceAll(v, ",", "") // 移除逗号
+		// TODO: 字符串有小数点时无法转换
 		r, _ := strconv.ParseInt(v, 10, 32)
 		return int32(r)
 	default:
@@ -82,6 +84,7 @@ func ToInt64(obj interface{}) int64 {
 		return int64(v)
 	case string:
 		v = strings.ReplaceAll(v, ",", "") // 移除逗号
+		// TODO: 字符串有小数点时无法转换
 		r, _ := strconv.ParseInt(v, 10, 64)
 		return r
 	default:
