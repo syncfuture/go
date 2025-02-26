@@ -27,3 +27,25 @@ func GetWeekStartEnd(year, week int) (time.Time, time.Time) {
 
 	return startDate, endDate
 }
+
+// AddWeeks calculates the new year and week number after adding or subtracting a certain number of weeks
+// to the given year and week number.
+func AddWeeks(year, week, deltaWeeks int) (newYear, newWeek int) {
+	// Create the first Monday of the current year
+	firstDay := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
+	// Calculate the first Monday of the year
+	for firstDay.Weekday() != time.Monday {
+		firstDay = firstDay.AddDate(0, 0, 1)
+	}
+
+	// Calculate the start date of the given week
+	startOfWeek := firstDay.AddDate(0, 0, (week-1)*7)
+
+	// Add or subtract weeks
+	newDate := startOfWeek.AddDate(0, 0, deltaWeeks*7)
+
+	// Calculate the new year and week number
+	newYear, newWeek = newDate.ISOWeek()
+
+	return newYear, newWeek
+}
