@@ -49,3 +49,10 @@ func AddWeeks(year, week, deltaWeeks int) (newYear, newWeek int) {
 
 	return newYear, newWeek
 }
+
+// 获取某一年的总周数（ISO 8601）
+func GetWeeksInYear(year int) int {
+	lastDay := time.Date(year, 12, 31, 0, 0, 0, 0, time.UTC)
+	_, week := lastDay.ISOWeek()
+	return week
+}
