@@ -28,26 +28,62 @@ func GetWeekStartEnd(year, week int) (time.Time, time.Time) {
 	return startDate, endDate
 }
 
-// AddWeeks calculates the new year and week number after adding or subtracting a certain number of weeks
-// to the given year and week number.
-func AddWeeks(year, week, deltaWeeks int) (newYear, newWeek int) {
-	// Create the first Monday of the current year
+// getFirstMondayOfYear 获取指定年份的第一个星期一
+// 参数：
+//   - year: 目标年份
+//
+// 返回：
+//   - time.Time: 该年份第一个星期一的日期
+func getFirstMondayOfYear(year int) time.Time {
+	// 创建该年1月1日的日期对象
 	firstDay := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
-	// Calculate the first Monday of the year
-	for firstDay.Weekday() != time.Monday {
-		firstDay = firstDay.AddDate(0, 0, 1)
+	// 获取1月1日是星期几
+	weekday := firstDay.Weekday()
+	// 如果不是星期一，计算到第一个星期一的天数
+	// 使用(time.Monday-weekday+7)%7确保结果为正数
+	if weekday != time.Monday {
+		firstDay = firstDay.AddDate(0, 0, int(time.Monday-weekday+7)%7)
 	}
+	return firstDay
+}
 
-	// Calculate the start date of the given week
-	startOfWeek := firstDay.AddDate(0, 0, (week-1)*7)
+// addWeeks 计算给定年份和周数加上或减去指定周数后的新年份和周数
+// 参数：
+//   - year: 起始年份
+//   - week: 起始周数（1-53）
+//   - deltaWeeks: 要增加或减少的周数（正数表示增加，负数表示减少）
+//
+// 返回：
+//   - newYear: 计算后的新年份
+//   - newWeek: 计算后的新周数（1-53）
+func AddWeeks(year, week, deltaWeeks int) (newYear, newWeek int) {
+	// 获取起始年份的第一周的第一个星期一作为基准日期
+	yearFirstMonday := getFirstMondayOfYear(year)
 
-	// Add or subtract weeks
-	newDate := startOfWeek.AddDate(0, 0, deltaWeeks*7)
+	// 计算目标日期（targetWeekMonday）：
+	// targetWeekMonday 表示从起始年份第一周开始，经过(week-1)周和deltaWeeks周后的具体日期
+	// 由于firstDay是周一，且我们加上的天数都是7的倍数，所以targetWeekMonday也一定是周一
+	// 例如：如果year=2024, week=3, deltaWeeks=2
+	// 1. firstDay 是2024年第一个星期一（2024-01-01）
+	// 2. (week-1)*7 计算从第一周到第三周的天数（2*7=14天）
+	// 3. deltaWeeks*7 计算要增加的两周天数（2*7=14天）
+	// 4. 最终 targetWeekMonday 就是 2024-01-01 + 28天 = 2024-01-29（周一）
+	targetWeekMonday := yearFirstMonday.AddDate(0, 0, (week-1)*7+deltaWeeks*7)
 
-	// Calculate the new year and week number
-	newYear, newWeek = newDate.ISOWeek()
+	// 从目标日期中获取新的年份
+	newYear = targetWeekMonday.Year()
 
-	return newYear, newWeek
+	// 获取新年份的第一周的第一个星期一作为新的基准日期
+	newYearFirstMonday := getFirstMondayOfYear(newYear)
+
+	// 计算新的周数：
+	// 1. targetWeekMonday.Sub(newYearFirstMonday): 计算目标日期与新年份第一周之间的时间差
+	// 2. Hours()/24: 将时间差转换为天数
+	// 3. days/7 + 1: 将天数转换为周数（加1是因为周数从1开始计数）
+	days := int(targetWeekMonday.Sub(newYearFirstMonday).Hours() / 24)
+	newWeek = (days / 7) + 1
+
+	return
 }
 
 // 获取某一年的总周数（ISO 8601）
